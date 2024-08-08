@@ -5,7 +5,7 @@ const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 const radius = 150;
 const maxBarHeight = 300; // Максимальная высота столбиков
-const boundaryMargin = 4; // Допустимый маргин для углов в градусах
+const boundaryMargin = 6; // Допустимый маргин для углов в градусах
 const heightThreshold = 10;
 
 let bars = [
