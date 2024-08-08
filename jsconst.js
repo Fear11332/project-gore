@@ -67,7 +67,55 @@ function drawBars() {
     const bar = bars[i];
     drawBar(bar.angle, bar.height);
   }
+  drawConnections();
 }
+
+function drawConnections() {
+  // Filter out the initial bars and connect only user-added bars
+  const userBars = bars.filter(bar => !bar.isInitial);
+
+  if (userBars.length < 2) return; // No need to draw connections if fewer than 2 bars
+
+  // Sort bars by angle
+  userBars.sort((a, b) => a.angle - b.angle);
+
+  ctx.beginPath();
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 1;
+
+  // Draw connections between adjacent user-added bars
+  for (let i = 0; i < userBars.length - 1; i++) {
+    const currentBar = userBars[i];
+    const nextBar = userBars[i + 1];
+
+    const currentAngleInRadians = degreesToRadians(currentBar.angle);
+    const nextAngleInRadians = degreesToRadians(nextBar.angle);
+
+    const currentX = centerX + (radius + currentBar.height) * Math.cos(currentAngleInRadians);
+    const currentY = centerY + (radius + currentBar.height) * Math.sin(currentAngleInRadians);
+
+    const nextX = centerX + (radius + nextBar.height) * Math.cos(nextAngleInRadians);
+    const nextY = centerY + (radius + nextBar.height) * Math.sin(nextAngleInRadians);
+
+    ctx.moveTo(currentX, currentY);
+    ctx.lineTo(nextX, nextY);
+  }
+
+  // Draw connection from last to first if needed
+   const lastBar = userBars[userBars.length - 1];
+   const firstBar = userBars[0];
+   const lastAngleInRadians = degreesToRadians(lastBar.angle);
+   const firstAngleInRadians = degreesToRadians(firstBar.angle);
+   const lastX = centerX + (radius + lastBar.height) * Math.cos(lastAngleInRadians);
+   const lastY = centerY + (radius + lastBar.height) * Math.sin(lastAngleInRadians);
+   const firstX = centerX + (radius + firstBar.height) * Math.cos(firstAngleInRadians);
+ const firstY = centerY + (radius + firstBar.height) * Math.sin(firstAngleInRadians);
+   ctx.moveTo(lastX, lastY);
+  ctx.lineTo(firstX, firstY);
+
+  ctx.stroke();
+}
+
 
 function getDistance(x1, y1, x2, y2) {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
@@ -195,12 +243,15 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mouseup', () => {
-  const bar = bars[draggingBarIndex];
-  alert(bar.height);
-  if (bar.height < heightThreshold) {
-        bars.splice(draggingBarIndex, 1);
-        drawBars();
-      }
+  if(draggingBarIndex!==null){
+    const bar = bars[draggingBarIndex];
+    if(!bar.isInitial){
+      if (bar.height < heightThreshold) {
+          bars.splice(draggingBarIndex, 1);
+          drawBars();
+        }
+    }
+  }
     isDragging = false;
   draggingBarIndex = null;
 
