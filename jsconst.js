@@ -3,9 +3,10 @@ const ctx = canvas.getContext('2d');
 
 const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
-const radius = 200;
+const radius = 150;
 const maxBarHeight = 300; // Максимальная высота столбиков
 const boundaryMargin = 2; // Допустимый маргин для углов в градусах
+const heightThreshold = 10;
 
 let bars = [
   { angle: 270, height: 0, isInitial: true }, // 12 o'clock
@@ -194,7 +195,13 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mouseup', () => {
-  isDragging = false;
+  const bar = bars[draggingBarIndex];
+  alert(bar.height);
+  if (bar.height < heightThreshold) {
+        bars.splice(draggingBarIndex, 1);
+        drawBars();
+      }
+    isDragging = false;
   draggingBarIndex = null;
 
   // Сортируем столбцы по углу после завершения перетаскивания
