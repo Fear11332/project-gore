@@ -5,13 +5,18 @@ const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 const radius = 200;
 const maxBarHeight = 300; // Максимальная высота столбиков
-const minDistanceBetweenBars = 0.1; // Минимальное расстояние между столбиками в радианах
+const boundaryMargin = 2; // Допустимый маргин для углов в градусах
 
-let bars = []; // To store bar data: {angle: angle, height: height, isInitial: boolean}
+let bars = [
+  { angle: 270, height: 0, isInitial: true }, // 12 o'clock
+  { angle: 0, height: 0, isInitial: true },   // 3 o'clock
+  { angle: 90, height: 0, isInitial: true },  // 6 o'clock
+  { angle: 180, height: 0, isInitial: true }  // 9 o'clock
+];
+
 let draggingBarIndex = null;
 let isDragging = false;
 
-// Draw the circle
 function drawCircle() {
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
@@ -19,17 +24,20 @@ function drawCircle() {
   ctx.stroke();
 }
 
-// Draw a point
 function drawPoint(x, y) {
   ctx.beginPath();
   ctx.arc(x, y, 3, 0, 2 * Math.PI);
   ctx.fill();
 }
 
-// Draw a bar
+function degreesToRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
 function drawBar(angle, height) {
-  const baseX = centerX + radius * Math.cos(angle);
-  const baseY = centerY + radius * Math.sin(angle);
+  const angleInRadians = degreesToRadians(angle);
+  const baseX = centerX + radius * Math.cos(angleInRadians);
+  const baseY = centerY + radius * Math.sin(angleInRadians);
 
   // Draw the point
   drawPoint(baseX, baseY);
@@ -37,8 +45,8 @@ function drawBar(angle, height) {
   if (height > 0) {
     height = Math.min(height, maxBarHeight);
 
-    const barEndX = centerX + (radius + height) * Math.cos(angle);
-    const barEndY = centerY + (radius + height) * Math.sin(angle);
+    const barEndX = centerX + (radius + height) * Math.cos(angleInRadians);
+    const barEndY = centerY + (radius + height) * Math.sin(angleInRadians);
 
     // Draw the needle (line) at the top of the bar
     ctx.beginPath();
@@ -49,7 +57,6 @@ function drawBar(angle, height) {
   }
 }
 
-// Draw all bars
 function drawBars() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawCircle();
@@ -61,28 +68,31 @@ function drawBars() {
   }
 }
 
-// Calculate distance between two points
 function getDistance(x1, y1, x2, y2) {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
-// Calculate the angle from the center of the circle
 function getAngle(x, y) {
   const dx = x - centerX;
   const dy = y - centerY;
-  return Math.atan2(dy, dx);
+  let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+  // Normalize angle to be in [0, 360)
+  angle = (angle + 360) % 360;
+
+  return angle;
 }
 
-// Get the index of the closest bar to the given point
 function getClosestBarIndex(x, y) {
   let closestIndex = null;
   let minDistance = Infinity;
 
   bars.forEach((bar, index) => {
-    const baseX = centerX + radius * Math.cos(bar.angle);
-    const baseY = centerY + radius * Math.sin(bar.angle);
-    const peakX = centerX + (radius + bar.height) * Math.cos(bar.angle);
-    const peakY = centerY + (radius + bar.height) * Math.sin(bar.angle);
+    const angleInRadians = degreesToRadians(bar.angle);
+    const baseX = centerX + radius * Math.cos(angleInRadians);
+    const baseY = centerY + radius * Math.sin(angleInRadians);
+    const peakX = centerX + (radius + bar.height) * Math.cos(angleInRadians);
+    const peakY = centerY + (radius + bar.height) * Math.sin(angleInRadians);
 
     const distanceToBase = getDistance(x, y, baseX, baseY);
     const distanceToPeak = getDistance(x, y, peakX, peakY);
@@ -96,26 +106,26 @@ function getClosestBarIndex(x, y) {
   return minDistance < 11 ? closestIndex : null; // Change threshold if needed
 }
 
-// Check if the angle is unique (no bars too close)
-function isAngleUnique(angle) {
-  return !bars.some(bar => Math.abs(bar.angle - angle) < minDistanceBetweenBars);
+function getNextFixedPointAngle(angle) {
+  const fixedAngles = [0, 90, 180, 270]; // 3, 6, 9, 12 o'clock
+  for (let i = 0; i < fixedAngles.length; i++) {
+    if (fixedAngles[i] > angle) {
+      return fixedAngles[i];
+    }
+  }
+  return fixedAngles[0] + 360; // Wrap around to the first fixed point and add 360 to maintain order
 }
 
-// Add initial bars at 12, 3, 6, and 9 o'clock
-function addInitialBars() {
-  const initialAngles = [
-    -Math.PI / 2, // 12 o'clock
-    0,           // 3 o'clock
-    Math.PI / 2,  // 6 o'clock
-    Math.PI       // 9 o'clock
-  ];
-
-  initialAngles.forEach(angle => {
-    bars.push({ angle, height: 0, isInitial: true });
-  });
+function getPreviousFixedPointAngle(angle) {
+  const fixedAngles = [0, 90, 180, 270]; // 3, 6, 9, 12 o'clock
+  for (let i = fixedAngles.length - 1; i >= 0; i--) {
+    if (fixedAngles[i] < angle) {
+      return fixedAngles[i];
+    }
+  }
+  return fixedAngles[fixedAngles.length - 1] - 360; // Wrap around to the last fixed point and subtract 360 to maintain order
 }
 
-// Event handler for mouse down
 canvas.addEventListener('mousedown', (e) => {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -123,34 +133,36 @@ canvas.addEventListener('mousedown', (e) => {
   const angle = getAngle(x, y);
   const distance = getDistance(centerX, centerY, x, y);
 
-  if (e.button === 0) { // Left mouse button
-    // Check if click is on the edge of the circle
+  if (e.button === 0) { // Левая кнопка мыши
+    // Проверяем, находится ли клик на краю окружности
     if (distance < radius + 10 && distance > radius - 10) {
-      // Check if there is an existing bar to drag
+      // Проверяем, есть ли существующий столбец для перетаскивания
       draggingBarIndex = getClosestBarIndex(x, y);
 
-      // If a bar was clicked and it's not an initial bar, start dragging
+      // Если перетаскивается существующий столбец, продолжаем перетаскивание
       if (draggingBarIndex !== null && !bars[draggingBarIndex].isInitial) {
         isDragging = true;
-      }
-      // If not, add a new bar if it is not an initial bar
-      else if (draggingBarIndex === null && isAngleUnique(angle)) {
-        bars.push({ angle, height: 0, isInitial: false });
-        draggingBarIndex = bars.length - 1; // Set the new bar as dragging
-        isDragging = true;
+      } else if (draggingBarIndex === null) {
+        const nextFixedPointAngle = getNextFixedPointAngle(angle);
+        const previousFixedPointAngle = getPreviousFixedPointAngle(angle);
+
+        // Проверяем, что новая точка добавляется в пределах границ фиксированных точек
+        if ((angle >= (previousFixedPointAngle + boundaryMargin) % 360) && (angle <= (nextFixedPointAngle - boundaryMargin) % 360)) {
+          bars.push({ angle, height: 0, isInitial: false });
+          draggingBarIndex = bars.length - 1; // Устанавливаем новую точку как перетаскиваемую
+          isDragging = true;
+        }
       }
     }
-  } else if (e.button === 2) { // Right mouse button
-    const indexToRemove = getClosestBarIndex(x, y);
-    if (indexToRemove !== null && !bars[indexToRemove].isInitial) {
-      bars.splice(indexToRemove, 1);
+  } else if (e.button === 2) { // Правая кнопка мыши
+    const closestIndex = getClosestBarIndex(x, y);
+    if (closestIndex !== null && !bars[closestIndex].isInitial) {
+      bars.splice(closestIndex, 1);
       drawBars();
-      return;
     }
   }
 });
 
-// Event handler for mouse move
 canvas.addEventListener('mousemove', (e) => {
   if (!isDragging) return;
 
@@ -160,56 +172,40 @@ canvas.addEventListener('mousemove', (e) => {
   const angle = getAngle(x, y);
   const distance = getDistance(centerX, centerY, x, y);
 
-  if (draggingBarIndex !== null && !bars[draggingBarIndex].isInitial) {
-    bars[draggingBarIndex].angle = angle;
-    if (distance > radius) {
-      bars[draggingBarIndex].height = Math.min(distance - radius, maxBarHeight);
+  if (draggingBarIndex !== null) {
+    const bar = bars[draggingBarIndex];
+
+    // Ограничиваем перемещение столбца в пределах его сектора
+    const nextFixedPointAngle = getNextFixedPointAngle(bar.angle);
+    const previousFixedPointAngle = getPreviousFixedPointAngle(bar.angle);
+
+    if ((angle < (previousFixedPointAngle + boundaryMargin) % 360) || (angle > (nextFixedPointAngle - boundaryMargin) % 360)) {
+      isDragging = false; // Остановить перетаскивание при достижении границы
+    } else {
+      bar.angle = angle; // Обновляем угол столбца
     }
+
+    if (distance > radius) {
+      bar.height = Math.min(distance - radius, maxBarHeight);
+    }
+
     drawBars();
   }
 });
 
-// Event handler for mouse up
 canvas.addEventListener('mouseup', () => {
   isDragging = false;
   draggingBarIndex = null;
 
-  // Sort bars by angle after dragging is complete
+  // Сортируем столбцы по углу после завершения перетаскивания
   bars.sort((a, b) => a.angle - b.angle);
 });
 
-// Initialize with initial bars
-addInitialBars();
 drawBars(); // Изначально рисуем
 
-// Prevent default context menu on right-click
-canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault(); // Предотвращает появление контекстного меню
+});
 
 
 
