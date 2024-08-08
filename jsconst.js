@@ -60,9 +60,8 @@ function drawBar(angle, height) {
 
 function drawBars() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawCircle();
-
   // Draw bars
+  drawCircle();
   for (let i = 0; i < bars.length; i++) {
     const bar = bars[i];
     drawBar(bar.angle, bar.height);
@@ -99,6 +98,7 @@ function drawConnections() {
 
     ctx.moveTo(currentX, currentY);
     ctx.lineTo(nextX, nextY);
+    
   }
 
   // Draw connection from last to first if needed
@@ -112,10 +112,8 @@ function drawConnections() {
  const firstY = centerY + (radius + firstBar.height) * Math.sin(firstAngleInRadians);
    ctx.moveTo(lastX, lastY);
   ctx.lineTo(firstX, firstY);
-
   ctx.stroke();
 }
-
 
 function getDistance(x1, y1, x2, y2) {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
