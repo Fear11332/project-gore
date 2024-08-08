@@ -21,13 +21,14 @@ let isDragging = false;
 function drawCircle() {
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-  ctx.strokeStyle = 'red';
+  ctx.strokeStyle = 'white';
   ctx.stroke();
 }
 
 function drawPoint(x, y) {
   ctx.beginPath();
   ctx.arc(x, y, 3, 0, 2 * Math.PI);
+  ctx.fillStyle = 'black';
   ctx.fill();
 }
 
@@ -53,7 +54,7 @@ function drawBar(angle, height) {
     ctx.beginPath();
     ctx.moveTo(baseX, baseY); // Base of the needle
     ctx.lineTo(barEndX, barEndY); // Peak of the needle
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = 'white';
     ctx.stroke();
   }
 }
@@ -80,7 +81,7 @@ function drawConnections() {
   userBars.sort((a, b) => a.angle - b.angle);
 
   ctx.beginPath();
-  ctx.strokeStyle = 'black';
+  ctx.strokeStyle = 'white';
   ctx.lineWidth = 1;
 
   // Draw connections between adjacent user-added bars
