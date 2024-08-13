@@ -145,16 +145,18 @@ function getClosestBarIndex(x, y) {
     const peakX = centerX + (radius + bar.height) * Math.cos(angleInRadians);
     const peakY = centerY + (radius + bar.height) * Math.sin(angleInRadians);
 
-    const distanceToBase = getDistance(x, y, baseX, baseY);
-    const distanceToPeak = getDistance(x, y, peakX, peakY);
+    // Находим расстояние от точки клика до отрезка палочки
+    const distance = Math.abs((peakY - baseY) * x - (peakX - baseX) * y + peakX * baseY - peakY * baseX) /
+                     Math.sqrt((peakY - baseY) ** 2 + (peakX - baseX) ** 2);
 
-    if (distanceToBase < 10 || distanceToPeak < 10) {
-      minDistance = Math.min(minDistance, Math.min(distanceToBase, distanceToPeak));
+    if (distance < minDistance) {
+      minDistance = distance;
       closestIndex = index;
     }
   });
 
-  return minDistance < 11 ? closestIndex : null; // Change threshold if needed
+  // Изменяем пороговое значение, если нужно
+  return minDistance < 10 ? closestIndex : null;
 }
 
 function getNextFixedPointAngle(angle) {
