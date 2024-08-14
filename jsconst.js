@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
-const radius = 150;
+radius = 150;
 const maxBarHeight = 300; // Максимальная высота столбиков
 const boundaryMargin = 6; // Допустимый маргин для углов в градусах
 const heightThreshold = 10;
@@ -17,6 +17,13 @@ let bars = [
 
 let draggingBarIndex = null;
 let isDragging = false;
+
+const radiusSlider = document.getElementById('radiusSlider');
+radiusSlider.addEventListener('input', (e) => {
+  const newRadiusMultiplier = parseFloat(e.target.value);
+  radius = 150 * newRadiusMultiplier / 16; // Обновляем радиус в зависимости от ползунка
+  drawBars();
+});
 
 function drawCircle() {
   ctx.beginPath();
@@ -134,6 +141,42 @@ function getAngle(x, y) {
   return angle;
 }
 
+function getConnectionPointIndex(x, y) {
+  let closestIndex = null;
+  let minDistance = Infinity;
+
+  const userBars = bars.filter(bar => !bar.isInitial);
+
+  if (userBars.length < 2) return null; // Нет соединений для проверки
+
+  for (let i = 0; i < userBars.length; i++) {
+    const bar1 = userBars[i];
+    const bar2 = userBars[(i + 1) % userBars.length]; // Следующий бар, с которым соединен текущий
+
+    const angle1 = degreesToRadians(bar1.angle);
+    const angle2 = degreesToRadians(bar2.angle);
+
+    const x1 = centerX + (radius + bar1.height) * Math.cos(angle1);
+    const y1 = centerY + (radius + bar1.height) * Math.sin(angle1);
+    const x2 = centerX + (radius + bar2.height) * Math.cos(angle2);
+    const y2 = centerY + (radius + bar2.height) * Math.sin(angle2);
+
+    // Найдём среднюю точку между (x1, y1) и (x2, y2)
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
+
+    // Проверяем расстояние до средней точки
+    const distance = getDistance(x, y, midX, midY);
+
+    if (distance < 10 && distance < minDistance) {
+      minDistance = distance;
+      closestIndex = i; // Индекс первого столбца в соединении
+    }
+  }
+
+  return closestIndex;
+}
+
 function getClosestBarIndex(x, y) {
   let closestIndex = null;
   let minDistance = Infinity;
@@ -145,18 +188,24 @@ function getClosestBarIndex(x, y) {
     const peakX = centerX + (radius + bar.height) * Math.cos(angleInRadians);
     const peakY = centerY + (radius + bar.height) * Math.sin(angleInRadians);
 
-    // Находим расстояние от точки клика до отрезка палочки
+    // Рассчёт расстояния от точки до линии палочки
     const distance = Math.abs((peakY - baseY) * x - (peakX - baseX) * y + peakX * baseY - peakY * baseX) /
                      Math.sqrt((peakY - baseY) ** 2 + (peakX - baseX) ** 2);
 
-    if (distance < minDistance) {
+    // Проверяем, что клик находится в пределах палочки
+    const isWithinBar = distance < 10 &&
+                        x >= Math.min(baseX, peakX) &&
+                        x <= Math.max(baseX, peakX) &&
+                        y >= Math.min(baseY, peakY) &&
+                        y <= Math.max(baseY, peakY);
+
+    if (isWithinBar && distance < minDistance) {
       minDistance = distance;
       closestIndex = index;
     }
   });
 
-  // Изменяем пороговое значение, если нужно
-  return minDistance < 10 ? closestIndex : null;
+  return closestIndex;
 }
 
 function getNextFixedPointAngle(angle) {
@@ -216,6 +265,7 @@ canvas.addEventListener('mousedown', (e) => {
   }
 });
 
+
 canvas.addEventListener('mousemove', (e) => {
   if (!isDragging) return;
 
@@ -268,14 +318,3 @@ drawBars(); // Изначально рисуем
 canvas.addEventListener('contextmenu', (e) => {
   e.preventDefault(); // Предотвращает появление контекстного меню
 });
-
-
-
-
-
-
-
-
-
-
-
