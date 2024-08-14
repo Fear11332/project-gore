@@ -184,6 +184,33 @@ function getPreviousFixedPointAngle(angle) {
   return fixedAngles[fixedAngles.length - 1] - 360; // Wrap around to the last fixed point and subtract 360 to maintain order
 }
 
+function isPointNearLine(x, y, x1, y1, x2, y2, radius) {
+    // Вычисляем расстояние от точки до линии
+    const A = x - x1;
+    const B = y - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+    const dot = A * C + B * D;
+    const len_sq = C * C + D * D;
+    const param = len_sq !== 0 ? dot / len_sq : -1;
+    let ix, iy;
+
+    if (param < 0) {
+        ix = x1;
+        iy = y1;
+    } else if (param > 1) {
+        ix = x2;
+        iy = y2;
+    } else {
+        ix = x1 + param * C;
+        iy = y1 + param * D;
+    }
+
+    const dx = x - ix;
+    const dy = y - iy;
+    return (dx * dx + dy * dy) <= (radius * radius);
+}
+
 canvas.addEventListener('mousedown', (e) => {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -213,11 +240,27 @@ canvas.addEventListener('mousedown', (e) => {
       }
     }
   } else if (e.button === 2) { // Правая кнопка мыши
-    const closestIndex = getClosestBarIndex(x, y);
-    if (closestIndex !== null && !bars[closestIndex].isInitial) {
-      bars.splice(closestIndex, 1);
-      drawBars();
-    }
+  for (let i = 0; i < bars.length; i++) {
+            const bar = bars[i];
+            const angleInRadians = degreesToRadians(bar.angle);
+
+            // Координаты основания бара
+            const baseX = centerX + radius * Math.cos(angleInRadians);
+            const baseY = centerY + radius * Math.sin(angleInRadians);
+
+            // Координаты вершины бара
+            const peakX = centerX + (radius + bar.height) * Math.cos(angleInRadians);
+            const peakY = centerY + (radius + bar.height) * Math.sin(angleInRadians);
+
+            // Проверяем, находится ли курсор рядом с линией бара
+            if (isPointNearLine(x, y, baseX, baseY, peakX, peakY, 10)) {
+                if (!bar.isInitial) {
+                    bars.splice(i, 1);
+                    drawBars();
+                    break; // Прекращаем цикл после удаления бара
+                }
+            }
+        }
   }
 });
 
