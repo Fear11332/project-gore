@@ -254,7 +254,8 @@ function handleMouseDown(e){
         if ((angle >= (previousFixedPointAngle + boundaryMargin) % 360) && 
             (angle <= (nextFixedPointAngle - boundaryMargin) % 360)) {
           bars.push({ angle, height: 0, isInitial: false });
-          draggingBarIndex = bars.length - 1; // Устанавливаем новую точку как перетаскиваемую
+          draggingBarIndex = bars.length - 1;
+          console.log(draggingBarIndex); // Устанавливаем новую точку как перетаскиваемую
           isDragging = true;
           isAddingBar = true; // Устанавливаем флаг добавления палочки
         }
@@ -296,6 +297,7 @@ function handleMouseMove(e){
 
   if (draggingBarIndex !== null) {
     const bar = bars[draggingBarIndex];
+    console.log(draggingBarIndex);
 
     // Ограничиваем перемещение столбца в пределах его сектора
     const nextFixedPointAngle = getNextFixedPointAngle(bar.angle);
