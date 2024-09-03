@@ -5,14 +5,13 @@ const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 let radius;
 const maxBarHeight = 300;
-const boundaryMargin = 3; // Допустимый маргин для углов в градусах
+const boundaryMargin = 4; // Допустимый маргин для углов в градусах
 const heightThreshold = 10;
 const radiusSlider = document.getElementById('radiusSlider');
 const sectorIncrementStep = 5;
 const minSectors = 14;
 const maxSectors = 24;
 
-let bars = [];
 let fixedPoint =[];
 
 let draggingBarIndex = null;
@@ -42,7 +41,6 @@ function drawPoint(x, y) {
 function degreesToRadians(degrees) {
   return degrees * (Math.PI / 180);
 }
-
 function drawSectors() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Очистка канваса перед отрисовкой
   drawCircle(); // Отрисовка круга с обновленным радиусом
@@ -82,10 +80,13 @@ function drawSectors() {
       newSectors.push(existingSector);
     } else {
       // Иначе создаем новый сектор
+      const previousSector = sectors.find(sec => isAngleInSector((startAngle + endAngle) / 2, sec));
+      
       newSectors.push({
         startAngle: startAngle,
         endAngle: endAngle,
-        pointInside: false
+        pointInside: previousSector ? previousSector.pointInside : false,
+        bar: previousSector ? { ...previousSector.bar } : { angle: null, height: -1, isInitial: false }
       });
     }
 
@@ -98,19 +99,23 @@ function drawSectors() {
     drawPoint(startX, startY);
   }
 
-  // Проверка на уменьшение радиуса и удаление баров, которые выходят за границы новых секторов
-  bars = bars.filter(bar => {
-    const barSector = newSectors.find(sec => isAngleInSector(bar.angle, sec));
-    if (barSector) {
-      barSector.pointInside = true; // Обновляем статус точки внутри сектора
-      return true; // Бар остается
-    }
-    return false; // Бар удаляется, так как его сектор больше не существует
-  });
-
   // Обновляем массив секторов на новый
   sectors = newSectors;
 }
+
+// Функция проверки попадания угла в сектор
+function isAngleInSector(angle, sector) {
+  const normalizedAngle = (angle + 360) % 360;
+  const normalizedStart = (sector.startAngle + 360) % 360;
+  const normalizedEnd = (sector.endAngle + 360) % 360;
+
+  if (normalizedStart < normalizedEnd) {
+    return normalizedAngle >= normalizedStart && normalizedAngle < normalizedEnd;
+  } else {
+    return normalizedAngle >= normalizedStart || normalizedAngle < normalizedEnd;
+  }
+}
+
 
 function drawBar(angle, height) {
   const angleInRadians = degreesToRadians(angle);
@@ -119,13 +124,6 @@ function drawBar(angle, height) {
 
   drawPoint(baseX, baseY);
 
-  // Если высота 0, рисуем небольшой круг вместо линии
-  if (height <= 0) {
-    ctx.beginPath();
-    ctx.arc(baseX, baseY, 3, 0, Math.PI * 2); // Маленький круг диаметром 6 пикселей
-    ctx.fillStyle = 'white';
-    ctx.fill();
-  } else {
     height = Math.min(height, maxBarHeight);
 
     const barEndX = centerX + (radius + height) * Math.cos(angleInRadians);
@@ -136,18 +134,29 @@ function drawBar(angle, height) {
     ctx.lineTo(barEndX, barEndY);
     ctx.strokeStyle = 'white';
     ctx.stroke();
-  }
 }
+
 function drawBars() {
-  for (let i = 0; i < bars.length; i++) {
-    const bar = bars[i];
-    drawBar(bar.angle, bar.height);
+  for (let i = 0; i < sectors.length; i++) {
+    if(sectors[i].pointInside){
+      const bar = sectors[i].bar;
+      drawBar(bar.angle, bar.height);
+    }
   }
   drawConnections();
 }
 
 function drawConnections() {
-  const userBars = [...bars];
+let tmpBars = [];
+  
+  // Добавляем бары в tmpBars
+  sectors.forEach(sec => {
+    if (sec.pointInside) {
+      tmpBars.push(sec.bar);
+    }
+  });
+
+  const userBars = [...tmpBars];
 
   if (userBars.length < 2) return;
 
@@ -214,22 +223,24 @@ function getClosestBarIndex(x, y) {
   let closestIndex = null;
   let minDistance = Infinity;
 
-  bars.forEach((bar, index) => {
-    const angleInRadians = degreesToRadians(bar.angle);
-    const baseX = centerX + radius * Math.cos(angleInRadians);
-    const baseY = centerY + radius * Math.sin(angleInRadians);
-    const peakX = centerX + (radius + bar.height) * Math.cos(angleInRadians);
-    const peakY = centerY + (radius + bar.height) * Math.sin(angleInRadians);
+  sectors.forEach((item, index) => {
+    if(item.pointInside){
+      const angleInRadians = degreesToRadians(item.bar.angle);
+      const baseX = centerX + radius * Math.cos(angleInRadians);
+      const baseY = centerY + radius * Math.sin(angleInRadians);
+      const peakX = centerX + (radius + item.bar.height) * Math.cos(angleInRadians);
+      const peakY = centerY + (radius + item.bar.height) * Math.sin(angleInRadians);
 
-    const distanceToBase = getDistance(x, y, baseX, baseY);
-    const distanceToPeak = getDistance(x, y, peakX, peakY);
+      const distanceToBase = getDistance(x, y, baseX, baseY);
+      const distanceToPeak = getDistance(x, y, peakX, peakY);
 
-    if (distanceToBase < 10 || distanceToPeak < 10) {
-      minDistance = Math.min(
-        minDistance,
-        Math.min(distanceToBase, distanceToPeak)
-      );
-      closestIndex = index;
+      if (distanceToBase < 10 || distanceToPeak < 10) {
+        minDistance = Math.min(
+          minDistance,
+          Math.min(distanceToBase, distanceToPeak)
+        );
+        closestIndex = index;
+      }
     }
   });
 
@@ -267,6 +278,10 @@ function canPlaceBarAtAngle(angle) {
     }
   }
   // Проверяем, пересекается ли угол с пользовательскими точками
+  let userBars;
+  forEach(sectors in sec)
+    if(sec.pointInside)
+      userBars.push(sec.bar);
   return !userBars.some((bar) => bar.angle === angle && !bar.isInitial);
 }
 
@@ -321,21 +336,23 @@ function handleMouseDown(e) {
       draggingBarIndex = getClosestBarIndex(x, y);
       //console.log(draggingBarIndex);
       // Если перетаскивается существующий столбец, продолжаем перетаскивание
-      if (draggingBarIndex !== null && !bars[draggingBarIndex].isInitial) {
+      if (draggingBarIndex !== null) {
         isDragging = true;
       } else if (draggingBarIndex === null) {
        // console.log("hello");
         const nextFixedPointAngle = getNextFixedPointAngle(angle);
         const previousFixedPointAngle = getPreviousFixedPointAngle(angle);
-
+      console.log(angle);
+      console.log(previousFixedPointAngle);
+      console.log(nextFixedPointAngle);
         // Проверяем, что новая точка добавляется в пределах границ фиксированных точек
         //let sector = sectors.find()
       let index = sectors.findIndex(sec => isAngleInSector(angle,sec));
         if ((angle >= (previousFixedPointAngle + boundaryMargin) % 360) && (angle <= (nextFixedPointAngle - boundaryMargin) % 360) && !sectors[index].pointInside) {
           //console.log("hello2");
           //console.log(bars.length);
-          bars.push({ angle, height: 0, isInitial: false });
-          draggingBarIndex = bars.length - 1; // Устанавливаем новую точку как перетаскиваемую
+          sectors[index].bar.angle =angle;sectors[index].bar.height=0, sectors[index].bar.isInitial=false;
+          draggingBarIndex = index; // Устанавливаем новую точку как перетаскиваемую
           //console.log(bars.length - 1);
           sectors[index].pointInside = true;
           isDragging = true;
@@ -361,13 +378,11 @@ function handleMouseDown(e) {
   };
 
   // Находим индекс первого бара, который удовлетворяет условию
-  const barIndex = bars.findIndex(bar => isCursorNearBar(bar));
+  const barIndex = sectors.findIndex(item => item.pointInside && isCursorNearBar(item.bar));
 
   // Если найден подходящий бар, удаляем его
   if (barIndex !== -1) {
-    bars.splice(barIndex, 1);
-    let index = sectors.findIndex(sec => isAngleInSector(angle,sec));
-    sectors[index].pointInside = false;
+    sectors[barIndex].pointInside = false;
     draw(); // Обновляем отображение после удаления бара
   }
 }
@@ -383,7 +398,7 @@ function handleMouseMove(e) {
   const distance = getDistance(centerX, centerY, x, y);
 
   if (draggingBarIndex !== null) {
-    const bar = bars[draggingBarIndex];
+    const bar = sectors[draggingBarIndex].bar;
     //console.log(draggingBarIndex);
 
     // Ограничиваем перемещение столбца в пределах его сектора
@@ -426,39 +441,9 @@ function draw() {
   drawCircle(); // Отрисовка круга
   drawSectors(); // Отрисовка секторов
   drawBars(); // Отрисовка столбиков
-  drawConnections(); // О
+  //drawConnections(); // О
 }
 
 canvas.addEventListener('contextmenu', (e) => {
   e.preventDefault(); // Предотвращает появление контекстного меню
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
