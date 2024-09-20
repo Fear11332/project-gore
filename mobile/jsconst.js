@@ -374,90 +374,97 @@ function isAngleInSector(angle, sector, index){
   }
 }
 
-function handleMouseDown(e) {
-    const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+let lastTouchTime = 0;
+
+function handleTouchStart(e) {
+  e.preventDefault();
+
+  const { x, y } = getTouchPosition(e); // Получаем координаты касания
   const angle = getAngle(x, y);
   const distance = getDistance(centerX, centerY, x, y);
 
-  if (e.button === 0) { // Левая кнопка мыши
-    // Проверяем, находится ли клик на краю окружности
-    if (distance < radius + 10 && distance > radius - 10) {
-      // Проверяем, есть ли существующий столбец для перетаскивания
-      draggingBarIndex = getClosestBarIndex(x, y);
-      // Если перетаскивается существующий столбец, продолжаем перетаскивание
-      if (draggingBarIndex !== null) {
-        isDragging = true;
-      } else if (draggingBarIndex === null) {
-        
-        const nextFixedPointAngle = getNextFixedPointAngle(angle);
-        const previousFixedPointAngle = getPreviousFixedPointAngle(angle);
-        // Проверяем, что новая точка добавляется в пределах границ фиксированных точек
+  const currentTime = new Date().getTime(); // Текущее время
 
-        let index = null;
-        for(let sec of sectors)
-          if(isAngleInSector(angle,sec,sec.secIndex)){
-            index = sec.secIndex;
-          }
-        if ((angle >= (previousFixedPointAngle + boundaryMargin) % 360) && (angle <= (nextFixedPointAngle - boundaryMargin) % 360) && !sectors[index].pointInside) {
-        
-          const startX = centerX + radius * Math.cos(degreesToRadians(angle));
-          const startY = centerY + radius * Math.sin(degreesToRadians(angle));
-          sectors[index].bar.angle =angle;sectors[index].bar.height=0; sectors[index].bar.isInitial=false;
-          sectors[index].bar.startX = startX; // Сохранение координат X
-          sectors[index].bar.startY = startY; // Сохранение координат Y
-          draggingBarIndex = index; // Устанавливаем новую точку как перетаскиваемую
-          
-          sectors[index].pointInside = true;
-          sectors[index].bar.changed = true;
-          isDragging = true;
+  if (currentTime - lastTouchTime < 300) { // Проверяем, произошло ли двойное касание
+    // Двойное касание: попытка удалить бар
+    const barIndex = sectors.findIndex(item => item.pointInside && isCursorNearBar(item.bar, x, y)); // Передаем x и y
+    if (barIndex !== -1) {
+      sectors[barIndex].pointInside = false;
+      sectors[barIndex].bar.changed = false;
+      draw(); // Обновляем отображение после удаления бара
+    }
+    lastTouchTime = 0; // Сбрасываем время для предотвращения повторных удалений
+    return;
+  }
+
+  lastTouchTime = currentTime; // Запоминаем время текущего касания
+
+  if (e.touches.length === 1) { // Одно касание
+    draggingBarIndex = getClosestBarIndex(x, y);
+
+    if (distance < radius + 10 && distance > radius - 10 && draggingBarIndex === null) {
+      const nextFixedPointAngle = getNextFixedPointAngle(angle);
+      const previousFixedPointAngle = getPreviousFixedPointAngle(angle);
+      
+      let index = null;
+      for (let sec of sectors) {
+        if (isAngleInSector(angle, sec, sec.secIndex)) {
+          index = sec.secIndex;
         }
+      }
+
+      if ((angle >= (previousFixedPointAngle + boundaryMargin) % 360) && 
+          (angle <= (nextFixedPointAngle - boundaryMargin) % 360) && 
+          !sectors[index].pointInside) {
+        const startX = centerX + radius * Math.cos(degreesToRadians(angle));
+        const startY = centerY + radius * Math.sin(degreesToRadians(angle));
+        
+        sectors[index].bar.angle = angle;
+        sectors[index].bar.height = 0;
+        sectors[index].bar.isInitial = false;
+        sectors[index].bar.startX = startX;
+        sectors[index].bar.startY = startY;
+        draggingBarIndex = index;
+        
+        sectors[index].pointInside = true;
+        sectors[index].bar.changed = true;
+        isDragging = true;
       }
       draw();
     }
-  }else if (e.button === 2) { // Правая кнопка мыши
-  // Функция для проверки близости курсора к бару
-  const isCursorNearBar = (bar) => {
-    const angleInRadians = degreesToRadians(bar.angle);
-
-    // Координаты основания бара
-    const baseX = centerX + radius * Math.cos(angleInRadians);
-    const baseY = centerY + radius * Math.sin(angleInRadians);
-
-    // Координаты вершины бара
-    const peakX = centerX + (radius + bar.height) * Math.cos(angleInRadians);
-    const peakY = centerY + (radius + bar.height) * Math.sin(angleInRadians);
-
-    // Проверяем, находится ли курсор рядом с линией бара
-    return isPointNearLine(x, y, baseX, baseY, peakX, peakY, 10);
-  };
-
-  // Находим индекс первого бара, который удовлетворяет условию
-  const barIndex = sectors.findIndex(item => item.pointInside && isCursorNearBar(item.bar));
-
-  // Если найден подходящий бар, удаляем его
-  if (barIndex !== -1) {
-    sectors[barIndex].pointInside = false;
-    sectors[barIndex].bar.changed = false;
-    draw(); // Обновляем отображение после удаления бара
   }
 }
+
+function isCursorNearBar(bar, x, y) {
+  const angleInRadians = degreesToRadians(bar.angle);
+
+  const baseX = centerX + radius * Math.cos(angleInRadians);
+  const baseY = centerY + radius * Math.sin(angleInRadians);
+
+  const peakX = centerX + (radius + bar.height) * Math.cos(angleInRadians);
+  const peakY = centerY + (radius + bar.height) * Math.sin(angleInRadians);
+
+  return isPointNearLine(x, y, baseX, baseY, peakX, peakY, 10);
 }
 
-function handleMouseMove(e) {
-  if (!isDragging) return;
-
+function getTouchPosition(e) {
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  const x = e.touches[0].clientX - rect.left;
+  const y = e.touches[0].clientY - rect.top;
+  return { x, y };
+}
+
+function handleTouchMove(e) {
+  e.preventDefault();
+  if (!isDragging) return; // Перетаскивание возможно только при удержании
+
+  const { x, y } = getTouchPosition(e);
   const angle = getAngle(x, y);
   const distance = getDistance(centerX, centerY, x, y);
 
   if (draggingBarIndex !== null) {
     const bar = sectors[draggingBarIndex].bar;
 
-    // Ограничиваем перемещение столбца в пределах его сектора
     const nextFixedPointAngle = getNextFixedPointAngle(bar.angle);
     const previousFixedPointAngle = getPreviousFixedPointAngle(bar.angle);
 
@@ -465,9 +472,9 @@ function handleMouseMove(e) {
       angle < (previousFixedPointAngle + boundaryMargin) % 360 ||
       angle > (nextFixedPointAngle - boundaryMargin) % 360
     ) {
-      isDragging = false; // Остановить перетаскивание при достижении границы
+      isDragging = false;
     } else {
-      bar.angle = angle; // Обновляем угол столбца
+      bar.angle = angle;
       bar.changed = true;
     }
 
@@ -476,24 +483,29 @@ function handleMouseMove(e) {
       bar.startX = centerX + radius * Math.cos(degreesToRadians(bar.angle));
       bar.startY = centerY + radius * Math.sin(degreesToRadians(bar.angle));
     }
-    draw(); // Перерисовываем после каждого изменения
+    draw();
   }
 }
 
-function handleMouseUp() {
-  if (sectors[draggingBarIndex].bar.height < minBarHeight) {
-      sectors[draggingBarIndex].pointInside = false; // Убираем бар
+function handleTouchEnd(e) {
+  e.preventDefault();
+  // Завершаем перетаскивание
+  if (draggingBarIndex !== null) {
+    if (sectors[draggingBarIndex].bar.height < minBarHeight) {
+      sectors[draggingBarIndex].pointInside = false;
       sectors[draggingBarIndex].bar.changed = false;
     }
-  isDragging = false;
-  draggingBarIndex = null;
-  if (isAddingBar) isAddingBar = false;
+    isDragging = false;
+    draggingBarIndex = null;
+  }
   draw();
 }
 
-canvas.addEventListener('mousedown', handleMouseDown);
-canvas.addEventListener('mousemove', handleMouseMove);
-canvas.addEventListener('mouseup', handleMouseUp);
+canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+// Ползунок для изменения радиуса
 radiusSlider.addEventListener('input', updateRadius);
 
 updateRadius();
