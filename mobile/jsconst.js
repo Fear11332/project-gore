@@ -124,6 +124,7 @@ function drawSectors() {
   sectors = newSectors;
 }
 
+
 function drawPoint(x, y, color = 'black') {
   ctx.fillStyle = color; // Цвет точки
   ctx.beginPath();
@@ -373,6 +374,8 @@ function isAngleInSector(angle, sector, index){
   }
 }
 
+let lastTouchTime = 0;
+
 function handleTouchStart(e) {
   e.preventDefault();
 
@@ -486,14 +489,13 @@ function handleTouchMove(e) {
 function handleTouchEnd(e) {
   e.preventDefault();
   // Завершаем перетаскивание
-  if (draggingBarIndex !== null) {
-    if (sectors[draggingBarIndex].bar.height < minBarHeight) {
-      sectors[draggingBarIndex].pointInside = false;
+ if (sectors[draggingBarIndex].bar.height < minBarHeight) {
+      sectors[draggingBarIndex].pointInside = false; // Убираем бар
       sectors[draggingBarIndex].bar.changed = false;
     }
-    isDragging = false;
-    draggingBarIndex = null;
-  }
+  isDragging = false;
+  draggingBarIndex = null;
+  if (isAddingBar) isAddingBar = false;
   draw();
 }
 
