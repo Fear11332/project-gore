@@ -124,7 +124,6 @@ function drawSectors() {
   sectors = newSectors;
 }
 
-
 function drawPoint(x, y, color = 'black') {
   ctx.fillStyle = color; // Цвет точки
   ctx.beginPath();
@@ -374,8 +373,6 @@ function isAngleInSector(angle, sector, index){
   }
 }
 
-let lastTouchTime = 0;
-
 function handleTouchStart(e) {
   e.preventDefault();
 
@@ -386,7 +383,6 @@ function handleTouchStart(e) {
   const currentTime = new Date().getTime(); // Текущее время
 
   if (currentTime - lastTouchTime < 300) { // Проверяем, произошло ли двойное касание
-    // Двойное касание: попытка удалить бар
     const barIndex = sectors.findIndex(item => item.pointInside && isCursorNearBar(item.bar, x, y)); // Передаем x и y
     if (barIndex !== -1) {
       sectors[barIndex].pointInside = false;
@@ -399,39 +395,43 @@ function handleTouchStart(e) {
 
   lastTouchTime = currentTime; // Запоминаем время текущего касания
 
-  if (e.touches.length === 1) { // Одно касание
-    draggingBarIndex = getClosestBarIndex(x, y);
+  // Проверяем, есть ли уже бар в зоне взаимодействия
+  draggingBarIndex = sectors.findIndex(item => item.pointInside && isCursorNearBar(item.bar, x, y));
+  if (draggingBarIndex !== -1) {
+    isDragging = true;
+    draw();
+    return; // Прерываем добавление нового бара, если уже выбрали существующий
+  }
 
-    if (distance < radius + 10 && distance > radius - 10 && draggingBarIndex === null) {
-      const nextFixedPointAngle = getNextFixedPointAngle(angle);
-      const previousFixedPointAngle = getPreviousFixedPointAngle(angle);
+  if (e.touches.length === 1 && draggingBarIndex === -1) { // Одно касание и бара еще нет
+    const nextFixedPointAngle = getNextFixedPointAngle(angle);
+    const previousFixedPointAngle = getPreviousFixedPointAngle(angle);
       
-      let index = null;
-      for (let sec of sectors) {
-        if (isAngleInSector(angle, sec, sec.secIndex)) {
-          index = sec.secIndex;
-        }
+    let index = null;
+    for (let sec of sectors) {
+      if (isAngleInSector(angle, sec, sec.secIndex)) {
+        index = sec.secIndex;
       }
-
-      if ((angle >= (previousFixedPointAngle + boundaryMargin) % 360) && 
-          (angle <= (nextFixedPointAngle - boundaryMargin) % 360) && 
-          !sectors[index].pointInside) {
-        const startX = centerX + radius * Math.cos(degreesToRadians(angle));
-        const startY = centerY + radius * Math.sin(degreesToRadians(angle));
-        
-        sectors[index].bar.angle = angle;
-        sectors[index].bar.height = 0;
-        sectors[index].bar.isInitial = false;
-        sectors[index].bar.startX = startX;
-        sectors[index].bar.startY = startY;
-        draggingBarIndex = index;
-        
-        sectors[index].pointInside = true;
-        sectors[index].bar.changed = true;
-        isDragging = true;
-      }
-      draw();
     }
+
+    if ((angle >= (previousFixedPointAngle + boundaryMargin) % 360) && 
+        (angle <= (nextFixedPointAngle - boundaryMargin) % 360) && 
+        !sectors[index].pointInside) {
+      const startX = centerX + radius * Math.cos(degreesToRadians(angle));
+      const startY = centerY + radius * Math.sin(degreesToRadians(angle));
+      
+      sectors[index].bar.angle = angle;
+      sectors[index].bar.height = 0;
+      sectors[index].bar.isInitial = false;
+      sectors[index].bar.startX = startX;
+      sectors[index].bar.startY = startY;
+      draggingBarIndex = index;
+      
+      sectors[index].pointInside = true;
+      sectors[index].bar.changed = true;
+      isDragging = true;
+    }
+    draw();
   }
 }
 
@@ -456,35 +456,31 @@ function getTouchPosition(e) {
 
 function handleTouchMove(e) {
   e.preventDefault();
-  if (!isDragging) return; // Перетаскивание возможно только при удержании
+  if (!isDragging || draggingBarIndex === null) return; // Перетаскивание возможно только при удержании
 
   const { x, y } = getTouchPosition(e);
   const angle = getAngle(x, y);
   const distance = getDistance(centerX, centerY, x, y);
 
-  if (draggingBarIndex !== null) {
-    const bar = sectors[draggingBarIndex].bar;
+  const bar = sectors[draggingBarIndex].bar;
 
-    const nextFixedPointAngle = getNextFixedPointAngle(bar.angle);
-    const previousFixedPointAngle = getPreviousFixedPointAngle(bar.angle);
+  const nextFixedPointAngle = getNextFixedPointAngle(bar.angle);
+  const previousFixedPointAngle = getPreviousFixedPointAngle(bar.angle);
 
-    if (
-      angle < (previousFixedPointAngle + boundaryMargin) % 360 ||
-      angle > (nextFixedPointAngle - boundaryMargin) % 360
-    ) {
-      isDragging = false;
-    } else {
-      bar.angle = angle;
-      bar.changed = true;
-    }
-
-    if (distance > radius) {
-      bar.height = Math.min(distance - radius, maxBarHeight);
-      bar.startX = centerX + radius * Math.cos(degreesToRadians(bar.angle));
-      bar.startY = centerY + radius * Math.sin(degreesToRadians(bar.angle));
-    }
-    draw();
+  if (angle < (previousFixedPointAngle + boundaryMargin) % 360 ||
+      angle > (nextFixedPointAngle - boundaryMargin) % 360) {
+    isDragging = false;
+  } else {
+    bar.angle = angle;
+    bar.changed = true;
   }
+
+  if (distance > radius) {
+    bar.height = Math.min(distance - radius, maxBarHeight);
+    bar.startX = centerX + radius * Math.cos(degreesToRadians(bar.angle));
+    bar.startY = centerY + radius * Math.sin(degreesToRadians(bar.angle));
+  }
+  draw();
 }
 
 function handleTouchEnd(e) {
