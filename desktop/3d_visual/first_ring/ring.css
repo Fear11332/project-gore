@@ -1,0 +1,5 @@
+        canvas {
+            background-color: transparent; /* Прозрачный канвас */
+            width: 100vw; /* Занимает 100% ширины окна */
+            height: 50vh; /* Занимает 50% высоты окна */
+        }
