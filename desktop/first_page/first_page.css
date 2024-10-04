@@ -1,53 +1,40 @@
-     body {
-            background-image: url('images/frontground2.png'); 
-            background-repeat: no-repeat;
-            background-position: center top;
-            background-size: cover;
-            background-color: transparent;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh; /* Высота страницы */
-            margin: 0; /* Убираем отступы */
-            padding: 0;
-        }
+html, body {
+    height: 340%; /* Установите высоту 100% для html и body */
+    margin: 0; /* Убираем отступы */
+}
 
-        .render-container {
-            width: 100vw; /* Занимает 100% ширины окна */
-            height: 50vh; /* Занимает 50% высоты окна */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            border: none;
-            margin-top: 20vh; /* Применение vh для адаптивного отступа */
-        }
+body {
+    background-image: url('images/frontground2.png'); 
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Позволяет прокрутку */
+    min-height: 100vh; /* Минимальная высота страницы */
+    overflow-y: auto; /* Включает вертикальную прокрутку */
+}
 
-        iframe {
-            border: none;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* Скрываем прокрутку внутри iframe */
-            display: block;
-        }
+.render-container {
+    width: 100%; /* Занимает 100% ширины окна */
+    height: 50vh; /* Занимает 50% высоты окна */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: none;
+    position: absolute; /* Абсолютное позиционирование */
+    top: 160vh; /* Располагаем контейнер на 200vh ниже верхнего края окна */
+    left: 0; /* Выравниваем контейнер по левому краю */
+}
 
-        html, body {
-            height: 300%; /* Увеличиваем высоту для возможности прокрутки */
-        }
+iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
 
-        @media (max-width: 768px) {
-            .render-container {
-                margin-top: 10vh; /* Уменьшаем отступ для меньших экранов */
-            }
-            iframe {
-                height: 80%; /* Уменьшаем высоту iframe для мобильных устройств */
-            }
-        }
 
-        @media (min-width: 769px) {
-            .render-container {
-                margin-top: 20vh; /* Увеличиваем отступ для больших экранов */
-            }
-        }

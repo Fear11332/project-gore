@@ -46,12 +46,12 @@ if (isWebGL2Available()) {
     plane.receiveShadow = true;  // Плоскость будет получать тени
     scene.add(plane);
 
-    // Загрузка FBX модели
+    // Загрузка FBX модели  
     const loader = new FBXLoader();
     let object;
     loader.load('ring3.fbx', function (loadedObject) {
         object = loadedObject;
-        object.scale.set(0.07, 0.07, 0.07); // Установка масштаба модели
+        object.scale.set(0.058, 0.058, 0.058); // Установка масштаба модели
         object.position.set(0, 1, 0);    // Позиция объекта
         object.traverse(function (child) {
             if (child.isMesh) {
@@ -115,12 +115,54 @@ if (isWebGL2Available()) {
     }
     animate();
 
-    // Обработчик изменения размера окна
     window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight; // Обновление соотношения сторон
-        camera.updateProjectionMatrix(); // Обновление матрицы проекции
-        renderer.setSize(window.innerWidth, window.innerHeight); // Обновление размера рендерера
-    });
+    const container = document.getElementById('container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+    
+    // Пропорционально изменяем масштаб объекта
+    window.addEventListener('resize', () => {
+    const container = document.getElementById('container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+    
+    // Пропорционально изменяем масштаб объекта
+    // Пропорционально изменяем масштаб объекта
+ if (object) {
+    const desiredWidth = 4700; // Задайте желаемые размеры объекта
+    const desiredHeight = 4700;
+
+    // Получаем ширину и высоту контейнера
+    const scaleFactorX = width / desiredWidth;
+    const scaleFactorY = height / desiredHeight;
+
+    // Максимальный и минимальный коэффициенты масштабирования
+    const maxScale = 0.07; // Максимальный масштаб
+    const minScale = 0.04; // Минимальный масштаб
+
+    // Находим значение scaleFactor, ограниченное maxScale и minScale
+    const scaleFactor = Math.min(maxScale, Math.max(minScale, Math.min(scaleFactorX, scaleFactorY)));
+
+    console.log(`Width: ${width}, Height: ${height}, Scale Factor: ${scaleFactor}`);
+
+    // Устанавливаем масштаб объекта
+    object.scale.set(scaleFactor, scaleFactor, scaleFactor);
+}
+
+
+});
+
+});
+
+
 } else {
     const warning = document.createElement('div');
     warning.textContent = "WebGL 2 не поддерживается вашим браузером или устройством.";
