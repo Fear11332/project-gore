@@ -49,7 +49,7 @@ if (isWebGL2Available()) {
     // Загрузка FBX модели  
     const loader = new FBXLoader();
     let object;
-    loader.load('ring3.fbx', function (loadedObject) {
+    loader.load('ring.fbx', function (loadedObject) {
         object = loadedObject;
         object.scale.set(0.058, 0.058, 0.058); // Установка масштаба модели
         object.position.set(0, 1, 0);    // Позиция объекта

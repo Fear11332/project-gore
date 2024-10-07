@@ -1,0 +1,40 @@
+html, body {
+    height: 340%; /* Установите высоту 100% для html и body */
+    margin: 0; /* Убираем отступы */
+}
+
+body {
+    background-image: url('images/frontground2.png'); 
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Позволяет прокрутку */
+    min-height: 100vh; /* Минимальная высота страницы */
+    overflow-y: auto; /* Включает вертикальную прокрутку */
+}
+
+.render-container {
+    width: 100%; /* Занимает 100% ширины окна */
+    height: 50vh; /* Занимает 50% высоты окна */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: none;
+    position: absolute; /* Абсолютное позиционирование */
+    top: 160vh; /* Располагаем контейнер на 200vh ниже верхнего края окна */
+    left: 0; /* Выравниваем контейнер по левому краю */
+}
+
+iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+
