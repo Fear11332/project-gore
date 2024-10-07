@@ -26,13 +26,17 @@
     let currentX = 0, currentY = 0;
     let scale = 1;  // Начальный зум
     const minScale = 1; // Минимальный зум
-    const maxScale = 5;   // Максимальный зум
-    const moveSpeed = 5; // Скорость перемещения карты
+    const maxScale = 3;   // Максимальный зум
+    const moveSpeed = 7; // Скорость перемещения карты
     const image = new Image(); // Создаем новый объект изображения
     image.src = 'map.jpg'; // Путь к изображению
 
     let mouseX = 0;
     let mouseY = 0;
+    let isMouseMoving = false; // Переменная для отслеживания движения мыши
+    let isScrolling = false; // Флаг, указывающий, происходит ли прокрутка
+    let timeout; // Таймер для определения окончания движения
+    let scrollTimeout; // Таймер для задержки прокрутки
 
     // Установка размеров canvas
     function resizeCanvas() {
@@ -64,8 +68,19 @@
 
     // Обработка перемещения мыши
     canvas.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+        if (!isScrolling) { // Обновляем координаты мыши только если не происходит прокрутка
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // Устанавливаем флаг движения мыши
+            isMouseMoving = true;
+
+            // Сбрасываем таймер
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                isMouseMoving = false; // Устанавливаем флаг, когда движение прекратилось
+            }, 90); // Установите задержку для определения окончания движения
+        }
     });
 
     // Обработка обновления позиции
@@ -74,8 +89,8 @@
         const halfHeight = canvas.height / 2;
 
         // Смещение карты в зависимости от положения мыши относительно центра
-        const deltaX = (halfWidth - mouseX) / halfWidth * moveSpeed; // Изменяем направление
-        const deltaY = (halfHeight - mouseY) / halfHeight * moveSpeed; // Изменяем направление
+        const deltaX = (halfWidth - mouseX) / halfWidth * moveSpeed; 
+        const deltaY = (halfHeight - mouseY) / halfHeight * moveSpeed; 
 
         currentX += deltaX;
         currentY += deltaY;
@@ -91,28 +106,37 @@
     // Обработка масштабирования
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
 
-        const delta = e.deltaY > 0 ? -0.1 : 0.1; // Направление зума
+        // Проверка, происходит ли движение мыши
+        if (isScrolling) {
+            return; // Если прокрутка, прерываем выполнение
+        }
+
+        const mouseXCanvas = e.clientX;
+        const mouseYCanvas = e.clientY;
+
+        const delta = e.deltaY > 0 ? -0.05 : 0.05; // Направление зума
         const newScale = Math.min(Math.max(minScale, scale + delta), maxScale);
 
         // Получаем текущее положение мыши в координатах изображения
         const rect = canvas.getBoundingClientRect();
-        const imageMouseX = (mouseX - rect.left - currentX) / scale;
-        const imageMouseY = (mouseY - rect.top - currentY) / scale;
+        const imageMouseX = (mouseXCanvas - rect.left - currentX) / scale;
+        const imageMouseY = (mouseYCanvas - rect.top - currentY) / scale;
 
+        // Сохраняем текущее положение мыши
+        const mouseXBeforeZoom = imageMouseX;
+        const mouseYBeforeZoom = imageMouseY;
+
+        // Обновляем масштаб
         scale = newScale;
 
-        // Обновляем размеры canvas после изменения масштаба
-        draw();
+        // Пересчитываем новое положение мыши в новых координатах
+        const newMouseX = mouseXBeforeZoom * (scale / newScale);
+        const newMouseY = mouseYBeforeZoom * (scale / newScale);
 
         // Корректируем смещение изображения, чтобы зум происходил в точке мыши
-        const newMouseX = imageMouseX * (scale / newScale);
-        const newMouseY = imageMouseY * (scale / newScale);
-
-        currentX -= newMouseX - imageMouseX * scale;
-        currentY -= newMouseY - imageMouseY * scale;
+        currentX -= newMouseX - imageMouseX;
+        currentY -= newMouseY - imageMouseY;
 
         // Ограничиваем перемещение карты после зума
         const { x, y } = clampTranslation(currentX, currentY);
@@ -120,6 +144,15 @@
         currentY = y;
 
         draw(); // Перерисовываем изображение
+
+        // Устанавливаем флаг прокрутки
+        isScrolling = true;
+
+        // Устанавливаем таймер для отключения флага прокрутки через 100 мс
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false; // Сбрасываем флаг через 100 мс
+        }, 90);
     });
 
     // Обработка изменения размера окна
@@ -139,6 +172,7 @@
 
 </body>
 </html>
+
 
 
 
