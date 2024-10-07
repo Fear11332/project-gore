@@ -26,8 +26,8 @@
     let currentX = 0, currentY = 0;
     let scale = 1;  // Начальный зум
     const minScale = 1; // Минимальный зум
-    const maxScale = 3;   // Максимальный зум
-    const moveSpeed = 7; // Скорость перемещения карты
+    const maxScale = 6;   // Максимальный зум
+    const moveSpeed = 4; // Скорость перемещения карты
     const image = new Image(); // Создаем новый объект изображения
     image.src = 'map.jpg'; // Путь к изображению
 
@@ -103,6 +103,10 @@
         draw(); // Перерисовываем изображение
     }
 
+    // Переменные для отслеживания количества зумов
+    let zoomCount = 0; // Счетчик зумов
+    const maxZoomCount = 6; // Максимальное количество увеличений/уменьшений
+
     // Обработка масштабирования
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
@@ -112,13 +116,24 @@
             return; // Если прокрутка, прерываем выполнение
         }
 
-        const mouseXCanvas = e.clientX;
-        const mouseYCanvas = e.clientY;
+        // Устанавливаем направление зума
+        const delta = e.deltaY > 0 ? -0.08 : 0.08; // Направление зума
+        let newScale = scale + delta;
 
-        const delta = e.deltaY > 0 ? -0.05 : 0.05; // Направление зума
-        const newScale = Math.min(Math.max(minScale, scale + delta), maxScale);
+        // Проверка на количество зумов
+        if (delta > 0 && zoomCount < maxZoomCount && newScale <= maxScale) {
+            scale = newScale;
+            zoomCount++;
+        } else if (delta < 0 && zoomCount > 0 && newScale >= minScale) {
+            scale = newScale;
+            zoomCount--;
+        } else {
+            return; // Если не можем изменить масштаб, выходим из функции
+        }
 
         // Получаем текущее положение мыши в координатах изображения
+        const mouseXCanvas = e.clientX;
+        const mouseYCanvas = e.clientY;
         const rect = canvas.getBoundingClientRect();
         const imageMouseX = (mouseXCanvas - rect.left - currentX) / scale;
         const imageMouseY = (mouseYCanvas - rect.top - currentY) / scale;
@@ -126,9 +141,6 @@
         // Сохраняем текущее положение мыши
         const mouseXBeforeZoom = imageMouseX;
         const mouseYBeforeZoom = imageMouseY;
-
-        // Обновляем масштаб
-        scale = newScale;
 
         // Пересчитываем новое положение мыши в новых координатах
         const newMouseX = mouseXBeforeZoom * (scale / newScale);
@@ -172,9 +184,6 @@
 
 </body>
 </html>
-
-
-
 
 
 
