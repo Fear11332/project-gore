@@ -3,16 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image with Mouse-Driven Movement and Zoom Limits</title>
+    <title>Image with Marker and Iframe Popup</title>
     <style>
         html, body {
             height: 100%;
             margin: 0;
-            overflow: hidden; /* Убираем прокрутку страницы */
-            position: relative; /* Устанавливаем позиционирование для body */
+            overflow: hidden; /* Запретить прокрутку на уровне body */
         }
         canvas {
-            display: block; /* Убираем пробелы вокруг canvas */
+            display: block;
+        }
+        .marker {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255, 0, 0, 0.5); /* Полупрозрачный красный маркер */
+            border-radius: 50%;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .marker.disabled {
+            pointer-events: none; /* Отключить события */
+            opacity: 0.5; /* Сделать маркер полупрозрачным */
+        }
+        #iframeContainer {
+            display: none;
+            position: fixed;
+            top: 50%; /* Центрируем по вертикали */
+            left: 50%; /* Центрируем по горизонтали */
+            transform: translate(-50%, -50%); /* Смещаем на половину ширины и высоты для точного центрирования */
+            width: 40vw; /* Ширина окна iframe (уменьшена) */
+            height: 40vh; /* Высота окна iframe (уменьшена) */
+            background-color: rgba(0, 0, 0, 0.75);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        #iframePopup {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden; /* Убираем скролл внутри iframe */
         }
     </style>
 </head>
@@ -20,32 +51,44 @@
 
 <canvas id="canvas"></canvas>
 
+<div id="marker" class="marker"></div>
+
+<div id="iframeContainer">
+    <iframe id="iframePopup" src="../first_ring/ring.html" scrolling="no"></iframe>
+</div>
+
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    
+    const iframeContainer = document.getElementById('iframeContainer');
+    const marker = document.getElementById('marker');
 
     let currentX = 0, currentY = 0;
-    let scale = 1;  // Начальный зум
-    const minScale = 1; // Минимальный зум (начальный зум)
-    const maxZoomSteps = 3; // Максимальное количество зумов на увеличение
-    let zoomStep = 0; // Текущий шаг зума
+    let scale = 1;  
+    const minScale = 1;
+    const maxZoomSteps = 3; 
+    let zoomStep = 0; 
 
-    const image = new Image(); // Создаем новый объект изображения
-    image.src = 'map.jpg'; // Путь к изображению
+    const image = new Image(); 
+    image.src = 'map.jpg'; 
 
     let isDragging = false;
     let startX, startY;
 
-    // Установка размеров canvas
+    // Переменные для хранения состояния
+    let bodyOverflow = '';
+    let canvasPointerEvents = '';
+    let isIframeOpen = false; // Флаг для отслеживания состояния iframe
+
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        draw(); // Рисуем изображение после изменения размера
+        draw(); 
     }
 
-    // Отрисовка изображения на canvas
     function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
         ctx.save();
         ctx.translate(currentX, currentY);
         ctx.scale(scale, scale);
@@ -53,7 +96,6 @@
         ctx.restore();
     }
 
-    // Ограничиваем перемещение
     function clampTranslation(x, y) {
         const maxX = (image.width * scale - canvas.width);
         const maxY = (image.height * scale - canvas.height);
@@ -64,11 +106,12 @@
         return { x: clampedX, y: clampedY };
     }
 
-    // Обработка перемещения через зажатие мыши
     canvas.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX - currentX;
-        startY = e.clientY - currentY;
+        if (!isIframeOpen) { // Проверка, открыто ли окно
+            isDragging = true;
+            startX = e.clientX - currentX;
+            startY = e.clientY - currentY;
+        }
     });
 
     canvas.addEventListener('mousemove', (e) => {
@@ -80,7 +123,8 @@
             currentX = x;
             currentY = y;
 
-            draw(); // Перерисовываем изображение
+            draw(); 
+            positionMarker();
         }
     });
 
@@ -92,70 +136,92 @@
         isDragging = false;
     });
 
-    // Обработка масштабирования с учетом положения курсора
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
 
-        // Устанавливаем направление зума
-        const delta = e.deltaY > 0 ? -1 : 1; // Направление зума (увеличение или уменьшение)
+        const delta = e.deltaY > 0 ? -1 : 1;
         let newZoomStep = zoomStep + delta;
 
-        // Ограничение на количество зумов
         if (newZoomStep > maxZoomSteps || newZoomStep < 0) {
-            return; // Если превышено количество зумов, выходим из функции
+            return;
         }
 
-        // Получаем текущее положение мыши в координатах canvas
         const rect = canvas.getBoundingClientRect();
         const mouseXCanvas = e.clientX - rect.left;
         const mouseYCanvas = e.clientY - rect.top;
 
-        // Получаем текущее положение мыши в координатах изображения
         const imageMouseX = (mouseXCanvas - currentX) / scale;
         const imageMouseY = (mouseYCanvas - currentY) / scale;
 
-        // Обновляем масштаб
         scale = Math.pow(1.5, newZoomStep);
         zoomStep = newZoomStep;
 
-        // Рассчитываем новые координаты для перемещения изображения относительно курсора
         const newImageMouseX = imageMouseX * scale;
         const newImageMouseY = imageMouseY * scale;
         currentX = mouseXCanvas - newImageMouseX;
         currentY = mouseYCanvas - newImageMouseY;
 
-        // Ограничиваем перемещение после зума
         const { x, y } = clampTranslation(currentX, currentY);
         currentX = x;
         currentY = y;
 
-        draw(); // Перерисовываем изображение
+        draw();
+        positionMarker();
     });
 
-    // Ждем, пока изображение полностью загрузится, перед отрисовкой
     image.onload = function() {
-        resizeCanvas(); // Перерисовываем изображение после загрузки
+        resizeCanvas();
+        positionMarker();
     };
 
-    window.addEventListener('resize', resizeCanvas); // Обновляем размер canvas при изменении окна
+    window.addEventListener('resize', resizeCanvas);
 
+    // Позиционируем маркер
+    function positionMarker() {
+        const markerX = 100; // Координаты маркера
+        const markerY = 200;
+
+        const canvasMarkerX = markerX * scale + currentX;
+        const canvasMarkerY = markerY * scale + currentY;
+
+        marker.style.left = `${canvasMarkerX}px`;
+        marker.style.top = `${canvasMarkerY}px`;
+
+        // Если зум меньше 2, маркер скрывается
+        if (scale < 2) {
+            marker.style.display = 'none';
+            marker.classList.add('disabled'); // Делаем маркер неактивным
+        } else {
+            marker.style.display = 'block';
+            marker.classList.remove('disabled'); // Возвращаем маркер к активному состоянию
+        }
+    }
+
+    // Маркер для открытия iframe
+    marker.addEventListener('dblclick', () => {
+        iframeContainer.style.display = 'flex'; // Показываем iframe
+        bodyOverflow = document.body.style.overflow; // Сохраняем текущее состояние прокрутки
+        document.body.style.overflow = 'hidden'; // Запретить прокрутку
+        canvasPointerEvents = canvas.style.pointerEvents; // Сохраняем текущее состояние canvas
+        canvas.style.pointerEvents = 'none'; // Запретить взаимодействие с канвасом
+        marker.classList.add('disabled'); // Делаем маркер неактивным
+        isIframeOpen = true; // Устанавливаем флаг открытого iframe
+        isDragging = false; // Сбрасываем состояние перетаскивания
+    });
+
+    // Закрытие iframe при клике вне его
+    window.addEventListener('click', (event) => {
+        if (isIframeOpen && !iframeContainer.contains(event.target) && !marker.contains(event.target)) {
+            iframeContainer.style.display = 'none';
+            document.body.style.overflow = bodyOverflow; // Восстанавливаем состояние прокрутки
+            canvas.style.pointerEvents = canvasPointerEvents; // Восстанавливаем состояние canvas
+            marker.classList.remove('disabled'); // Возвращаем маркер к активному состоянию
+            isIframeOpen = false; // Сбрасываем флаг открытого iframe
+        }
+    });
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
