@@ -9,15 +9,21 @@
             height: 100%;
             margin: 0;
             overflow: hidden; /* Убираем прокрутку страницы */
+            position: relative; /* Устанавливаем позиционирование для body */
         }
         canvas {
             display: block; /* Убираем пробелы вокруг canvas */
+        }
+        iframe {
+            position: absolute; /* Устанавливаем абсолютное позиционирование для iframe */
+            display: none; /* Изначально скрываем iframe */
         }
     </style>
 </head>
 <body>
 
 <canvas id="canvas"></canvas>
+<iframe id="myIframe" src="../first_ring/ring.html" width="300" height="300"></iframe> <!-- Измените размеры здесь -->
 
 <script>
     const canvas = document.getElementById('canvas');
@@ -27,7 +33,7 @@
     let scale = 1;  // Начальный зум
     const minScale = 1; // Минимальный зум
     const maxScale = 6;   // Максимальный зум
-    const moveSpeed = 4; // Скорость перемещения карты
+    const moveSpeed = 6; // Скорость перемещения карты
     const image = new Image(); // Создаем новый объект изображения
     image.src = 'map.jpg'; // Путь к изображению
 
@@ -37,6 +43,10 @@
     let isScrolling = false; // Флаг, указывающий, происходит ли прокрутка
     let timeout; // Таймер для определения окончания движения
     let scrollTimeout; // Таймер для задержки прокрутки
+
+    // Переменные для управления кольцом
+    let ringVisible = false; // Флаг для видимости кольца
+    const ringPosition = { x: 100, y: 200 }; // Позиция кольца на карте
 
     // Установка размеров canvas
     function resizeCanvas() {
@@ -53,6 +63,19 @@
         ctx.scale(scale, scale);
         ctx.drawImage(image, 0, 0);
         ctx.restore();
+
+        // Если кольцо видно, отрисовываем его
+        if (ringVisible) {
+            ctx.save();
+            ctx.translate(currentX, currentY);
+            ctx.scale(scale, scale);
+            ctx.beginPath();
+            ctx.arc(ringPosition.x, ringPosition.y,10, 0, Math.PI * 2); // Размер кольца
+            ctx.strokeStyle = 'red'; // Цвет кольца
+            ctx.lineWidth = 5; // Ширина кольца
+            ctx.stroke();
+            ctx.restore();
+        }
     }
 
     // Ограничиваем перемещение
@@ -165,25 +188,53 @@
         scrollTimeout = setTimeout(() => {
             isScrolling = false; // Сбрасываем флаг через 100 мс
         }, 90);
+
+        // Управление отображением iframe и кольца
+        const iframe = document.getElementById('myIframe');
+        if (zoomCount >= 2) { // Показываем iframe, если зум на два или более
+            iframe.style.display = 'block';
+            ringVisible = true; // Показываем кольцо
+        } else {
+            iframe.style.display = 'none';
+            ringVisible = false; // Скрываем кольцо
+        }
     });
 
-    // Обработка изменения размера окна
-    window.addEventListener('resize', resizeCanvas);
-    image.onload = () => {
-        resizeCanvas(); // Устанавливаем размеры canvas после загрузки изображения
-    };
+    window.addEventListener('resize', resizeCanvas); // Обновляем размер canvas при изменении окна
+    resizeCanvas(); // Устанавливаем начальный размер canvas
 
-    // Основной цикл обновления
-    function gameLoop() {
-        updatePosition(); // Обновляем позицию
-        requestAnimationFrame(gameLoop); // Рисуем следующий кадр
+    // Запуск обновления позиции мыши
+    setInterval(() => {
+        if (isMouseMoving) {
+            updatePosition(); // Обновляем позицию, если мышь движется
+        }
+    }, 10); // Обновляем позицию каждые 30 мс
+
+    // Обработка клика на canvas
+canvas.addEventListener('click', (e) => {
+    // Получаем координаты курсора в canvas
+    const rect = canvas.getBoundingClientRect();
+    const mouseXCanvas = e.clientX - rect.left;
+    const mouseYCanvas = e.clientY - rect.top;
+
+    // Приводим координаты к масштабу изображения
+    const scaledX = (mouseXCanvas - currentX) / scale;
+    const scaledY = (mouseYCanvas - currentY) / scale;
+
+    // Проверяем, попадает ли курсор в область кольца
+    const ringRadius = 10; // Радиус кольца
+    const distance = Math.sqrt((scaledX - ringPosition.x) ** 2 + (scaledY - ringPosition.y) ** 2);
+    if (ringVisible && distance <= ringRadius) {
+        // Открываем новое окно с изображением
+        window.open('fog.png', '_blank', 'width=400,height=300'); // Укажите путь к изображению
     }
+});
 
-    gameLoop(); // Запуск цикла обновления
+
 </script>
-
 </body>
 </html>
+
 
 
 
