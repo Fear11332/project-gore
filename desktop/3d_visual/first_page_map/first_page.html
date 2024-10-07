@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image with Mouse-Driven Movement and Zoom Limits</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Убираем прокрутку страницы */
+        }
+        canvas {
+            display: block; /* Убираем пробелы вокруг canvas */
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let currentX = 0, currentY = 0;
+    let scale = 1;  // Начальный зум
+    const minScale = 1; // Минимальный зум
+    const maxScale = 5;   // Максимальный зум
+    const moveSpeed = 5; // Скорость перемещения карты
+    const image = new Image(); // Создаем новый объект изображения
+    image.src = 'map.jpg'; // Путь к изображению
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    // Установка размеров canvas
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        draw(); // Рисуем изображение после изменения размера
+    }
+
+    // Отрисовка изображения на canvas
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем canvas
+        ctx.save();
+        ctx.translate(currentX, currentY);
+        ctx.scale(scale, scale);
+        ctx.drawImage(image, 0, 0);
+        ctx.restore();
+    }
+
+    // Ограничиваем перемещение
+    function clampTranslation(x, y) {
+        const maxX = (image.width * scale - canvas.width);
+        const maxY = (image.height * scale - canvas.height);
+
+        const clampedX = Math.max(Math.min(0, x), -maxX);
+        const clampedY = Math.max(Math.min(0, y), -maxY);
+
+        return { x: clampedX, y: clampedY };
+    }
+
+    // Обработка перемещения мыши
+    canvas.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // Обработка обновления позиции
+    function updatePosition() {
+        const halfWidth = canvas.width / 2;
+        const halfHeight = canvas.height / 2;
+
+        // Смещение карты в зависимости от положения мыши относительно центра
+        const deltaX = (halfWidth - mouseX) / halfWidth * moveSpeed; // Изменяем направление
+        const deltaY = (halfHeight - mouseY) / halfHeight * moveSpeed; // Изменяем направление
+
+        currentX += deltaX;
+        currentY += deltaY;
+
+        // Ограничиваем перемещение
+        const { x, y } = clampTranslation(currentX, currentY);
+        currentX = x;
+        currentY = y;
+
+        draw(); // Перерисовываем изображение
+    }
+
+    // Обработка масштабирования
+    canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        const delta = e.deltaY > 0 ? -0.1 : 0.1; // Направление зума
+        const newScale = Math.min(Math.max(minScale, scale + delta), maxScale);
+
+        // Получаем текущее положение мыши в координатах изображения
+        const rect = canvas.getBoundingClientRect();
+        const imageMouseX = (mouseX - rect.left - currentX) / scale;
+        const imageMouseY = (mouseY - rect.top - currentY) / scale;
+
+        scale = newScale;
+
+        // Обновляем размеры canvas после изменения масштаба
+        draw();
+
+        // Корректируем смещение изображения, чтобы зум происходил в точке мыши
+        const newMouseX = imageMouseX * (scale / newScale);
+        const newMouseY = imageMouseY * (scale / newScale);
+
+        currentX -= newMouseX - imageMouseX * scale;
+        currentY -= newMouseY - imageMouseY * scale;
+
+        // Ограничиваем перемещение карты после зума
+        const { x, y } = clampTranslation(currentX, currentY);
+        currentX = x;
+        currentY = y;
+
+        draw(); // Перерисовываем изображение
+    });
+
+    // Обработка изменения размера окна
+    window.addEventListener('resize', resizeCanvas);
+    image.onload = () => {
+        resizeCanvas(); // Устанавливаем размеры canvas после загрузки изображения
+    };
+
+    // Основной цикл обновления
+    function gameLoop() {
+        updatePosition(); // Обновляем позицию
+        requestAnimationFrame(gameLoop); // Рисуем следующий кадр
+    }
+
+    gameLoop(); // Запуск цикла обновления
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
