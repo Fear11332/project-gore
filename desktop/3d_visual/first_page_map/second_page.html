@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image with Mouse-Driven Movement and Zoom Limits</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Убираем прокрутку страницы */
+            position: relative; /* Устанавливаем позиционирование для body */
+        }
+        canvas {
+            display: block; /* Убираем пробелы вокруг canvas */
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let currentX = 0, currentY = 0;
+    let scale = 1;  // Начальный зум
+    const minScale = 1; // Минимальный зум (начальный зум)
+    const maxZoomSteps = 3; // Максимальное количество зумов на увеличение
+    let zoomStep = 0; // Текущий шаг зума
+
+    const image = new Image(); // Создаем новый объект изображения
+    image.src = 'map.jpg'; // Путь к изображению
+
+    let isDragging = false;
+    let startX, startY;
+
+    // Установка размеров canvas
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        draw(); // Рисуем изображение после изменения размера
+    }
+
+    // Отрисовка изображения на canvas
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем canvas
+        ctx.save();
+        ctx.translate(currentX, currentY);
+        ctx.scale(scale, scale);
+        ctx.drawImage(image, 0, 0);
+        ctx.restore();
+    }
+
+    // Ограничиваем перемещение
+    function clampTranslation(x, y) {
+        const maxX = (image.width * scale - canvas.width);
+        const maxY = (image.height * scale - canvas.height);
+
+        const clampedX = Math.max(Math.min(0, x), -maxX);
+        const clampedY = Math.max(Math.min(0, y), -maxY);
+
+        return { x: clampedX, y: clampedY };
+    }
+
+    // Обработка перемещения через зажатие мыши
+    canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX - currentX;
+        startY = e.clientY - currentY;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            currentX = e.clientX - startX;
+            currentY = e.clientY - startY;
+
+            const { x, y } = clampTranslation(currentX, currentY);
+            currentX = x;
+            currentY = y;
+
+            draw(); // Перерисовываем изображение
+        }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        isDragging = false;
+    });
+
+    // Обработка масштабирования с учетом положения курсора
+    canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+
+        // Устанавливаем направление зума
+        const delta = e.deltaY > 0 ? -1 : 1; // Направление зума (увеличение или уменьшение)
+        let newZoomStep = zoomStep + delta;
+
+        // Ограничение на количество зумов
+        if (newZoomStep > maxZoomSteps || newZoomStep < 0) {
+            return; // Если превышено количество зумов, выходим из функции
+        }
+
+        // Получаем текущее положение мыши в координатах canvas
+        const rect = canvas.getBoundingClientRect();
+        const mouseXCanvas = e.clientX - rect.left;
+        const mouseYCanvas = e.clientY - rect.top;
+
+        // Получаем текущее положение мыши в координатах изображения
+        const imageMouseX = (mouseXCanvas - currentX) / scale;
+        const imageMouseY = (mouseYCanvas - currentY) / scale;
+
+        // Обновляем масштаб
+        scale = Math.pow(1.5, newZoomStep);
+        zoomStep = newZoomStep;
+
+        // Рассчитываем новые координаты для перемещения изображения относительно курсора
+        const newImageMouseX = imageMouseX * scale;
+        const newImageMouseY = imageMouseY * scale;
+        currentX = mouseXCanvas - newImageMouseX;
+        currentY = mouseYCanvas - newImageMouseY;
+
+        // Ограничиваем перемещение после зума
+        const { x, y } = clampTranslation(currentX, currentY);
+        currentX = x;
+        currentY = y;
+
+        draw(); // Перерисовываем изображение
+    });
+
+    // Ждем, пока изображение полностью загрузится, перед отрисовкой
+    image.onload = function() {
+        resizeCanvas(); // Перерисовываем изображение после загрузки
+    };
+
+    window.addEventListener('resize', resizeCanvas); // Обновляем размер canvas при изменении окна
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
