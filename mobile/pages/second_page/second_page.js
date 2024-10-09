@@ -5,13 +5,14 @@ const iframeContainer = document.getElementById('iframeContainer');
 const marker = document.getElementById('marker');
 
 let currentX = 0, currentY = 0;
-let scale = 1;  
-const minScale = 1;
-const maxZoomSteps = 3; 
-let zoomStep = 0; 
+let scale = 1;
+const minScale = 1; // Минимальный масштаб
+const maxScale = 3; // Максимальный масштаб
+const zoomFactor = 1.5; // Коэффициент увеличения
+let zoomStep = 0; // Текущий уровень масштабирования
 
-const image = new Image(); 
-image.src = '../images/map.jpg'; 
+const image = new Image();
+image.src = '../images/map.png';
 
 let isDragging = false;
 let startX, startY;
@@ -20,15 +21,20 @@ let startX, startY;
 let bodyOverflow = '';
 let canvasPointerEvents = '';
 let isIframeOpen = false; // Флаг для отслеживания состояния iframe
+let lastTouchEnd = 0;
+let prevDistance = 0;
+let isZooming = false;
 
+// Функция для изменения размера канваса
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    draw(); 
+    draw();
 }
 
+// Функция для отрисовки изображения
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.translate(currentX, currentY);
     ctx.scale(scale, scale);
@@ -36,6 +42,7 @@ function draw() {
     ctx.restore();
 }
 
+// Функция для ограничения перемещения
 function clampTranslation(x, y) {
     const maxX = (image.width * scale - canvas.width);
     const maxY = (image.height * scale - canvas.height);
@@ -46,56 +53,16 @@ function clampTranslation(x, y) {
     return { x: clampedX, y: clampedY };
 }
 
-function startDrag(e) {
-    if (!isIframeOpen) { // Проверка, открыто ли окно
-        isDragging = true;
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX; // Поддержка мобильных устройств
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY; // Поддержка мобильных устройств
-        startX = clientX - currentX;
-        startY = clientY - currentY;
-    }
-}
-
-function drag(e) {
-    if (isDragging) {
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX; // Поддержка мобильных устройств
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY; // Поддержка мобильных устройств
-
-        currentX = clientX - startX;
-        currentY = clientY - startY;
-
-        const { x, y } = clampTranslation(currentX, currentY);
-        currentX = x;
-        currentY = y;
-
-        draw(); 
-        positionMarker();
-    }
-}
-
-function endDrag() {
-    isDragging = false;
-}
-
-canvas.addEventListener('mousedown', startDrag);
-canvas.addEventListener('mousemove', drag);
-canvas.addEventListener('mouseup', endDrag);
-canvas.addEventListener('mouseleave', endDrag);
-
-// Обработчики событий для мобильных устройств
-canvas.addEventListener('touchstart', startDrag);
-canvas.addEventListener('touchmove', drag);
-canvas.addEventListener('touchend', endDrag);
-canvas.addEventListener('touchcancel', endDrag);
-
+// Обработка событий масштабирования с колесом мыши
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
 
     const delta = e.deltaY > 0 ? -1 : 1;
     let newZoomStep = zoomStep + delta;
 
-    if (newZoomStep > maxZoomSteps || newZoomStep < 0) {
-        return;
+    // Проверяем, не превышаем ли пределы масштабирования
+    if (newZoomStep > 3 || newZoomStep < 0) {
+        return; // Не изменяем масштаб, если уже достигнут предел
     }
 
     const rect = canvas.getBoundingClientRect();
@@ -105,7 +72,7 @@ canvas.addEventListener('wheel', (e) => {
     const imageMouseX = (mouseXCanvas - currentX) / scale;
     const imageMouseY = (mouseYCanvas - currentY) / scale;
 
-    scale = Math.pow(1.5, newZoomStep);
+    scale = minScale * Math.pow(zoomFactor, newZoomStep);
     zoomStep = newZoomStep;
 
     const newImageMouseX = imageMouseX * scale;
@@ -121,11 +88,98 @@ canvas.addEventListener('wheel', (e) => {
     positionMarker();
 });
 
+// Обработка начала касания
+canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+        prevDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        isZooming = true;
+    } else if (e.touches.length === 1) {
+        isDragging = true; // Начинаем перетаскивание
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    }
+});
+
+// Обработка перемещения касания
+canvas.addEventListener('touchmove', (e) => {
+    if (isZooming && e.touches.length === 2) {
+        e.preventDefault(); // Предотвращаем прокрутку страницы
+
+        const currentDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+
+        const delta = currentDistance - prevDistance;
+        const zoomDirection = delta > 0 ? 1 : -1;
+
+        let newZoomStep = zoomStep + zoomDirection;
+
+        if (newZoomStep > 3 || newZoomStep < 0) {
+            return; // Не изменяем масштаб, если уже достигнут предел
+        }
+
+        const rect = canvas.getBoundingClientRect();
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+
+        const imageMouseX = (midX - currentX) / scale;
+        const imageMouseY = (midY - currentY) / scale;
+
+        scale = Math.pow(1.5, newZoomStep);
+        zoomStep = newZoomStep;
+
+        const newImageMouseX = imageMouseX * scale;
+        const newImageMouseY = imageMouseY * scale;
+        currentX = midX - newImageMouseX;
+        currentY = midY - newImageMouseY;
+
+        const { x, y } = clampTranslation(currentX, currentY);
+        currentX = x;
+        currentY = y;
+
+        draw();
+        positionMarker();
+
+        prevDistance = currentDistance; // Обновляем предыдущее расстояние
+    } else if (isDragging && e.touches.length === 1) {
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+        currentX += dx;
+        currentY += dy;
+
+        const { x, y } = clampTranslation(currentX, currentY);
+        currentX = x;
+        currentY = y;
+
+        draw();
+        positionMarker();
+
+        startX = e.touches[0].clientX; // Обновляем начальные координаты
+        startY = e.touches[0].clientY;
+    }
+});
+
+// Обработка окончания касания
+canvas.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+        isZooming = false; // Завершаем режим масштабирования
+    }
+    if (e.touches.length === 0) {
+        isDragging = false; // Завершаем перетаскивание
+    }
+});
+
+// Отрисовка изображения при загрузке
 image.onload = function() {
     resizeCanvas();
     positionMarker();
 };
 
+// Изменение размера канваса при изменении размера окна
 window.addEventListener('resize', resizeCanvas);
 
 // Позиционируем маркер

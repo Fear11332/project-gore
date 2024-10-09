@@ -10,7 +10,7 @@
             position: absolute;
             width: 100px;
             height: 100px;
-            background-color: rgba(255, 0, 0, 0.5); /* Полупрозрачный красный маркер */
+            background-color: rgb(62 52 58 / 88%);/* Полупрозрачный красный маркер */
             border-radius: 50%;
             cursor: pointer;
             transition: opacity 0.3s;

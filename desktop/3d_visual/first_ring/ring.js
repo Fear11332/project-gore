@@ -134,32 +134,7 @@ if (isWebGL2Available()) {
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
     
-    // Пропорционально изменяем масштаб объекта
-    // Пропорционально изменяем масштаб объекта
- if (object) {
-    const desiredWidth = 4700; // Задайте желаемые размеры объекта
-    const desiredHeight = 4700;
-
-    // Получаем ширину и высоту контейнера
-    const scaleFactorX = width / desiredWidth;
-    const scaleFactorY = height / desiredHeight;
-
-    // Максимальный и минимальный коэффициенты масштабирования
-    const maxScale = 0.07; // Максимальный масштаб
-    const minScale = 0.04; // Минимальный масштаб
-
-    // Находим значение scaleFactor, ограниченное maxScale и minScale
-    const scaleFactor = Math.min(maxScale, Math.max(minScale, Math.min(scaleFactorX, scaleFactorY)));
-
-    console.log(`Width: ${width}, Height: ${height}, Scale Factor: ${scaleFactor}`);
-
-    // Устанавливаем масштаб объекта
-    object.scale.set(scaleFactor, scaleFactor, scaleFactor);
-}
-
-
 });
-
 });
 
 

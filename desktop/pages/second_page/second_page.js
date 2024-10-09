@@ -11,7 +11,7 @@
     let zoomStep = 0; 
 
     const image = new Image(); 
-    image.src = '../images/map.jpg'; 
+    image.src = '../images/map.png'; 
 
     let isDragging = false;
     let startX, startY;
