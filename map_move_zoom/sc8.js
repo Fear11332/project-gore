@@ -48,11 +48,11 @@ let setTime=2000;
 let layout='map';
 let popUpWindowOpen=false;
 let isPoint = false;
-
+let background;
 // Функция для загрузки ресурсов
 function preload() {
     // Пока нет необходимости загружать ресурсы
-    this.load.image('map', 'images/map.png');
+    this.load.image('map', '../../map.png');
     this.load.image('popupImage1', 'images/1.png');
     this.load.image('popupImage2','images/2.png');
     this.load.image('popupImage3','images/3.png');
@@ -62,25 +62,28 @@ function preload() {
 
 // Функция для создания сцены
 function create() {
-    mapImage = this.add.image(0, 0, 'map').setOrigin(0.5, 0.5);
-    mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
-    mapImage.setDisplaySize(currentZoom,currentZoom); 
-    
-     // Создаем квадрат
-     tapCoordinatesText = this.add.text(10, 10, '', {
-        fontSize: '16px',
-        fill: '#ffffff'
-    });
-    redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0.5);  // Квадрат 2048x2048px красного цвета
-    redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
-     redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
-     {
+        // Создаем черный фон, который занимает весь экран
+        background = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000000).setOrigin(0, 0);
+
+        mapImage = this.add.image(0, 0, 'map').setOrigin(0.5, 0.5);
+        mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
+        mapImage.setDisplaySize(currentZoom,currentZoom); 
+        
+        // Создаем квадрат
+        /*tapCoordinatesText = this.add.text(10, 10, '', {
+            fontSize: '16px',
+            fill: '#ffffff'
+        });*/
+
+        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
+        redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
+        redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
         redSquare.setSize(originalSize * scaleFactor*squareScaleFactor, originalSize * scaleFactor*squareScaleFactor);
-    }
+        
         // Создаем точку, которая будет находиться в центре квадрата
-        blueDot = this.add.circle(0, 0, 10, 0x0000ff);  // Синяя точка радиусом 10px
-        blueDot.setOrigin(0.5, 0.5);  // Центр точки в его середину
+        //blueDot = this.add.circle(0, 0, 10, 0x0000ff);  // Синяя точка радиусом 10px
+        //blueDot.setOrigin(0.5, 0.5);  // Центр точки в его середину
         
         // Создаем точку, которая будет находиться в 
         greenDot = this.add.circle(0, 0, 10, 0x00ff00);  // Синяя точка радиусом 10px
@@ -92,89 +95,93 @@ function create() {
         .setOrigin(0.5, 0.5)
         .setInteractive();
 
-        resize.call(this);  // Сразу вызываем resize, чтобы канвас занимал весь экран
+        resize(this);  // Сразу вызываем resize, чтобы канвас занимал весь экран
         let pointerDownTime = 0;
         // Добавляем обработчик события изменения размера окна
-    window.addEventListener('resize', () => {
-        if(layout==='zoom')
-            moveSquareToGreenDot(this,1);
-        else
-            resize.call(this);  // Перерасчет размеров после изменения ориентации
-    });
+        window.addEventListener('resize', () => {
+            // Обновляем размеры игры
+            if(!popUpWindowOpen)
+                game.scale.resize(window.innerWidth, window.innerHeight);
+            if(layout==='zoom')
+                moveSquareToGreenDot(this,1);
+            else{
+                game.scale.resize(window.innerWidth, window.innerHeight);
+                resize(this);  // Перерасчет размеров после изменения ориентации
+            }
+        });
 
-     // Обработчик события "тап" по зоне маркера
-    markerZone.on('pointerdown', (pointer) => {
-          if (!zoomInFlag && !popUpWindowOpen) {
-                    layout = 'zoom';
-                    popUpWindowOpen = true; 
-                    if(!isPoint){
-                        moveSquareToGreenDot(this,0);
-                        isPoint = true;
-                        setTimeout(() => {
-                            showPopup(this); // Показываем окно после перемещения
-                        }, setTime); // Даем время завершиться анимации  
-                    }else{
-                        console.log('point');
-                        showPopup(this);
-                    }        
+        // Добавляем обработчик события поворота устройства
+        window.addEventListener('orientationchange', () => {
+            // Обновляем размеры игры
+            if(!popUpWindowOpen)
+                game.scale.resize(window.innerWidth, window.innerHeight);
+            if(layout==='zoom')
+                moveSquareToGreenDot(this,1);
+            else{
+                resize(this);  // Перерасчет размеров после изменения ориентации
+            }
+        });
+
+        // Обработчик события "тап" по зоне маркера
+        markerZone.on('pointerdown', (pointer) => {
+            if (!zoomInFlag && !popUpWindowOpen) {
+                        layout = 'zoom';
+                        popUpWindowOpen = true; 
+                        if(!isPoint){
+                            moveSquareToGreenDot(this,0);
+                            isPoint = true;
+                            setTimeout(() => {
+                                showPopup(this); // Показываем окно после перемещения
+                            }, setTime); // Даем время завершиться анимации  
+                        }else{
+                            showPopup(this);
+                        }        
+                    }
+        });
+
+        this.input.on('pointerdown', (pointer)=> {
+            if(layout==='map'){
+                // Преобразуем координаты указателя в мировые
+                const worldPointer = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+                // Проверяем, что пользователь кликнул на квадрат с учетом масштаба
+                if (redSquare.getBounds().contains(worldPointer.x, worldPointer.y)) {
+                    pointerDownTime = this.time.now;
+                    isDragging = false;
+                    isDown = true;
+                    isPoint = false;
+                    previousX = pointer.x;
+                    previousY = pointer.y;
                 }
-    });
-
-    // Добавляем обработчик события поворота устройства
-    window.addEventListener('orientationchange', () => {
-        if(layout==='zoom')
-            moveSquareToGreenDot(this,1);
-        else
-            resize.call(this);  // Перерасчет размеров после изменения ориентации
-    });
-
-    this.input.on('pointerdown', (pointer)=> {
-        if(layout==='map'){
-            console.log('down');
-            // Преобразуем координаты указателя в мировые
-            const worldPointer = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-            // Проверяем, что пользователь кликнул на квадрат с учетом масштаба
-            if (redSquare.getBounds().contains(worldPointer.x, worldPointer.y)) {
-                pointerDownTime = this.time.now;
-                isDragging = false;
-                isDown = true;
-                isPoint = false;
-                previousX = pointer.x;
-                previousY = pointer.y;
             }
-        }
-        else
-            console.log('hello');
-    });
+        });
 
-    this.input.on('pointermove', (pointer) => {
-        if (isDown) {
+        this.input.on('pointermove', (pointer) => {
+            if (isDown) {
+                const timeSinceDown = this.time.now - pointerDownTime;
+                if (timeSinceDown > 152) { // Долгое нажатие — начало перемещения
+                    isDragging = true;
+                    isPoint = false;
+                    moveMap(pointer);
+                }
+            }
+        });
+
+        this.input.on('pointerup', (pointer) => {
+            // Отпускаем квадрат, когда пользователь отпускает кнопку мыши или палец
             const timeSinceDown = this.time.now - pointerDownTime;
-            if (timeSinceDown > 152) { // Долгое нажатие — начало перемещения
-                isDragging = true;
-                isPoint = false;
-                moveMap(pointer);
+            if (!isDragging && timeSinceDown <= 152) {
+                moveSquareToTap(this, pointer);
             }
-        }
-    });
 
-    this.input.on('pointerup', (pointer) => {
-         // Отпускаем квадрат, когда пользователь отпускает кнопку мыши или палец
-         const timeSinceDown = this.time.now - pointerDownTime;
-         console.log(timeSinceDown);
-        if (!isDragging && timeSinceDown <= 152) {
-            moveSquareToTap(this, pointer);
-        }
+            isDown = false;
+            isDragging = false;
+        });
 
-        isDown = false;
-        isDragging = false;
-    });
-
-    // Глобальный обработчик завершения ввода (для мыши, сенсорных экранов и других устройств)
-    window.addEventListener('pointerup', () => {
-        isDown = false;
-        isDragging = false;
-    });
+        // Глобальный обработчик завершения ввода (для мыши, сенсорных экранов и других устройств)
+        window.addEventListener('pointerup', () => {
+            isDown = false;
+            isDragging = false;
+        });
 }
 
 function moveSquareToGreenDot(scene, flag) {
@@ -204,7 +211,7 @@ function moveSquareToGreenDot(scene, flag) {
                 redSquare.setPosition(targets.x, targets.y);
 
                 // Перемещаем синюю точку
-                blueDot.setPosition(redSquare.x, redSquare.y);
+                //blueDot.setPosition(redSquare.x, redSquare.y);
 
                 // Перемещаем зеленую точку
                 greenDot.setPosition(
@@ -219,9 +226,9 @@ function moveSquareToGreenDot(scene, flag) {
                 );
 
                 // Обновляем текст с координатами
-                tapCoordinatesText.setText(
+                /*tapCoordinatesText.setText(
                     `Green Dot - X: ${greenDot.x.toFixed(2)}, Y: ${greenDot.y.toFixed(2)}`
-                );
+                );*/
             }
         });
 }
@@ -411,7 +418,7 @@ function moveSquareToTap(scene, pointer) {
                 redSquare.setPosition(targets.x, targets.y);
 
                 // Перемещаем синюю точку
-                blueDot.setPosition(redSquare.x, redSquare.y);
+                //blueDot.setPosition(redSquare.x, redSquare.y);
 
                 // Перемещаем зеленую точку
                 greenDot.setPosition(redSquare.x+greeDotPositionOfsset.x, 
@@ -422,9 +429,9 @@ function moveSquareToTap(scene, pointer) {
                 );
 
                 // Обновляем текст с координатами
-                tapCoordinatesText.setText(
+                /*tapCoordinatesText.setText(
                     `Red Square - X: ${redSquare.x.toFixed(2)}, Y: ${redSquare.y.toFixed(2)}`
-                );
+                );*/
             },
             onComplete: () => {
                 if(layout==='map') {
@@ -560,7 +567,7 @@ function moveMap(pointer) {
                 mapImage.setPosition(redSquare.x, redSquare.y);
 
                 // Перемещаем точку в центр квадрата
-                blueDot.setPosition(redSquare.x, redSquare.y);
+                //blueDot.setPosition(redSquare.x, redSquare.y);
 
                 greenDot.setPosition(redSquare.x+greeDotPositionOfsset.x,
                     redSquare.y+greeDotPositionOfsset.y
@@ -578,23 +585,15 @@ function moveMap(pointer) {
 
 // Функция для обновления
 function update() {
-    // Логика для обновления квадрата (если нужно)
 }
 
 // Функция для перерасчета размера канваса
-function resize() {
-    // Вычисляем коэффициент масштабирования
-    //const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize);
-
-    // Пересчитываем размер квадрата с учетом коэффициента масштабирования
-    //redSquare.setSize(originalSize * scaleFactor, originalSize * scaleFactor);
-
-    // Перемещаем квадрат в центр экрана
+function resize(scene) {
     redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
     mapImage.setPosition(redSquare.x, redSquare.y);
 
     // Перемещаем точку в центр квадрата
-    blueDot.setPosition(redSquare.x, redSquare.y);
+    //blueDot.setPosition(redSquare.x, redSquare.y);
 
     greenDot.setPosition(redSquare.x+greeDotPositionOfsset.x,
         redSquare.y+greeDotPositionOfsset.y
