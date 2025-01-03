@@ -52,7 +52,7 @@ let background;
 // Функция для загрузки ресурсов
 function preload() {
     // Пока нет необходимости загружать ресурсы
-    this.load.image('map', '../../map.png');
+    this.load.image('map', 'images/map.png');
     this.load.image('popupImage1', 'images/1.png');
     this.load.image('popupImage2','images/2.png');
     this.load.image('popupImage3','images/3.png');
