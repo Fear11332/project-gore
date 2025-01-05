@@ -49,15 +49,68 @@ let layout='map';
 let popUpWindowOpen=false;
 let isPoint = false;
 let background;
-// Функция для загрузки ресурсов
-function preload() {
-    // Пока нет необходимости загружать ресурсы
-    this.load.image('map', 'images/map.png');
-    this.load.image('popupImage1', 'images/1.png');
-    this.load.image('popupImage2','images/2.png');
-    this.load.image('popupImage3','images/3.png');
-    this.load.image('popupImage4','images/4.png');
-    this.load.image('popupImage5','images/5.png');
+
+// Функция для асинхронной загрузки ресурсов
+async function preload() {
+    // Отображаем текст "Загрузка..." в центре экрана
+    this.loadingText = this.add.text(window.innerWidth / 2, window.innerHeight / 2, 'Loading', {
+        fontSize: '32px',
+        fill: '#5DE100',
+        align: 'center'
+    }).setOrigin(0.5);
+
+    // Создаем анимацию с точками для загрузки
+    animateLoading.call(this);
+
+    // Загружаем ресурсы асинхронно
+    const loadPromise = loadAllImages.call(this);
+
+    // Дожидаемся завершения загрузки
+    await loadPromise;
+
+    // После завершения загрузки, добавляем искусственную задержку
+    await delay(2000); // Задержка в 1 секунду после завершения загрузки
+
+    // После задержки скрываем текст "Загрузка"
+    this.loadingText.setVisible(false);
+
+    // Здесь можно продолжать работу с картой
+}
+
+// Функция для анимации текста "Загрузка..." с точками
+function animateLoading() {
+    let dotCount = 0; // Количество точек
+    const maxDots = 3; // Максимум точек (например, 3 точки)
+
+    // Устанавливаем интервал, чтобы добавлять точки
+    this.loadingInterval = setInterval(() => {
+        dotCount++;
+        if (dotCount > maxDots) {
+            dotCount = 1; // Сбросить точек до одной, если достигли максимума
+        }
+        this.loadingText.setText(`Loading${'.'.repeat(dotCount)}`);
+    }, 100); // Интервал в 500 мс для циклического добавления точек
+}
+
+// Функция загрузки всех изображений
+function loadAllImages() {
+    return new Promise((resolve, reject) => {
+        this.load.image('map', 'images/map.png');
+        this.load.image('popupImage1', 'images/1.png');
+        this.load.image('popupImage2', 'images/2.png');
+        this.load.image('popupImage3', 'images/3.png');
+        this.load.image('popupImage4', 'images/4.png');
+        this.load.image('popupImage5', 'images/5.png');
+
+        // Когда все ресурсы загружены, resolve промис
+        this.load.once('complete', resolve);
+        this.load.start();
+    });
+}
+
+// Функция задержки (например, 1 секунда)
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Функция для создания сцены
@@ -95,31 +148,32 @@ function create() {
         .setOrigin(0.5, 0.5)
         .setInteractive();
 
-        resize(this);  // Сразу вызываем resize, чтобы канвас занимал весь экран
+        objestPositionRebuild(this);  // Сразу вызываем resize, чтобы канвас занимал весь экран
         let pointerDownTime = 0;
         // Добавляем обработчик события изменения размера окна
         window.addEventListener('resize', () => {
             // Обновляем размеры игры
-            if(!popUpWindowOpen)
+            requestAnimationFrame(() => {
                 game.scale.resize(window.innerWidth, window.innerHeight);
-            if(layout==='zoom')
-                moveSquareToGreenDot(this,1);
-            else{
-                game.scale.resize(window.innerWidth, window.innerHeight);
-                resize(this);  // Перерасчет размеров после изменения ориентации
-            }
+                if (layout === 'zoom') {
+                    moveSquareToGreenDot(this, 1);
+                } else {
+                    objestPositionRebuild(this);
+                }
+            });
         });
 
         // Добавляем обработчик события поворота устройства
         window.addEventListener('orientationchange', () => {
             // Обновляем размеры игры
-            if(!popUpWindowOpen)
+            requestAnimationFrame(() => {
                 game.scale.resize(window.innerWidth, window.innerHeight);
-            if(layout==='zoom')
-                moveSquareToGreenDot(this,1);
-            else{
-                resize(this);  // Перерасчет размеров после изменения ориентации
-            }
+                if (layout === 'zoom') {
+                    moveSquareToGreenDot(this, 1);
+                } else {
+                    objestPositionRebuild(this);
+                }
+            });
         });
 
         // Обработчик события "тап" по зоне маркера
@@ -158,7 +212,7 @@ function create() {
         this.input.on('pointermove', (pointer) => {
             if (isDown) {
                 const timeSinceDown = this.time.now - pointerDownTime;
-                if (timeSinceDown > 152) { // Долгое нажатие — начало перемещения
+                if (timeSinceDown > 156) { // Долгое нажатие — начало перемещения
                     isDragging = true;
                     isPoint = false;
                     moveMap(pointer);
@@ -169,12 +223,13 @@ function create() {
         this.input.on('pointerup', (pointer) => {
             // Отпускаем квадрат, когда пользователь отпускает кнопку мыши или палец
             const timeSinceDown = this.time.now - pointerDownTime;
-            if (!isDragging && timeSinceDown <= 152) {
+            if (!isDragging && timeSinceDown <= 156) {
                 moveSquareToTap(this, pointer);
             }
 
             isDown = false;
             isDragging = false;
+            pointerDownTime = 0;
         });
 
         // Глобальный обработчик завершения ввода (для мыши, сенсорных экранов и других устройств)
@@ -588,7 +643,7 @@ function update() {
 }
 
 // Функция для перерасчета размера канваса
-function resize(scene) {
+function objestPositionRebuild(scene) {
     redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
     mapImage.setPosition(redSquare.x, redSquare.y);
 
