@@ -1,4 +1,3 @@
-// sc.js
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
@@ -49,6 +48,29 @@ let layout='map';
 let popUpWindowOpen=false;
 let isPoint = false;
 let background;
+let iframePromise = null;
+
+//Ф-ция для асинхронного определения типа 
+const getDeviceTypeAsync = async () => {
+    // Определяем тип устройства
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /iphone|ipod|android.*mobile|windows phone|blackberry|opera mini|mobile/i.test(userAgent);
+    const isTablet = /ipad|android(?!.*mobile)|tablet/i.test(userAgent);
+    const isDesktop = !isMobile && !isTablet;
+
+    // Имитируем асинхронную операцию, например, запрос к API для уточнения (если нужно)
+    const deviceInfo = {
+        isMobile,
+        isTablet,
+        isDesktop,
+        device: isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop'
+    };
+
+    // Если нужно, можно выполнить дополнительные асинхронные действия здесь
+    await Promise.resolve(); // Для демонстрации асинхронности
+
+    return deviceInfo;
+};
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
@@ -68,8 +90,9 @@ async function preload() {
     // Дожидаемся завершения загрузки
     await loadPromise;
 
+    window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
-    await delay(1000); // Задержка в 1 секунду после завершения загрузки
+    await delay(2000); // Задержка в 1 секунду после завершения загрузки
 
     // После задержки скрываем текст "Загрузка"
     this.loadingText.setVisible(false);
@@ -89,7 +112,7 @@ function animateLoading() {
             dotCount = 1; // Сбросить точек до одной, если достигли максимума
         }
         this.loadingText.setText(`Loading${'.'.repeat(dotCount)}`);
-    }, 500); // Интервал в 500 мс для циклического добавления точек
+    }, 100); // Интервал в 500 мс для циклического добавления точек
 }
 
 // Функция загрузки всех изображений
@@ -288,6 +311,42 @@ function moveSquareToGreenDot(scene, flag) {
         });
 }
 
+// Функция для асинхронной загрузки iframe
+function loadIframeAsync(scene) {
+    const { width, height } = scene.scale.gameSize;
+    return new Promise((resolve) => {
+        const iframe = document.createElement('iframe');
+        iframe.src = 'rings_src/html/ring.html'; // Ссылка на страницу с кольцом
+        iframe.style.border = 'none';
+        iframe.style.position = 'fixed'; // Используем фиксированное позиционирование
+        iframe.style.top = '50%';  // Центрируем по вертикали
+        iframe.style.left = '50%'; // Центрируем по горизонтали
+        iframe.style.transform = 'translate(-50%, -50%)'; // Сдвигаем на 50% размера, чтобы центр был на экране
+
+        // Размеры iframe
+        iframe.style.width = `${Math.min(width, height)/1.7}px`;  // Ширина iframe равна ширине изображения
+        iframe.style.height = `${Math.min(width, height)/1.7}px`; // Высота iframe равна высоте изображения
+
+        // Делаем iframe невидимым и неактивным
+        iframe.style.opacity = '0';
+        iframe.style.pointerEvents = 'none';
+
+        // Добавляем iframe в DOM
+        document.body.appendChild(iframe);
+
+        // Уведомляем, что iframe загружен и готов
+        iframe.onload = () => {
+            // Делаем фон внутри iframe прозрачным
+            const iframeDocument = iframe.contentWindow.document;
+            const iframeBody = iframeDocument.body;
+            iframeBody.style.margin = '0';
+            iframeBody.style.backgroundColor = 'transparent'; // Прозрачный фон внутри iframe
+            iframeBody.style.overflow = 'hidden'; // Прячем возможные полосы прокрутки
+            resolve(iframe); // Возвращаем iframe, когда он загружен
+        };
+    });
+}
+
 function showPopup(scene) {
     // Массив с изображениями для попапа
     const imageKeys = ['popupImage1', 'popupImage2', 'popupImage3',
@@ -304,11 +363,12 @@ function showPopup(scene) {
         .setAlpha(0); // Начальная прозрачность фона (полностью невидимый)
     popupLayer.add(popupBackground);
 
-    // Картинка внутри окна
+       // Картинка внутри окна
     let popupImage = scene.add.image(0, 0, imageKeys[currentImageIndex])
         .setOrigin(0.5)
         .setAlpha(0); // Начальная прозрачность картинки
     popupLayer.add(popupImage);
+
 
     // Кнопка для закрытия попапа
     const closeButton = scene.add.text(0, 0, 'X', {
@@ -335,14 +395,18 @@ function showPopup(scene) {
         scaleY: 1,
         ease: 'Power2',
         duration: 2000 // Длительность анимации
+        ,
+        onComplete: () => {
+            iframePromise = loadIframeAsync(scene);
+        }
     });
 
     // Анимация прозрачности фона
     scene.tweens.add({
         targets: popupBackground,
-        alpha: 0.2, // Полупрозрачный фон
+        alpha: 0.4, // Полупрозрачный фон
         ease: 'Quad.easeInOut',
-        duration: 2000 // Длительность анимации
+        duration: 2700 // Длительность анимации
     });
 
     // Анимация прозрачности содержимого (картинка + кнопка)
@@ -353,14 +417,32 @@ function showPopup(scene) {
         duration: 2000 // Длительность анимации
     });
 
+
     // Обработчик закрытия попапа
     const onClose = () => {
+        const iframe = document.querySelector(' iframe ');
+        const animateAndRemoveIframe = async () => {
+            if (iframe) {
+                iframe.style.transition = 'opacity 0.7s ease-in-out';
+                iframe.style.opacity = '0';
+
+                // Ждем завершения анимации
+                await new Promise((resolve) => {
+                    iframe.addEventListener('transitionend', resolve, { once: true });
+                });
+
+                iframe.remove();
+            }
+        };
         // Анимация удаления окна
         scene.tweens.add({
             targets: popupBackground,
             alpha: 0, // Полностью прозрачный фон
             ease: 'Quad.easeInOut',
             duration: 1000, // Длительность анимации
+              onStart:()=>{
+                animateAndRemoveIframe();
+            },
         });
 
          // Анимация удаления кнопки
@@ -382,7 +464,7 @@ function showPopup(scene) {
             alpha: 0, // Исчезновение
             ease: 'Quad.easeInOut',
             duration: 1000, // Длительность анимации
-
+            // Синхронно удаляем iframe при нажатии на кнопку закрытия
             onComplete: () => {
                 scene.scale.off('resize', onResize); // Удаляем обработчик изменения размера
                 scene.scale.off('orientationchange', onResize);
@@ -410,10 +492,20 @@ function showPopup(scene) {
 
      // Сделаем картинку интерактивной для переключения изображений
     popupImage.setInteractive();
-    popupImage.on('pointerdown', () => {
-        // Переключаем изображение
-        currentImageIndex = (currentImageIndex + 1) % imageKeys.length; // Переход к следующему изображению
-        popupImage.setTexture(imageKeys[currentImageIndex]); // Обновляем текстуру изображения
+    popupImage.on('pointerdown', async() => {
+        // Если это последнее изображение, показываем iframe
+        
+              // Переключаем изображение
+            currentImageIndex = currentImageIndex === imageKeys.length - 1 ? imageKeys.length - 1 : (currentImageIndex + 1); // Переход к следующему изображению
+            popupImage.setTexture(imageKeys[currentImageIndex]); // Обновляем текстуру изображения
+        
+        if(currentImageIndex === imageKeys.length-1){ 
+            let iframe = await iframePromise;
+
+            // Показываем iframe, делаем его активным
+            iframe.style.opacity = '1';
+            iframe.style.pointerEvents = 'auto';
+        }
     });
 }
 
@@ -533,7 +625,6 @@ function zoomIn(scene) {
     }
 }
 
-
 function zoomOut(scene) {
     if ( isAnimating) {
          // Получаем текущий центр экрана
@@ -591,8 +682,6 @@ function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
     return true;
 }
 
-
-
 function moveMap(pointer) {
     if(!isDragging || isAnimating) return;
  
@@ -641,6 +730,40 @@ function moveMap(pointer) {
 // Функция для обновления
 function update() {
 }
+
+window.addEventListener('message', (event) => {
+    // Проверяем источник сообщения, если это важно
+    // if (event.origin !== "https://your-trusted-domain.com") return;
+
+    if (event.data.action === 'ringClicked') {
+        /*const url = window.deviceInfo.device === 'mobile' 
+            ? 'https://yandex.ru.com' 
+            : 'https://google.com';
+        window.location.href = url;*/
+        if(window.deviceInfo.device==='mobile'){
+            console.log('mobile');
+        }else if(window.deviceInfo.device==='tablet'){
+            console.log('tablet');
+        }  else if(window.deviceInfo.device==='desktop'){
+            console.log('desktop');
+        }
+    }
+});
+
+// Отключаем контекстное меню (ПКМ)
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();  // Отключаем контекстное меню
+});
+
+// Отключаем выделение текста
+document.body.style.userSelect = 'none';
+
+// Отключаем действия с левой кнопкой мыши
+document.addEventListener('mousedown', function(event) {
+    if (event.button === 0) {  // 0 — это левая кнопка мыши
+        event.preventDefault();  // Отключаем стандартное действие
+    }
+});
 
 // Функция для перерасчета размера канваса
 function objestPositionRebuild(scene) {
