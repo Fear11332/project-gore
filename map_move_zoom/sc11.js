@@ -140,7 +140,7 @@ function animateLoading() {
 // Функция загрузки всех изображений
 function loadAllImages() {
     return new Promise((resolve, reject) => {
-        this.load.image('map', './map_move_zoom/images/map.png');
+        this.load.image('map', './images/map.png');
         // Когда все ресурсы загружены, resolve промис
         this.load.once('complete', resolve);
         this.load.start();
