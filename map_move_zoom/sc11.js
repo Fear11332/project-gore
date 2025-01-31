@@ -643,8 +643,8 @@ window.addEventListener('message', (event) => {
         closeIframeBtn.style.opacity= '0';
         this.clearScene(currentScene);  // Очистка сцены перед редиректом
         const url = window.deviceInfo.device === ('mobile' || 'tablet')
-            ? './mobile/constructors/first_ring/const.html' 
-            : './desktop/constructors/first_ring/const.html';
+            ? 'https://fear11332.github.io/project-gore/mobile/constructors/first_ring/const.html' 
+            : 'https://fear11332.github.io/project-gore/desktop/constructors/first_ring/const.html';
         window.location.href = url;
     }
 });
