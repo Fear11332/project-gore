@@ -35,6 +35,7 @@ let renderer = null;
 let object = null;
 let stageImageIsOpen = true;
 let container = document.getElementById('canvas-container');
+let backgroundMesh = null;
     
 // Функция предзагрузки всех текстур
 function preloadTextures(images) {
@@ -52,13 +53,45 @@ function preloadTextures(images) {
     );
 }
 
-// Функция установки фоновой картинки
 function updateBackground(index) {
-    if (scene.background) {
-        scene.background.dispose();
+   if (backgroundMesh) {
+        scene.remove(backgroundMesh);
+        backgroundMesh.material.dispose();
+        backgroundMesh.geometry.dispose();
     }
-    scene.background = loadedTextures[index];
+
+    const texture = loadedTextures[index];
+    
+
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+    });
+
+    // 1. Вычисляем высоту фонового меша на основе камеры
+    const distance = camera.position.z - (-1000); // Камера -> фоновый объект
+    const aspect = window.innerWidth / window.innerHeight;
+    const height = 2 * Math.tan((camera.fov * Math.PI) / 360) * distance; 
+    const width = height * aspect;
+
+    // 2. Создаем плоскость правильного размера
+    const geometry = new THREE.PlaneGeometry(width, height);
+    backgroundMesh = new THREE.Mesh(geometry, material);
+
+    // 3. Устанавливаем фоновый меш за камеру
+    backgroundMesh.position.set(0, 0, -1000);
+    scene.add(backgroundMesh);
 }
+
+// Функция установки фоновой картинки
+//function updateBackground(index) {
+    /*if (scene.background) {
+        scene.background.dispose();
+    }*/
+    //scene.background = loadedTextures[index];
+    //container.style.backgroundImage = `url(${backgroundImages[index]})`;
+
+//}
 
 // Предзагрузка текстур и инициализация сцены
 preloadTextures(backgroundImages)
@@ -78,7 +111,6 @@ function initScene(){
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    //scene.background = loadedTextures[currentImageIndex];
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
@@ -99,6 +131,7 @@ function initScene(){
     // Плоскость для визуализации теней
     planeGeometry = new THREE.PlaneGeometry(5, 5);
     planeMaterial = new THREE.ShadowMaterial({ color: 'white', opacity: 0.3 });
+    planeMaterial = new THREE.ShadowMaterial({ opacity: 0 }); // Прозрачная тень
     plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = -1;
@@ -331,67 +364,89 @@ window.addEventListener('resize', handleResize);
 
 // Функция закрытия
 function onClose() {
-    // Удаляем все объекты из сцены
     container.style.opacity = '0';
+
+    // Удаляем объект сцены
     if (object) {
         object.traverse((child) => {
             if (child.material) {
-                child.material.dispose();  // Освобождаем материалы
+                if (Array.isArray(child.material)) {
+                    child.material.forEach((mat) => mat.dispose());
+                } else {
+                    child.material.dispose();
+                }
             }
-            if (child.geometry) {
-                child.geometry.dispose();  // Освобождаем геометрию
-            }
+            if (child.geometry) child.geometry.dispose();
         });
-        
-        scene.remove(object);  // Удаляем объект из сцены
-        object = null;  // Обнуляем ссылку на объект
+        scene.remove(object);
+        object = null;
+    }
+
+    // Удаляем фон
+    if (backgroundMesh) {
+        scene.remove(backgroundMesh);
+        if (backgroundMesh.material) backgroundMesh.material.dispose();
+        if (backgroundMesh.geometry) backgroundMesh.geometry.dispose();
+        backgroundMesh = null;
+    }
+
+    // Освобождаем текстуры
+    if (loadedTextures.length > 0) {
+        loadedTextures.forEach((texture) => {
+            if (texture && texture.isTexture) texture.dispose();
+        });
+        loadedTextures.length = 0;
     }
 
     // Удаление источников света
-    if (ambientLight) {
-        scene.remove(ambientLight);
-        ambientLight = null;
-    }
-    if (directionalLight) {
-        scene.remove(directionalLight);
-        directionalLight = null;
-    }
-    if (pointLight) {
-        scene.remove(pointLight);
-        pointLight = null;
-    }
+    [ambientLight, directionalLight, pointLight].forEach((light) => {
+        if (light) scene.remove(light);
+    });
+    ambientLight = directionalLight = pointLight = null;
 
     // Удаление плоскости для теней
     if (plane) {
         plane.traverse((child) => {
-            if (child.material) {
-                child.material.dispose();
-            }
-            if (child.geometry) {
-                child.geometry.dispose();
-            }
+            if (child.material) child.material.dispose();
+            if (child.geometry) child.geometry.dispose();
         });
         scene.remove(plane);
         plane = null;
     }
 
-    // Освобождение рендерера
+    // Останавливаем анимацию (если используется requestAnimationFrame)
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    // Очистка рендерера
     if (renderer) {
-        // Должен быть вызван метод dispose, чтобы освободить текстуры и шейдеры
         renderer.dispose();
-        renderer.forceContextLoss(); // Может быть полезным для очистки контекста WebGL
+        renderer.forceContextLoss();
         renderer = null;
     }
 
-    // Очистка камеры (если нужно)
-    if (camera) {
-        camera = null;
+    // Очистка сцены
+    if (scene) {
+        while (scene.children.length > 0) {
+            let child = scene.children[0];
+            scene.remove(child);
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach((mat) => mat.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            }
+        }
+        scene = null;
     }
 
-    // Очистка сцены (в случае если она управляет большими ресурсами)
-    if (scene) {
-        // Здесь не нужно удалять саму сцену, так как это скорее всего глобальный объект
-        scene = null;  // Если необходимо, можно обнулить сцену.
+    // Очистка камеры
+    if (camera) {
+        camera = null;
     }
 
     removeEventListeners();

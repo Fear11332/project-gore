@@ -1,3 +1,4 @@
+
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
@@ -90,14 +91,6 @@ async function preload() {
         align: 'center'
     }).setOrigin(0.5);
 
-       // Вызываем функцию позиционирования
-    positionLoadingText.call(this);
-
-    // Обработчик на изменение размеров экрана
-    window.addEventListener('resize', () => {
-        positionLoadingText.call(this);
-    });
-
     // Создаем анимацию с точками для загрузки
     animateLoading.call(this);
 
@@ -108,19 +101,13 @@ async function preload() {
 
     window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
-    await delay(1000); // Задержка в 1 секунду после завершения загрузки
+    await delay(5000); // Задержка в 1 секунду после завершения загрузки
 
     // После задержки скрываем текст "Загрузка"
     this.loadingText.setVisible(false);
 
     // Здесь можно продолжать работу с картой
 }
-
-// Функция для позиционирования текста по центру
-function positionLoadingText() {
-    this.loadingText.setPosition(window.innerWidth / 2, window.innerHeight / 2);
-}
-
 
 // Функция для анимации текста "Загрузка..." с точками
 function animateLoading() {
@@ -643,8 +630,8 @@ window.addEventListener('message', (event) => {
         closeIframeBtn.style.opacity= '0';
         this.clearScene(currentScene);  // Очистка сцены перед редиректом
         const url = window.deviceInfo.device === ('mobile' || 'tablet')
-            ? './mobile/constructors/first_ring/const.html' 
-            : './desktop/constructors/first_ring/const.html';
+            ? 'https://yandex.ru.com' 
+            : 'https://google.com';
         window.location.href = url;
     }
 });
