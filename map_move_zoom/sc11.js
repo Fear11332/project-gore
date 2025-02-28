@@ -101,7 +101,7 @@ async function preload() {
 
     window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
-    await delay(500); // Задержка в 1 секунду после завершения загрузки
+    //await delay(100); // Задержка в 1 секунду после завершения загрузки
 
     // После задержки скрываем текст "Загрузка"
     this.loadingText.setVisible(false);
