@@ -1,6 +1,26 @@
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
+window.addEventListener("message", async (event) => {
+    if (event.data.type === "LOAD_SCENE") {
+        console.log("Получен запрос на загрузку сцены!");
+
+        try {
+            const textures = await preloadTextures(backgroundImages);
+            loadedTextures.push(...textures);
+
+            initScene();
+            animate();
+
+            console.log("Сцена кольца загружена! Сообщаем об этом...");
+            window.parent.postMessage({ type: "SCENE_LOADED" }, "*");
+        } catch (error) {
+            console.error("Ошибка при загрузке текстур:", error);
+        }
+    }
+});
+
+
 const backgroundImages = [
     'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
     'https://fear11332.github.io/project-gore//map_move_zoom/images/2.webp',
@@ -428,25 +448,6 @@ function onClose() {
 
     removeEventListeners();
 }
-
- window.addEventListener("message", (event) => {
-        if (event.data.type === "LOAD_SCENE") {
-           //initScene();
-           // Предзагрузка текстур и инициализация сцены
-            preloadTextures(backgroundImages)
-                .then((textures) => {
-                    // Сохраняем загруженные текстуры
-                    loadedTextures.push(...textures);
-                    initScene();
-                    animate();
-                })
-                .catch((error) => {
-                    console.error('Ошибка при загрузке текстур:', error);
-                });
-           console.log("Сцена кольца загружена! Продолжаем загрузку...");
-        window.parent.postMessage({ type: "SCENE_LOADED" }, "*");
-        }
-    });
 
 function removeEventListeners() {
     window.removeEventListener('touchstart', handleTouchStart);
