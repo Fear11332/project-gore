@@ -98,8 +98,8 @@ async function preload() {
     // Дожидаемся завершения загрузки
     await loadPromise;
           // Ожидаем загрузку сцены через iframe
-        const sceneLoadMessage = await sendMessageToIframeAndWait();
-        console.log(sceneLoadMessage); 
+       // const sceneLoadMessage = await sendMessageToIframeAndWait();
+        //console.log(sceneLoadMessage); 
     window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
     //await delay(500); // Задержка в 1 секунду после завершения загрузки
@@ -172,7 +172,6 @@ function animateLoading() {
 
 // Функция загрузки всех изображений
 function loadAllImages() {
-
     return new Promise((resolve, reject) => {
         this.load.image('map', 'https://fear11332.github.io/project-gore/map_move_zoom/images/map.webp');
         // Когда все ресурсы загружены, resolve промис

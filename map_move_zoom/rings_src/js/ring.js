@@ -1,26 +1,6 @@
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
-window.addEventListener("message", async (event) => {
-    if (event.data.type === "LOAD_SCENE") {
-        console.log("Получен запрос на загрузку сцены!");
-
-        try {
-            const textures = await preloadTextures(backgroundImages);
-            loadedTextures.push(...textures);
-
-            initScene();
-            animate();
-
-            console.log("Сцена кольца загружена! Сообщаем об этом...");
-            window.parent.postMessage({ type: "SCENE_LOADED" }, "*");
-        } catch (error) {
-            console.error("Ошибка при загрузке текстур:", error);
-        }
-    }
-});
-
-
 const backgroundImages = [
     'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
     'https://fear11332.github.io/project-gore//map_move_zoom/images/2.webp',
@@ -57,7 +37,18 @@ let stageImageIsOpen = true;
 let container = document.getElementById('canvas-container');
 let backgroundMesh = null;
 let animationFrameId = null;
-    
+
+preloadTextures(backgroundImages)
+                .then((textures) => {
+                    // Сохраняем загруженные текстуры
+                    loadedTextures.push(...textures);
+                    initScene();
+                    animate();
+                })
+                .catch((error) => {
+                    console.error('Ошибка при загрузке текстур:', error);
+                });
+                
 // Функция предзагрузки всех текстур
 function preloadTextures(images) {
     return Promise.all(
