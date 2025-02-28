@@ -2,11 +2,11 @@ import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
 const backgroundImages = [
-    '../../images/1.png',
-    '../../images/2.png',
-    '../../images/3.png',
-    '../../images/4.png',
-    '../../images/5.png'
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/2.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/3.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/4.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/5.webp'
 ];
 
 // Управление касанием и мышью с обработкой кликов на объекте

@@ -84,14 +84,13 @@ const getDeviceTypeAsync = async () => {
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
-    console.log('preload');
     // Отображаем текст "Загрузка..." в центре экрана
     this.loadingText = this.add.text(window.innerWidth / 2, window.innerHeight / 2, 'Loading', {
         fontSize: '32px',
         fill: '#5DE100',
         align: 'center'
     }).setOrigin(0.5);
-    // Создаем анимацию с точками для загрузки
+     // Создаем анимацию с точками для загрузки
     animateLoading.call(this);
 
     // Загружаем ресурсы асинхронно
@@ -158,12 +157,14 @@ function animateLoading() {
 function loadAllImages() {
 
     return new Promise((resolve, reject) => {
-        this.load.image('map', 'images/map.png');
+        this.load.image('map', 'https://fear11332.github.io/project-gore/map_move_zoom/images/map.webp');
         // Когда все ресурсы загружены, resolve промис
         this.load.once('complete', resolve);
         this.load.start();
     });
 }
+
+
 
 // Функция задержки (например, 1 секунда)
 function delay(ms) {
