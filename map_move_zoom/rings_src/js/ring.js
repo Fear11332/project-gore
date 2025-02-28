@@ -36,6 +36,7 @@ let object = null;
 let stageImageIsOpen = true;
 let container = document.getElementById('canvas-container');
 let backgroundMesh = null;
+let animationFrameId = null;
     
 // Функция предзагрузки всех текстур
 function preloadTextures(images) {
@@ -343,7 +344,7 @@ window.addEventListener('mouseup', handleMouseUp, { passive: false });
 // Анимация
 const animate = () => {
     if (scene && camera && renderer) {
-        requestAnimationFrame(animate);
+        animationFrameId  = requestAnimationFrame(animate);
         renderer.render(scene, camera);
     }
 };
