@@ -101,7 +101,7 @@ async function preload() {
 
     window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
-    await delay(5000); // Задержка в 1 секунду после завершения загрузки
+    await delay(1000); // Задержка в 1 секунду после завершения загрузки
 
     // После задержки скрываем текст "Загрузка"
     this.loadingText.setVisible(false);
@@ -121,7 +121,7 @@ function animateLoading() {
             dotCount = 1; // Сбросить точек до одной, если достигли максимума
         }
         this.loadingText.setText(`Loading${'.'.repeat(dotCount)}`);
-    }, 100); // Интервал в 500 мс для циклического добавления точек
+    }, 500); // Интервал в 500 мс для циклического добавления точек
 }
 
 // Функция загрузки всех изображений
@@ -158,6 +158,7 @@ function create() {
         redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
         redSquare.setSize(originalSize * scaleFactor*squareScaleFactor, originalSize * scaleFactor*squareScaleFactor);
+
         
         // Создаем точку, которая будет находиться в центре квадрата
         //blueDot = this.add.circle(0, 0, 10, 0x0000ff);  // Синяя точка радиусом 10px
