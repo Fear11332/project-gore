@@ -97,9 +97,7 @@ async function preload() {
     const loadPromise = loadAllImages.call(this);
     // Дожидаемся завершения загрузки
     await loadPromise;
-          // Ожидаем загрузку сцены через iframe
-       // const sceneLoadMessage = await sendMessageToIframeAndWait();
-        //console.log(sceneLoadMessage); 
+
     window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
     //await delay(500); // Задержка в 1 секунду после завершения загрузки
@@ -109,51 +107,6 @@ async function preload() {
 
     // Здесь можно продолжать работу с картой
 }
-
-function waitForIframeLoad(iframe) {
-    return new Promise((resolve, reject) => {
-        if (!iframe) {
-            reject(new Error("Iframe не найден"));
-            return;
-        }
-
-        if (iframe.contentWindow && iframe.contentWindow.postMessage) {
-            resolve();
-        } else {
-            iframe.onload = () => resolve();
-        }
-    });
-}
-
-
-async function sendMessageToIframeAndWait() {
-    return new Promise(async (resolve, reject) => {
-        if (!ringIframe) {
-            reject(new Error("Iframe не найден"));
-            return;
-        }
-
-        await waitForIframeLoad(ringIframe); // Ждем загрузки iframe
-
-        const messageHandler = (event) => {
-            if (event.origin !== window.location.origin) return;
-            if (event.data.type === "SCENE_LOADED") {
-                window.removeEventListener("message", messageHandler);
-                resolve("Scene Loaded");
-            }
-        };
-
-        window.addEventListener("message", messageHandler);
-
-        // Проверяем, что postMessage доступен, и отправляем сообщение
-        if (ringIframe.contentWindow) {
-            ringIframe.contentWindow.postMessage({ type: "LOAD_SCENE" }, "*");
-        } else {
-            reject(new Error("Iframe не готов для отправки сообщений"));
-        }
-    });
-}
-
 
 // Функция для анимации текста "Загрузка..." с точками
 function animateLoading() {
