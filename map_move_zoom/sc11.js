@@ -94,20 +94,13 @@ async function preload() {
     // Создаем анимацию с точками для загрузки
     animateLoading.call(this);
 
-    if (ringIframe) {
-        ringIframe.onload = () => {
-            console.log("iframe загружен, отправляем сообщение");
-            ringIframe.contentWindow.postMessage({ type: "LOAD_SCENE" }, "*");
-        };
-    } else {
-        console.error("ringIframe не найден!");
-    }    
-    
     // Загружаем ресурсы асинхронно
     const loadPromise = loadAllImages.call(this);
     // Дожидаемся завершения загрузки
     await loadPromise;
-
+          // Ожидаем загрузку сцены через iframe
+        const sceneLoadMessage = await sendMessageToIframeAndWait();
+        console.log(sceneLoadMessage); 
     window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
     //await delay(500); // Задержка в 1 секунду после завершения загрузки
@@ -117,6 +110,34 @@ async function preload() {
 
     // Здесь можно продолжать работу с картой
 }
+
+async function sendMessageToIframeAndWait() {
+    return new Promise((resolve, reject) => {
+        // Проверяем наличие iframe
+
+        if (ringIframe) {
+            // Функция для обработки сообщения от iframe
+            const messageHandler = (event) => {
+                if (event.origin !== window.location.origin) return; // Проверка безопасности
+                if (event.data.type === "SCENE_LOADED") {
+                    // Если сцена загружена, удаляем обработчик и решаем промис
+                    window.removeEventListener("message", messageHandler);
+                    resolve("Scene Loaded");
+                }
+            };
+
+            // Добавляем обработчик для сообщений от iframe
+            window.addEventListener("message", messageHandler);
+
+            // Отправляем сообщение для загрузки сцены
+            ringIframe.contentWindow.postMessage({ type: "LOAD_SCENE" }, "*");
+        } else {
+            reject(new Error("Iframe not found"));
+        }
+    });
+}
+
+
 
 // Функция для анимации текста "Загрузка..." с точками
 function animateLoading() {
@@ -163,7 +184,7 @@ function create() {
             fontSize: '16px',
             fill: '#ffffff'
         });*/
-        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0.5);  // Квадрат 2048x2048px красного цвета
+        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
         redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования

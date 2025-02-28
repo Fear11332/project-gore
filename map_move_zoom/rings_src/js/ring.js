@@ -444,7 +444,7 @@ function onClose() {
                     console.error('Ошибка при загрузке текстур:', error);
                 });
            console.log("Сцена кольца загружена! Продолжаем загрузку...");
-        //window.parent.postMessage({ type: "SCENE_LOADED" }, "*");
+        window.parent.postMessage({ type: "SCENE_LOADED" }, "*");
         }
     });
 
