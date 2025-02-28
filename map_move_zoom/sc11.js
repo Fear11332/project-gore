@@ -42,7 +42,7 @@ let greenDotY = 770;
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize)*1.5;
 let mapImage;
 const mapScaleFactor = 1.3;
-const  squareScaleFactor = 1.05;
+const squareScaleFactor = 1.05;
 let currentZoom = scaleFactor * mapScaleFactor*originalSize; // Начальный уровень зума
 const minZoom = 1; // Минимальный зум равен начальному
 const maxZoom = 2; // Максимальный зум — 3x начального
@@ -84,16 +84,25 @@ const getDeviceTypeAsync = async () => {
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
+    console.log('preload');
     // Отображаем текст "Загрузка..." в центре экрана
     this.loadingText = this.add.text(window.innerWidth / 2, window.innerHeight / 2, 'Loading', {
         fontSize: '32px',
         fill: '#5DE100',
         align: 'center'
     }).setOrigin(0.5);
-
     // Создаем анимацию с точками для загрузки
     animateLoading.call(this);
 
+    if (ringIframe) {
+        ringIframe.onload = () => {
+            console.log("iframe загружен, отправляем сообщение");
+            ringIframe.contentWindow.postMessage({ type: "LOAD_SCENE" }, "*");
+        };
+    } else {
+        console.error("ringIframe не найден!");
+    }    
+    
     // Загружаем ресурсы асинхронно
     const loadPromise = loadAllImages.call(this);
     // Дожидаемся завершения загрузки
@@ -101,7 +110,7 @@ async function preload() {
 
     window.deviceInfo = await getDeviceTypeAsync();
     // После завершения загрузки, добавляем искусственную задержку
-    //await delay(100); // Задержка в 1 секунду после завершения загрузки
+    //await delay(500); // Задержка в 1 секунду после завершения загрузки
 
     // После задержки скрываем текст "Загрузка"
     this.loadingText.setVisible(false);
@@ -126,6 +135,7 @@ function animateLoading() {
 
 // Функция загрузки всех изображений
 function loadAllImages() {
+
     return new Promise((resolve, reject) => {
         this.load.image('map', 'images/map.png');
         // Когда все ресурсы загружены, resolve промис
@@ -153,12 +163,12 @@ function create() {
             fontSize: '16px',
             fill: '#ffffff'
         });*/
-        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
+        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0.5);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
         redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
         redSquare.setSize(originalSize * scaleFactor*squareScaleFactor, originalSize * scaleFactor*squareScaleFactor);
-
+        
         
         // Создаем точку, которая будет находиться в центре квадрата
         //blueDot = this.add.circle(0, 0, 10, 0x0000ff);  // Синяя точка радиусом 10px
@@ -631,8 +641,8 @@ window.addEventListener('message', (event) => {
         closeIframeBtn.style.opacity= '0';
         this.clearScene(currentScene);  // Очистка сцены перед редиректом
         const url = window.deviceInfo.device === ('mobile' || 'tablet')
-            ? 'https://fear11332.github.io/project-gore/mobile/constructors/first_ring/const.html' 
-            : 'https://fear11332.github.io/project-gore/desktop/constructors/first_ring/const.html';
+        ? 'https://fear11332.github.io/project-gore/mobile/constructors/first_ring/const.html' 
+        : 'https://fear11332.github.io/project-gore/desktop/constructors/first_ring/const.html';
         window.location.href = url;
     }
 });

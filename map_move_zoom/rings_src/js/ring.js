@@ -94,17 +94,7 @@ function updateBackground(index) {
 
 //}
 
-// Предзагрузка текстур и инициализация сцены
-preloadTextures(backgroundImages)
-    .then((textures) => {
-        // Сохраняем загруженные текстуры
-        loadedTextures.push(...textures);
-        initScene();
-        animate();
-    })
-    .catch((error) => {
-        console.error('Ошибка при загрузке текстур:', error);
-    });
+
 
 function initScene(){
 
@@ -315,20 +305,6 @@ const checkInteraction = (clientX, clientY) => {
     }
 };
 
-window.addEventListener('message', (event) => {
-    // Проверяем тип события
-    if (event.data && event.data.type === 'iframeClosed') {
-        //if(object){
-            //object.visible = false;
-            //stageImageIsOpen = true;
-            //currentImageIndex =0;
-            //updateBackground(currentImageIndex);
-            //currentImageIndex++;
-        //}
-        // Выполняем действия при закрытии iframe
-        //stopScene(); // Пример функции завершения сцены
-    }
-});
 
 // Добавляем обработчики касания
 window.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -344,7 +320,7 @@ window.addEventListener('mouseup', handleMouseUp, { passive: false });
 // Анимация
 const animate = () => {
     if (scene && camera && renderer) {
-        animationFrameId  = requestAnimationFrame(animate);
+        animationFrameId = requestAnimationFrame(animate);
         renderer.render(scene, camera);
     }
 };
@@ -452,6 +428,25 @@ function onClose() {
 
     removeEventListeners();
 }
+
+ window.addEventListener("message", (event) => {
+        if (event.data.type === "LOAD_SCENE") {
+           //initScene();
+           // Предзагрузка текстур и инициализация сцены
+            preloadTextures(backgroundImages)
+                .then((textures) => {
+                    // Сохраняем загруженные текстуры
+                    loadedTextures.push(...textures);
+                    initScene();
+                    animate();
+                })
+                .catch((error) => {
+                    console.error('Ошибка при загрузке текстур:', error);
+                });
+           console.log("Сцена кольца загружена! Продолжаем загрузку...");
+        //window.parent.postMessage({ type: "SCENE_LOADED" }, "*");
+        }
+    });
 
 function removeEventListeners() {
     window.removeEventListener('touchstart', handleTouchStart);
