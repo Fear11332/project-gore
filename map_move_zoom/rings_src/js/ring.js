@@ -20,6 +20,8 @@ let previousMousePosition = { x: 0, y: 0 };
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+let initialQuaternion = new THREE.Quaternion();
+
 let currentImageIndex = 0;
 const textureLoader = new THREE.TextureLoader();
 const loadedTextures = []; // Массив для хранения загруженных текстур
@@ -37,6 +39,34 @@ let stageImageIsOpen = true;
 let container = document.getElementById('canvas-container');
 let backgroundMesh = null;
 let animationFrameId = null;
+
+let isReturning = false;
+const animationDuration = 25;  // Продолжительность анимации в секундах
+let startTime = null;
+
+const animateReturnToInitialPosition = (timestamp) => {
+    if (!object ) {
+        return;
+    }
+    
+    if (!startTime) startTime = timestamp;
+
+    const elapsedTime = (timestamp - startTime) / 1000;  // время в секундах
+
+    if (elapsedTime < animationDuration) {
+        // Пропорционально интерполируем между текущим и начальным кватернионом
+        const alpha = elapsedTime / animationDuration;
+        object.quaternion.slerpQuaternions(object.quaternion, initialQuaternion, alpha);
+        
+        // Повторяем анимацию
+        requestAnimationFrame(animateReturnToInitialPosition);
+    } else {
+        // Завершаем анимацию и устанавливаем конечный кватернион в начальный
+        object.quaternion.copy(initialQuaternion);
+        isReturning = false;
+    }
+};
+
 
 preloadTextures(backgroundImages)
                 .then((textures) => {
@@ -162,6 +192,8 @@ function initScene(){
         });
         object.visible = false;
         scene.add(object);
+
+        initialQuaternion.copy(object.quaternion);
         
     }, undefined, (error) => {
         console.error(error);
@@ -236,6 +268,7 @@ const handleTouchMove = (event) => {
 
 
 const handleTouchEnd = (event) => {
+    event.preventDefault(); // Предотвращаем прокрутку
     if(!stageImageIsOpen){
         if (isTouching && event.touches.length === 0) {
             if(!isMoved){
@@ -259,6 +292,7 @@ const handleMouseDown = (event) => {
 };
 
 const handleMouseMove = (event) => {
+    event.preventDefault(); // Предотвращаем прокрутку
     if(!stageImageIsOpen){
         if (!isMouseDown || !object) return;
 
@@ -288,6 +322,7 @@ const handleMouseMove = (event) => {
 };
 
 const handleMouseUp = (event) => {
+    event.preventDefault(); // Предотвращаем прокрутку
     if(!stageImageIsOpen){
         if (isMouseDown) {
             if(!isMoved){
@@ -309,13 +344,33 @@ const checkInteraction = (clientX, clientY) => {
         const intersects = raycaster.intersectObject(object);
 
         if (intersects.length > 0) {
-            onClose();
-            // Если объект нажат, выполняем редирект
-            window.parent.postMessage({ action: 'ringClicked', data: { message: 'Ring was clicked' } }, '*');
+            
+            // Если кольцо уже в начальной позиции, сразу закрываем
+            if (object.quaternion.equals(initialQuaternion)) {
+                onClose();  // Закрываем без анимации
+                window.parent.postMessage({ action: 'ringClicked', data: { message: 'Ring was clicked' } }, '*');
+            } else {
+                // Запускаем анимацию, если она еще не началась
+                if (!isReturning) {
+                    isReturning = true;
+                    startTime = null;
+                    animateReturnToInitialPosition(performance.now());
+                    
+                    // Отложим вызов onClose() после завершения анимации
+                    setTimeout(() => {
+                        onClose();
+                        window.parent.postMessage({ action: 'ringClicked', data: { message: 'Ring was clicked' } }, '*');
+                    }, animationDuration* 95);  // Устанавливаем время для анимации
+                }
+            }
+            
         }
     }
 };
 
+const handleRightClick = (event) => {
+    event.preventDefault();  // Отменяет появление контекстного меню
+};
 
 // Добавляем обработчики касания
 window.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -326,6 +381,7 @@ window.addEventListener('touchend', handleTouchEnd, { passive: false });
 window.addEventListener('mousedown', handleMouseDown, { passive: false });
 window.addEventListener('mousemove', handleMouseMove, { passive: false });
 window.addEventListener('mouseup', handleMouseUp, { passive: false });
+window.addEventListener('contextmenu', handleRightClick);
 
 
 // Анимация
@@ -448,4 +504,5 @@ function removeEventListeners() {
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
     window.removeEventListener('resize', handleResize);
+    window.removeEventListener('contextmenu', handleRightClick);
 }
