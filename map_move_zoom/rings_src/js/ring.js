@@ -181,7 +181,7 @@ function initScene(){
 
     // Загрузка FBX модели
     const loader = new FBXLoader();
-    loader.load('../fbx/ring.fbx', (loadedObject) => {
+    loader.load('https://fear11332.github.io/project-gore/map_move_zoom/rings_src/fbx/ring.fbx', (loadedObject) => {
         object = loadedObject;
         object.scale.set(0.068, 0.068, 0.068);
         object.position.set(0, 0, 0);
