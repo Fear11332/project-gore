@@ -1,0 +1,14 @@
+body, html{
+    overflow: hidden;
+}
+
+#myCanvas {
+    border: 1px solid white;
+    display: block;
+    margin: auto;
+  }
+
+
+
+
+
