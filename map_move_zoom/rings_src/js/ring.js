@@ -46,7 +46,6 @@ const clock = new THREE.Clock();
 
 const animateReturnToInitialPosition = () => {
     if (!object) return;
-    console.log("hell");
 
     clock.elapsedTime = 0;
     clock.start();
@@ -73,20 +72,24 @@ const animateReturnToInitialPosition = () => {
 };
 
 
-
-
-
 preloadTextures(backgroundImages)
-                .then((textures) => {
-                    // Сохраняем загруженные текстуры
-                    loadedTextures.push(...textures);
-                    initScene();
-                    animate();
-                })
-                .catch((error) => {
-                    console.error('Ошибка при загрузке текстур:', error);
-                });
-                
+    .then((textures) => {
+        // Сохраняем загруженные текстуры
+        loadedTextures.push(...textures);
+        
+        // Загружаем FBX модель
+        return loadFBXModel('https://fear11332.github.io/project-gore/map_move_zoom/rings_src/fbx/ring.fbx');
+    })
+    .then((loadedObject) => {
+        object = loadedObject;
+        initScene();
+        animate();
+        window.parent.postMessage('resourcesLoaded', '*');
+    })
+    .catch((error) => {
+       // console.error('Ошибка при загрузке ресурсов:', error);
+    });
+
 // Функция предзагрузки всех текстур
 function preloadTextures(images) {
     return Promise.all(
@@ -101,6 +104,34 @@ function preloadTextures(images) {
             });
         })
     );
+}
+
+// Функция загрузки FBX модели
+function loadFBXModel(url) {
+    return new Promise((resolve, reject) => {
+        const loader = new FBXLoader();
+        loader.load(url, (loadedObject) => {
+            loadedObject.scale.set(0.068, 0.068, 0.068);
+            loadedObject.position.set(0, 0, 0);
+            loadedObject.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: 'white',
+                        metalness: 1,
+                        roughness: 0.6,
+                        emissive: 0x111111,
+                        emissiveIntensity: 0
+                    });
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            loadedObject.visible = false;
+            resolve(loadedObject); // Успешная загрузка
+        }, undefined, (error) => {
+            reject(error); // Ошибка загрузки
+        });
+    });
 }
 
 function updateBackground(index) {
@@ -178,34 +209,10 @@ function initScene(){
     plane.receiveShadow = true;
     scene.add(plane);
 
+    scene.add(object);
 
     // Загрузка FBX модели
-    const loader = new FBXLoader();
-    loader.load('https://fear11332.github.io/project-gore/map_move_zoom/rings_src/fbx/ring.fbx', (loadedObject) => {
-        object = loadedObject;
-        object.scale.set(0.068, 0.068, 0.068);
-        object.position.set(0, 0, 0);
-        object.traverse((child) => {
-            if (child.isMesh) {
-                child.material = new THREE.MeshStandardMaterial({
-                    color: 'white',
-                    metalness: 1,
-                    roughness: 0.6,
-                    emissive: 0x111111,
-                    emissiveIntensity: 0
-                });
-                child.castShadow = true;
-                child.receiveShadow = true;
-            }
-        });
-        object.visible = false;
-        scene.add(object);
 
-        initialQuaternion.copy(object.quaternion);
-        
-    }, undefined, (error) => {
-        console.error(error);
-    });
 
     camera.position.z = 5;
 

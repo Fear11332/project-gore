@@ -1,4 +1,3 @@
-
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
@@ -16,10 +15,6 @@ const config = {
     },
     scene: {
         preload: preload,
-         create: function () {
-            currentScene = this;  // Сохраняем ссылку на сцену
-            create.call(this);     // Вызываем оригинальную функцию create
-        },
         update: update,
         clearScene: clearScene,  // Добавляем функцию очистки в сцену
     },
@@ -69,6 +64,8 @@ const DRAG_THRESHOLD = 0; // Порог для определения перем
 let deltaX = null;
 let deltaY = null;
 
+let isStopping = false;
+
 //Ф-ция для асинхронного определения типа 
 const getDeviceTypeAsync = async () => {
     // Определяем тип устройства
@@ -99,22 +96,44 @@ async function preload() {
         fill: '#5DE100',
         align: 'center'
     }).setOrigin(0.5);
-     // Создаем анимацию с точками для загрузки
+    
+    // Создаем анимацию с точками для загрузки
     animateLoading.call(this);
+
+    let iframeResourcesLoaded = false;
+    let texturesLoaded = false;
+
+    function checkIfReadyToShowContent() {
+        if (iframeResourcesLoaded && texturesLoaded) {
+            this.loadingText.setVisible(false);
+            currentScene = this;
+            create.call(this);
+        }
+    }
+
+    // Добавляем обработчик событий локально
+    const messageHandler = (event) => {
+        if (event.data === 'resourcesLoaded') {
+            iframeResourcesLoaded = true;
+            checkIfReadyToShowContent.call(this);
+            window.removeEventListener('message', messageHandler); // Удаляем после загрузки
+        }
+    };
+
+    window.addEventListener('message', messageHandler);
 
     // Загружаем ресурсы асинхронно
     const loadPromise = loadAllImages.call(this);
-    // Дожидаемся завершения загрузки
+    
+    // Дожидаемся загрузки
     await loadPromise;
+    texturesLoaded = true;
 
+    // Ждем информации об устройстве
     window.deviceInfo = await getDeviceTypeAsync();
-    // После завершения загрузки, добавляем искусственную задержку
-    //await delay(500); // Задержка в 1 секунду после завершения загрузки
 
-    // После задержки скрываем текст "Загрузка"
-    this.loadingText.setVisible(false);
-
-    // Здесь можно продолжать работу с картой
+    // Проверяем готовность сцены
+    checkIfReadyToShowContent.call(this);
 }
 
 // Функция для анимации текста "Загрузка..." с точками
@@ -314,6 +333,31 @@ function moveSquareToGreenDot(scene, flag) {
         });
 }
 
+window.addEventListener('message', (event) => {
+    if (event.origin !== window.location.origin) return;
+
+    if(event.data.action==='stopAnimation'){
+        isStopping = true;
+    }
+
+    if (event.data.action === 'ringClicked') {
+        if(isStopping) return;
+        ringIframe.style.transition = 'opacity 1.9s ease-in-out';
+        ringIframe.style.opacity = '0';
+        ringIframe.style.pointerEvents = 'none';
+            
+        if (window.deviceInfo.device === ('mobile' || 'tablet')) {
+            constrMobileIframe.style.transition = 'opacity 2.7s ease-in-out';
+            constrMobileIframe.style.opacity = '1';
+            constrMobileIframe.style.pointerEvents = 'auto';
+        } else {
+            constrDesktopIframe.style.transition = 'opacity 2.7s ease-in-out';
+            constrDesktopIframe.style.opacity = '1';
+            constrDesktopIframe.style.pointerEvents = 'auto';
+        }
+    } 
+});
+
 function showPopup(scene) {
 
     // Создаем контейнер для слоя попапа
@@ -351,7 +395,6 @@ function showPopup(scene) {
             closeIframeBtn.style.opacity = '1';
         },
         onComplete:()=>{
-            
             closeIframeBtn.style.pointerEvents = 'auto';
             ringIframe.style.pointerEvents = 'auto'
         }
@@ -359,7 +402,9 @@ function showPopup(scene) {
 
     // Обработчик закрытия попапа
     const onClose = () => {
+        window.postMessage({ action: 'stopAnimation' }, '*'); 
         const animateAndRemoveIframe =() => {
+            
             if (iframe) {
                 ringIframe.style.transition = 'opacity 1.9s ease-in-out';
                 ringIframe.style.opacity = '0';
@@ -380,7 +425,6 @@ function showPopup(scene) {
                 //ringIframe.style.pointerEvents = 'none';
                 // Сообщаем об закрытии iframe
                 //window.dispatchEvent(new CustomEvent('iframeClosed'));
-
                 // Дополнительно отправляем сообщение в сам iframe
                 /*if (ringIframe && ringIframe.contentWindow) {
                     ringIframe.contentWindow.postMessage(
@@ -410,6 +454,7 @@ function showPopup(scene) {
                 popUpWindowOpen = false;
                 layout  = 'map';
                 isAnimating = false;
+                isStopping = false;
             }
         });
     };
@@ -613,29 +658,6 @@ function moveMap(pointer) {
 // Функция для обновления
 function update() {
 }
-
-window.addEventListener('message', (event) => {
-    // Проверяем источник сообщения, если это важно
-    if (event.origin !== window.location.origin) {
-        return;  // Игнорируем сообщение, если оно не с того же домена
-    }
-
-    if (event.data.action === 'ringClicked') {
-        ringIframe.style.transition = 'opacity 1.9s ease-in-out';
-        ringIframe.style.opacity = '0';
-        ringIframe.style.pointerEvents = 'none';
-            
-        if(window.deviceInfo.device === ('mobile' || 'tablet')){
-            constrMobileIframe.style.transition = 'opacity 2.7s ease-in-out';
-            constrMobileIframe.style.opacity = '1';
-            constrMobileIframe.style.pointerEvents = 'auto';
-        }else{
-            constrDesktopIframe.style.transition = 'opacity 2.7s ease-in-out';
-            constrDesktopIframe.style.opacity = '1';
-            constrDesktopIframe.style.pointerEvents = 'auto';
-        }
-    }
-});
 
 // Слушаем событие pageshow для перезагрузки сцены при возврате на страницу
 window.addEventListener('pageshow', function(event) {
