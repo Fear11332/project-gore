@@ -384,8 +384,8 @@ const handleRightClick = (event) => {
 const handleCloseRing = (event)=>{
     event.preventDefault();
     cancelAnimationFrame(animationFrameId);
-    removeEventListeners();
     closePopUp();
+    removeEventListeners();
 };
 
 function registerEventListers(){
@@ -402,6 +402,7 @@ function registerEventListers(){
 }
 
 function removeEventListeners() {
+    overlay.removeEventListener('click',handleCloseRing);
     canvas.removeEventListener('touchstart', handleTouchStart);
     canvas.removeEventListener('touchmove', handleTouchMove);
     canvas.removeEventListener('touchend', handleTouchEnd);
@@ -411,7 +412,6 @@ function removeEventListeners() {
     canvas.removeEventListener('mouseup', handleMouseUp);
     canvas.removeEventListener('mouseleave', handleMouseLeave, { passive: false });
     window.removeEventListener('contextmenu', handleRightClick);
-    //overlay.removeEventListener('click',handleCloseRing);
 }
 
 function animate() {
