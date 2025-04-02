@@ -608,8 +608,8 @@ const handleCloseConstructor = (event)=>{
     controls.style.pointerEvents = 'none';
      setTimeout(() => {
         switchingState();
-        overlay.removeEventListener('click',handleCloseConstructor,{passive:false});
-    }, 1300); 
+        //overlay.removeEventListener('click',handleCloseConstructor,{passive:false});
+    }, 1400); 
 };
 
 const handleContextMenu=(e)=>{
