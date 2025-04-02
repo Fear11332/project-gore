@@ -606,7 +606,10 @@ const handleCloseConstructor = (event)=>{
     controls.style.transition = 'opacity 1.9s ease-in-out';
     controls.style.opacity = '0';
     controls.style.pointerEvents = 'none';
-    switchingState();
+     setTimeout(() => {
+        switchingState();
+        overlay.removeEventListener('click',handleCloseConstructor,{passive:false});
+    }, 1300); 
 };
 
 const handleContextMenu=(e)=>{
@@ -618,7 +621,6 @@ function removeEventListeners() {
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mouseup', handleMouseUp);
       canvas.removeEventListener('mouseleave', handleMouseLeave, { passive: false }); 
-      overlay.removeEventListener('click',handleCloseConstructor,{passive:false});
 
       canvas.removeEventListener('touchstart', handleTouchStart, { passive: false });
       canvas.removeEventListener('touchmove', handleTouchMove, { passive: false });
