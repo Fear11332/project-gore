@@ -393,7 +393,7 @@ function registerEventListers(){
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-       
+    overlay.addEventListener('click',handleCloseRing,{passive:false});
     // Добавляем обработчики для мыши
     canvas.addEventListener('mousedown', handleMouseDown, { passive: false });
     canvas.addEventListener('mousemove', handleMouseMove, { passive: false });
