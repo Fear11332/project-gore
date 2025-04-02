@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phaser + Three.js Integration</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+
+    <script type="importmap">
+			{
+				"imports": {
+					"three": "https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.module.js",
+					"three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.147.0/examples/jsm/",
+      				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.147.0/examples/jsm/"
+				}
+			}
+	</script>
+</head>
+<body>
+    <div id="overlay"></div>
+    <div id="canvas-container">
+        <canvas id="ring"></canvas>
+        <canvas id="construct"></canvas>
+        <div id="controls">
+            <label for="radiusSlider" style="color:white;">Radius:</label>
+            <input type="range" id="radiusSlider" min="45" max="70" value="45" step="">
+        </div>
+    </div>
+    <script type="module" src="./js/phaserScene2.js"></script>
+    <script type="module" src="./js/jsconst.js"></script>
+</body>
+</html>
+
+
