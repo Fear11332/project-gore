@@ -1,5 +1,4 @@
 import {  ini,registerEventListers,animate,removeEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
-import { removeEventListeners } from "./threeScene2";
 
 const config = {
     type: Phaser.AUTO,
