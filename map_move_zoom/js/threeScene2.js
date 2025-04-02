@@ -40,7 +40,6 @@ let distance = null;
 
 const animateReturnToInitialPosition = () => {
     if (!object) return;
-    removeEventListeners();
 
     clock.elapsedTime = 0;
     clock.start();
@@ -188,6 +187,7 @@ const checkInteraction = (clientX, clientY) => {
                 cancelAnimationFrame(animationFrameId);
             } else {
                 // Запускаем анимацию, если она еще не началась
+                   removeEventListeners();
                    animateReturnToInitialPosition();
                    setTimeout(() => {
                         showConstructor();
