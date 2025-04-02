@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { closePopUp } from "./phaserScene2.js";
-import { addConstructEventListeners } from "./jsconst.js";
+import { closePopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
+import { addConstructEventListeners } from "https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js";
 
 const backgroundImages = [
     'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
@@ -129,7 +129,7 @@ function initThreeScene() {
     updateBackground(currentImageIndex);
     // Загружаем FBX модель
     const loader = new FBXLoader();
-    loader.load('./fbx/ring.fbx', (loadedObject) => {
+    loader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/ring.fbx', (loadedObject) => {
         object = loadedObject;      
        object.scale.set(scaleFactor,scaleFactor,scaleFactor);
         object.position.set(0, 0, 0);

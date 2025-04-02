@@ -1,4 +1,4 @@
-import { switchingState } from "./phaserScene2.js";
+import { switchingState } from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
 
 const canvas = document.getElementById('construct');
 const overlay = document.getElementById('overlay');
