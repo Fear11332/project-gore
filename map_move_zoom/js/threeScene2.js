@@ -129,7 +129,7 @@ function initThreeScene() {
     updateBackground(currentImageIndex);
     // Загружаем FBX модель
     const loader = new FBXLoader();
-    loader.load('../fbx/ring.fbx', (loadedObject) => {
+    loader.load('./fbx/ring.fbx', (loadedObject) => {
         object = loadedObject;      
        object.scale.set(scaleFactor,scaleFactor,scaleFactor);
         object.position.set(0, 0, 0);
