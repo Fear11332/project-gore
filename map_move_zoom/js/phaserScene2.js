@@ -1,4 +1,5 @@
-import {  ini,registerEventListers,animate} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import {  ini,registerEventListers,animate,removeEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import { removeEventListeners } from "./threeScene2";
 
 const config = {
     type: Phaser.AUTO,
@@ -288,6 +289,7 @@ function showPopup() {
 
 function closePopUp(){
     // Обработчик закрытия попапа
+                removeEventListeners();
                 ring.style.transition = 'opacity 1.9s ease-in-out';
                 ring.style.opacity = '0';
                 ring.style.pointerEvents = 'none';

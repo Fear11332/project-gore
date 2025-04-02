@@ -385,7 +385,6 @@ const handleCloseRing = (event)=>{
     event.preventDefault();
     cancelAnimationFrame(animationFrameId);
     closePopUp();
-    removeEventListeners();
 };
 
 function registerEventListers(){
