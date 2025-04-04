@@ -1,8 +1,7 @@
-import { switchingState } from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
+import { CloseConstructorPopUp} from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
 
 const canvas = document.getElementById('construct');
 const overlay = document.getElementById('overlay');
-const controls = document.getElementById('controls');
 const ctx = canvas.getContext('2d');
 const canvasSize = Math.min(Math.max(Math.max(window.outerWidth,window.outerHeight)*0.3, 330),750);
 canvas.width = canvasSize;
@@ -596,31 +595,19 @@ const handleMouseLeave = (event) => {
 
 const handleCloseConstructor = (event)=>{
     event.preventDefault();
-    removeEventListeners();
-    canvas.style.transition = 'opacity 1.9s ease-in-out';
-    canvas.style.opacity = '0';
-    canvas.style.pointerEvents = 'none';
-    overlay.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
-    overlay.style.background = 'rgba(0, 0, 0, 0)'; // Затемняем фон
-    overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
-    controls.style.transition = 'opacity 1.9s ease-in-out';
-    controls.style.opacity = '0';
-    controls.style.pointerEvents = 'none';
-     setTimeout(() => {
-        switchingState();
-        //overlay.removeEventListener('click',handleCloseConstructor,{passive:false});
-    }, 1400); 
+    CloseConstructorPopUp();
 };
 
 const handleContextMenu=(e)=>{
   e.preventDefault(); // Предотвращает появление контекстного меню
 };
 
-function removeEventListeners() {
+function removeConstructEventListeners() {
       canvas.removeEventListener('mousedown', handleMouseDown);
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mouseup', handleMouseUp);
       canvas.removeEventListener('mouseleave', handleMouseLeave, { passive: false }); 
+      overlay.removeEventListener('click',handleCloseConstructor,{passive:false});
 
       canvas.removeEventListener('touchstart', handleTouchStart, { passive: false });
       canvas.removeEventListener('touchmove', handleTouchMove, { passive: false });
@@ -659,4 +646,4 @@ function draw() {
   drawConnections(); // О
 }
 
-export {addConstructEventListeners};
+export {addConstructEventListeners,removeConstructEventListeners};

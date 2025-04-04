@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { closePopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
-import { addConstructEventListeners } from "https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js";
+import { CloseRingPopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
+import { OpenConstructorPopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
+
 
 const backgroundImages = [
     'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
@@ -12,8 +13,6 @@ const backgroundImages = [
 ];
 let canvas = document.getElementById('ring'), renderer, scene, camera, animationFrameId;
 let overlay = document.getElementById('overlay');
-let construct = document.getElementById('construct');
-let controls = document.getElementById('controls');
 let object, ambientLight,directionalLight,pointLight,planeGeometry,planeMaterial,plane;
 let stageImageIsOpen = true;
 let currentImageIndex = 0;
@@ -155,21 +154,6 @@ function initThreeScene() {
     currentImageIndex++;
 }
 
-function showConstructor(){
-    canvas.style.transition = 'opacity 1.9s ease-in-out';
-    canvas.style.opacity = '0';
-    canvas.style.pointerEvents = 'none';
-    construct.style.transition = 'opacity 1.9s ease-in-out';
-    construct.style.opacity = '1';
-    construct.style.pointerEvents = 'auto';
-    controls.style.transition = 'opacity 1.9s ease-in-out';
-    controls.style.opacity = '1';
-    controls.style.pointerEvents = 'auto';
-    setTimeout(() => {
-        addConstructEventListeners();
-    }, 1300); 
-}
-
 const checkInteraction = (clientX, clientY) => {
     if(!stageImageIsOpen){
         // Преобразование координат экрана в нормализованные координаты для Raycaster
@@ -181,18 +165,18 @@ const checkInteraction = (clientX, clientY) => {
 
         if (intersects.length >= 0) {
             // Если кольцо уже в начальной позиции, сразу закрываем
+            overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
+            removeEventListeners();
             if (object.quaternion.equals(initialQuaternion)) {
-                removeEventListeners();
-                showConstructor();
                 cancelAnimationFrame(animationFrameId);
+                OpenConstructorPopUp();
             } else {
                 // Запускаем анимацию, если она еще не началась
-                   removeEventListeners();
                    animateReturnToInitialPosition();
                    setTimeout(() => {
-                        showConstructor();
                         cancelAnimationFrame(animationFrameId);
-                    }, animationDuration+1050);  // Устанавливаем время для анимации*/
+                        OpenConstructorPopUp();
+                    }, animationDuration+1900);  // Устанавливаем время для анимации
             }
         }
     }
@@ -384,7 +368,7 @@ const handleRightClick = (event) => {
 const handleCloseRing = (event)=>{
     event.preventDefault();
     cancelAnimationFrame(animationFrameId);
-    closePopUp();
+    CloseRingPopUp();
 };
 
 function registerEventListers(){

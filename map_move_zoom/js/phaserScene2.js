@@ -1,4 +1,5 @@
-import {  ini,registerEventListers,animate,removeEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import {ini} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import {OpenRingPopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -53,8 +54,6 @@ const DRAG_THRESHOLD = 0; // Порог для определения перем
 let deltaX = null;
 let deltaY = null;
 let isStopping = false;
-let ring = document.getElementById('ring');
-let overlay = document.getElementById('overlay');
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
@@ -274,37 +273,14 @@ function moveSquareToGreenDot(scene, flag) {
 }
 
 function showPopup() {
-            overlay.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
-            overlay.style.background = 'rgba(0, 0, 0, 0.5)'; // Затемняем фон
-            overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействие 
-            ring.style.transition = 'opacity 1.9s ease-in-out';
-            ring.style.opacity = '1';
-            ring.style.pointerEvents = 'auto';
-            animate(); 
-            setTimeout(() => {
-                registerEventListers();
-            }, 1400); 
-}
-
-function closePopUp(){
-    // Обработчик закрытия попапа
-                removeEventListeners();
-                ring.style.transition = 'opacity 1.9s ease-in-out';
-                ring.style.opacity = '0';
-                ring.style.pointerEvents = 'none';
-                overlay.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
-                overlay.style.background = 'rgba(0, 0, 0, 0)'; // Затемняем фон
-                overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
-            switchingState();
+    OpenRingPopUp();
 }
 
 function switchingState(){
-            setTimeout(() => {
-                popUpWindowOpen = false;
-                layout  = 'map';
-                isAnimating = false;
-                isStopping = false;
-            }, 1300);
+    popUpWindowOpen = false;
+    layout  = 'map';
+    isAnimating = false;
+    isStopping = false;
 }
 
 // Функция для перемещения карты и объектов, чтобы точка тапа стала в центре экрана
@@ -521,4 +497,4 @@ function objestPositionRebuild(scene) {
     );
 }
 
-export {closePopUp,switchingState};
+export {switchingState,showPopup};
