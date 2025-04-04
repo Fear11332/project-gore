@@ -405,7 +405,7 @@ function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
     const screenHeight = window.innerHeight;
 
     // Рассчитываем "граничное" значение, которое зависит от масштаба
-    const boundaryOffset = 760 * scaleFactor; // Умножаем на коэффициент масштаба
+    const boundaryOffset = 800 * scaleFactor; // Умножаем на коэффициент масштаба
 
     // Границы квадрата
     const squareLeft = newX - square.width / 2;
