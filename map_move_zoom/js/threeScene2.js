@@ -103,7 +103,7 @@ function initThreeScene() {
     console.log("%",Math.max(width,height)*0.35);
     console.log("width height",width, height);
     console.log("current size", Math.min(Math.max(Math.max(width,height)*0.35, 350),666));
-    console.log(Window.devicePixelRatio);
+    console.log(window.devicePixelRatio);
      
     renderer.setSize(meshSize,meshSize);
     renderer.setPixelRatio(window.devicePixelRatio);
