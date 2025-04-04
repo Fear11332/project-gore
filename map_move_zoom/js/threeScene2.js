@@ -93,8 +93,9 @@ function initThreeScene() {
 
     // Ограничиваем диапазон размеров, например, 200 - 600
     // Получаем реальные размеры экрана без учета полосы прокрутки
-    const width =screen.width*window.devicePixelRatio;
-    const height = screen.height*window.devicePixelRatio;   
+    const width = screen.width*window.devicePixelRatio;
+    const height = screen.height*window.devicePixelRatio;  
+
     
     meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),440);
     camera = new THREE.PerspectiveCamera(75,1, 1, 10000); // aspect = 1
@@ -102,6 +103,7 @@ function initThreeScene() {
     console.log("%",Math.max(width,height)*0.35);
     console.log("width height",width, height);
     console.log("current size", Math.min(Math.max(Math.max(width,height)*0.35, 350),666));
+    console.log(Window.devicePixelRatio);
      
     renderer.setSize(meshSize,meshSize);
     renderer.setPixelRatio(window.devicePixelRatio);
