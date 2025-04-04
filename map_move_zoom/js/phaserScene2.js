@@ -35,7 +35,7 @@ let previousY = 0;
 let greenDotX = 450*scaleMap;
 let greenDotY = 630*scaleMap;
 // Вычисляем коэффициент масштабирования
-const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize)*1.5;
+const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize)*1.2;
 let mapImage;
 const minZoom = 1; // Минимальный зум равен начальному
 const maxZoom = 1.3; // Максимальный зум — 3x начального
