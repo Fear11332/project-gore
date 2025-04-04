@@ -105,7 +105,7 @@ function initThreeScene() {
     console.log(window.devicePixelRatio);
      
     renderer.setSize(meshSize,meshSize);
-    //renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(window.devicePixelRatio);
 
     ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
