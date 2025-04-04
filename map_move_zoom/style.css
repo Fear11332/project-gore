@@ -45,7 +45,6 @@ body, html {
             position: absolute;
             opacity: 0; /* По умолчанию невидим */
             pointer-events: none;
-            background-color: black;
         }
 
         #controls {

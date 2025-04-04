@@ -34,7 +34,7 @@ function updateRadius() {
 function drawCircle() {
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-  ctx.strokeStyle = 'white';
+  ctx.strokeStyle = '0xbe0000';
   ctx.stroke();
 }
 
@@ -157,7 +157,7 @@ function drawBar(angle, height, barStartX,barStartY) {
     ctx.beginPath();
     ctx.moveTo(barStartX, barStartY);
     ctx.lineTo(barEndX, barEndY);
-    ctx.strokeStyle = 'white';
+    ctx.strokeStyle = '0xbe0000';
     ctx.stroke();
 }
 
@@ -188,7 +188,7 @@ function drawConnections() {
   userBars.sort((a, b) => a.angle - b.angle);
 
   ctx.beginPath();
-  ctx.strokeStyle = 'white';
+  ctx.strokeStyle = '0xbe0000';
   ctx.lineWidth = 1;
 
   for (let i = 0; i < userBars.length - 1; i++) {
