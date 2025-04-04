@@ -1,4 +1,4 @@
-import {registerEventListers,animate,removeEventListeners,animationFrameId} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import {registerEventListers,animate,removeEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
 import { switchingState } from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
 import { addConstructEventListeners,removeConstructEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js";
 
@@ -17,7 +17,7 @@ function OpenRingPopUp(){
         ring.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействие 
         registerEventListers();
-    }, 1400);
+    }, 1300);
 }
 
 function OpenConstructorPopUp(){
@@ -33,7 +33,7 @@ function OpenConstructorPopUp(){
         construct.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействие 
         addConstructEventListeners();
-    }, 1400); 
+    }, 1300); 
 }
 
 function CloseRingPopUp(){
@@ -46,7 +46,7 @@ function CloseRingPopUp(){
     ring.style.opacity = '0';
     setTimeout(() => {
         switchingState();
-    }, 1400);
+    }, 1300);
 }
 
 function CloseConstructorPopUp(){
@@ -62,7 +62,7 @@ function CloseConstructorPopUp(){
     construct.style.opacity = '0';
     setTimeout(() => {
         switchingState();
-    }, 1400);
+    }, 1300);
 }
 
 export {OpenRingPopUp,OpenConstructorPopUp,CloseRingPopUp,CloseConstructorPopUp};
