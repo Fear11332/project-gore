@@ -93,8 +93,8 @@ function initThreeScene() {
 
     // Ограничиваем диапазон размеров, например, 200 - 600
     // Получаем реальные размеры экрана без учета полосы прокрутки
-    const width = window.outerWidth*window.devicePixelRatio;
-    const height = window.outerHeight*window.devicePixelRatio;  
+    const width = window.outerWidth;
+    const height = window.outerHeight;  
 
     
     meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),440);
@@ -106,7 +106,7 @@ function initThreeScene() {
     console.log(window.devicePixelRatio);
      
     renderer.setSize(meshSize,meshSize);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    //renderer.setPixelRatio(window.devicePixelRatio);
 
     ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
