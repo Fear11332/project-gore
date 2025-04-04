@@ -24,7 +24,7 @@ const config = {
 };
 
 let redSquare;
-const originalSize = 2048;  // Исходный размер квадрата 2048x2048
+const originalSize = 2048*0.6;  // Исходный размер квадрата 2048x2048
 let isDown = false;
 const game = new Phaser.Game(config);
 let isAnimating = false; // Флаг состояния анимации
@@ -36,8 +36,8 @@ let greenDotY = 630;
 // Вычисляем коэффициент масштабирования
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize)*1.5;
 let mapImage;
-const minZoom = 0.6; // Минимальный зум равен начальному
-const maxZoom = 0.9; // Максимальный зум — 3x начального
+const minZoom = 1; // Минимальный зум равен начальному
+const maxZoom = 1.3; // Максимальный зум — 3x начального
 let greeDotPositionOfsset = { x: greenDotX, y: greenDotY};
 let zoomInFlag = true;
 let markerZone;
