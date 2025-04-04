@@ -24,15 +24,16 @@ const config = {
 };
 
 let redSquare;
-const originalSize = 2048*0.6;  // Исходный размер квадрата 2048x2048
+let scaleMap = 0.6;
+const originalSize = 2048*scaleMap;  // Исходный размер квадрата 2048x2048
 let isDown = false;
 const game = new Phaser.Game(config);
 let isAnimating = false; // Флаг состояния анимации
 let isDragging = false;
 let previousX = 0;
 let previousY = 0;
-let greenDotX = 450;
-let greenDotY = 630;
+let greenDotX = 450*scaleMap;
+let greenDotY = 630*scaleMap;
 // Вычисляем коэффициент масштабирования
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize)*1.5;
 let mapImage;
