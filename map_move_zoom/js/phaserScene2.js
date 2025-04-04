@@ -36,8 +36,8 @@ let greenDotY = 630;
 // Вычисляем коэффициент масштабирования
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize)*1.5;
 let mapImage;
-const minZoom = 1; // Минимальный зум равен начальному
-const maxZoom = 1.3; // Максимальный зум — 3x начального
+const minZoom = 0.6; // Минимальный зум равен начальному
+const maxZoom = 9; // Максимальный зум — 3x начального
 let greeDotPositionOfsset = { x: greenDotX, y: greenDotY};
 let zoomInFlag = true;
 let markerZone;
@@ -115,7 +115,7 @@ function create() {
         mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         mapImage.setDisplaySize(originalSize,originalSize); 
         
-        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
+        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0.5);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
         redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
