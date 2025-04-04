@@ -93,8 +93,8 @@ function initThreeScene() {
 
     // Ограничиваем диапазон размеров, например, 200 - 600
     // Получаем реальные размеры экрана без учета полосы прокрутки
-    const width = screen.width*window.devicePixelRatio;
-    const height = screen.height*window.devicePixelRatio;  
+    const width = screen.width/window.devicePixelRatio;
+    const height = screen.height/window.devicePixelRatio;  
 
     
     meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),440);
