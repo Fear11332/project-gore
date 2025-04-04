@@ -96,7 +96,7 @@ function initThreeScene() {
     const width = window.outerWidth;
     const height = window.outerHeight;   
     
-    meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),450);
+    meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),440);
     camera = new THREE.PerspectiveCamera(75,1, 1, 10000); // aspect = 1
     console.log("mesh size", meshSize);
     console.log("%",Math.max(width,height)*0.35);
