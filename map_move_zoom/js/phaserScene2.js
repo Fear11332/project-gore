@@ -36,8 +36,8 @@ let greenDotY = 630;
 // Вычисляем коэффициент масштабирования
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize)*1.5;
 let mapImage;
-const minZoom = 0.6; // Минимальный зум равен начальному
-const maxZoom = 9; // Максимальный зум — 3x начального
+const minZoom = 0.66; // Минимальный зум равен начальному
+const maxZoom = 0.9; // Максимальный зум — 3x начального
 let greeDotPositionOfsset = { x: greenDotX, y: greenDotY};
 let zoomInFlag = true;
 let markerZone;
