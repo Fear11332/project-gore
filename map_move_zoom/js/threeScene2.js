@@ -95,7 +95,6 @@ function initThreeScene() {
     // Получаем реальные размеры экрана без учета полосы прокрутки
     const width = window.outerWidth;
     const height = window.outerHeight;  
-
     
     meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),440);
     camera = new THREE.PerspectiveCamera(75,1, 1, 10000); // aspect = 1

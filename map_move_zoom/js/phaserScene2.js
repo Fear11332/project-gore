@@ -429,8 +429,8 @@ function moveMap(pointer) {
     if(!isDragging || isAnimating) return;
  
     // Рассчитываем смещение квадрата с учётом масштаба
-    const deltaX = (pointer.x - previousX)*0.5;
-    const deltaY = (pointer.y - previousY)*0.5;
+    const deltaX = (pointer.x - previousX)*0.2;
+    const deltaY = (pointer.y - previousY)*0.2;
 
     // Новый расчет для возможных границ
     const newX = redSquare.x + deltaX;
