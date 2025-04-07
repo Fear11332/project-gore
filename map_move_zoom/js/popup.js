@@ -1,6 +1,6 @@
-import {registerEventListers,animate,removeEventListeners} from "./threeScene2.js";
-import { switchingState } from "./phaserScene2.js";
-import { addConstructEventListeners,removeConstructEventListeners} from "./jsconst.js";
+import {registerEventListers,animate,removeEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import { switchingState } from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
+import { addConstructEventListeners,removeConstructEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js";
 
 let ring = document.getElementById('ring');
 let overlay = document.getElementById('overlay');

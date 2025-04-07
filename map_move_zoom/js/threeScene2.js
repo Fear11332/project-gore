@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { CloseRingPopUp , OpenConstructorPopUp} from "./popup.js";
+import { CloseRingPopUp , OpenConstructorPopUp} from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
