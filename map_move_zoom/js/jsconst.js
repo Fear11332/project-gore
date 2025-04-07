@@ -1,9 +1,9 @@
-import { CloseConstructorPopUp} from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
+import { CloseConstructorPopUp} from "./popup.js";
 
 const canvas = document.getElementById('construct');
 const overlay = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
-const canvasSize = Math.min(Math.max(Math.max(window.outerWidth,window.outerHeight)*0.3, 330),750);
+const canvasSize = Math.min(Math.max(Math.max(window.outerWidth,window.outerHeight)*0.35, 360),400);
 canvas.width = canvasSize;
 canvas.height = canvasSize;
 let isAddingBar = false;
@@ -34,7 +34,7 @@ function updateRadius() {
 function drawCircle() {
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-  ctx.strokeStyle = '0xbe0000';
+  ctx.strokeStyle = '#be0000';
   ctx.stroke();
 }
 
@@ -157,7 +157,7 @@ function drawBar(angle, height, barStartX,barStartY) {
     ctx.beginPath();
     ctx.moveTo(barStartX, barStartY);
     ctx.lineTo(barEndX, barEndY);
-    ctx.strokeStyle = '0xbe0000';
+    ctx.strokeStyle = '#be0000';
     ctx.stroke();
 }
 
@@ -188,7 +188,7 @@ function drawConnections() {
   userBars.sort((a, b) => a.angle - b.angle);
 
   ctx.beginPath();
-  ctx.strokeStyle = '0xbe0000';
+  ctx.strokeStyle = '#be0000';
   ctx.lineWidth = 1;
 
   for (let i = 0; i < userBars.length - 1; i++) {

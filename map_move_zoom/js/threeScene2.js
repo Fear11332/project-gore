@@ -1,7 +1,10 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { CloseRingPopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
-import { OpenConstructorPopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
+import { CloseRingPopUp , OpenConstructorPopUp} from "./popup.js";
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
 
 const backgroundImages = [
@@ -36,6 +39,7 @@ let meshSize;
 let isPaused = null;
 const scaleFactor = 0.060;
 let distance = null;
+let composer;
 
 const animateReturnToInitialPosition = () => {
     if (!object) return;
@@ -89,7 +93,7 @@ function updateBackground(index) {
 
 function initThreeScene() {
     scene = new THREE.Scene();
-    renderer = new THREE.WebGLRenderer({canvas: canvas , alpha: true });
+    renderer = new THREE.WebGLRenderer({canvas: canvas , alpha: true, antialias:true });
 
     // Ограничиваем диапазон размеров, например, 200 - 600
     // Получаем реальные размеры экрана без учета полосы прокрутки
@@ -97,15 +101,21 @@ function initThreeScene() {
     const height = window.outerHeight;  
     
     meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),440);
-    camera = new THREE.PerspectiveCamera(75,1, 1, 10000); // aspect = 1
-    console.log("mesh size", meshSize);
-    console.log("%",Math.max(width,height)*0.35);
-    console.log("width height",width, height);
-    console.log("current size", Math.min(Math.max(Math.max(width,height)*0.35, 350),666));
-    console.log(window.devicePixelRatio);
-     
+    camera = new THREE.PerspectiveCamera(75,1, 1, 10000); // aspect = 1     
     renderer.setSize(meshSize,meshSize);
     renderer.setPixelRatio(window.devicePixelRatio);
+
+     // 👉 FXAA: создаём composer после renderer
+    composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    const fxaaPass = new ShaderPass(FXAAShader);
+    fxaaPass.material.uniforms['resolution'].value.set(
+        1 / (meshSize * window.devicePixelRatio),
+        1 / (meshSize * window.devicePixelRatio)
+    );
+    composer.addPass(fxaaPass);
 
     ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
@@ -405,7 +415,7 @@ function removeEventListeners() {
 function animate() {
     if (scene && camera && renderer && !isPaused) {
         animationFrameId = requestAnimationFrame(animate);
-        renderer.render(scene, camera);
+        composer.render();
     }
 }
 

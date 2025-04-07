@@ -1,5 +1,5 @@
-import {ini} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
-import {OpenRingPopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
+import {ini} from "./threeScene2.js";
+import {OpenRingPopUp } from "./popup.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -113,14 +113,14 @@ function create() {
         background = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000000).setOrigin(0, 0);
 
         mapImage = this.add.image(0, 0, 'map').setOrigin(0.5, 0.5);
-        mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
+        //mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         mapImage.setDisplaySize(originalSize,originalSize); 
         
-        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0.5);  // Квадрат 2048x2048px красного цвета
+        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
-        redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
+        //redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
-        redSquare.setSize(originalSize , originalSize );
+        redSquare.setSize(originalSize , originalSize);
         
         
         // Создаем точку, которая будет находиться в 
@@ -390,41 +390,47 @@ function zoomOut(scene) {
             scrollY: centerY-offsetY,// + offsetY, // Плавное перемещение по оси Y
             duration: 1400,  // Длительность анимации
             ease: 'Quad.easeInOut',  // Тип easing для плавности
+            onStart:()=>{
+                zoomInFlag = true;  // Снимаем флаг зума
+            },
             onComplete: () => {
                 greenDot.setVisible(false);
                 isAnimating = false; // Снимаем флаг анимации
-                zoomInFlag = true;  // Снимаем флаг зума
             }
         });
     }
 }
 
 function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
-    // Размеры экрана
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
-    // Рассчитываем "граничное" значение, которое зависит от масштаба
-    const boundaryOffset = 800 * scaleFactor; // Умножаем на коэффициент масштаба
+    let minGap = zoomInFlag?200:350;
 
-    // Границы квадрата
     const squareLeft = newX - square.width / 2;
     const squareRight = newX + square.width / 2;
     const squareTop = newY - square.height / 2;
     const squareBottom = newY + square.height / 2;
 
-    // Проверяем, полностью ли квадрат вышел за любую границу экрана
+    // расстояния до противоположных сторон экрана
+    const gapBottomToTop = squareBottom; // нижняя сторона квадрата → верх экрана
+    const gapTopToBottom = screenHeight - squareTop; // верх квадрата → низ экрана
+    const gapRightToLeft = squareRight; // правая сторона квадрата → левая экрана
+    const gapLeftToRight = screenWidth - squareLeft; // левая квадрата → правая экрана
+
+    // если хоть одно из расстояний стало меньше допустимого минимума — стоп
     if (
-        squareRight <= boundaryOffset ||              // Полностью за левой границей
-        squareLeft >= screenWidth - boundaryOffset ||     // Полностью за правой границей
-        squareBottom <= boundaryOffset ||             // Полностью за верхней границей
-        squareTop >= screenHeight - boundaryOffset        // Полностью за нижней границей
+        gapBottomToTop < minGap || 
+        gapTopToBottom < minGap || 
+        gapRightToLeft < minGap || 
+        gapLeftToRight < minGap
     ) {
         return false;
     }
+
     return true;
 }
-
+   
 function moveMap(pointer) {
     if(!isDragging || isAnimating) return;
  
