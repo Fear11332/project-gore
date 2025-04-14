@@ -16,7 +16,8 @@ const backgroundImages = [
 ];
 let canvas = document.getElementById('ring'), renderer, scene, camera, animationFrameId;
 let overlay = document.getElementById('overlay');
-let object, ambientLight,directionalLight,pointLight,planeGeometry,planeMaterial,plane;
+let radiusSlider = document.getElementById('radiusSlider');
+let ambientLight,directionalLight,pointLight,planeGeometry,planeMaterial,plane;
 let stageImageIsOpen = true;
 let currentImageIndex = 0;
 let backgroundMesh = null;
@@ -40,14 +41,17 @@ let isPaused = null;
 const scaleFactor = 0.060;
 let distance = null;
 let composer;
+let seeds = [];
+let current_seed = 0;
+const seedsCount = 3;
 
 const animateReturnToInitialPosition = () => {
-    if (!object) return;
+    if (!seeds[current_seed]) return;
 
     clock.elapsedTime = 0;
     clock.start();
 
-    const startQuaternion = object.quaternion.clone(); // Запоминаем начальное положение
+    const startQuaternion = seeds[current_seed].quaternion.clone(); // Запоминаем начальное положение
     const endQuaternion = initialQuaternion.clone();  // Финальное положение
 
     const animate = () => {
@@ -55,12 +59,12 @@ const animateReturnToInitialPosition = () => {
         const alpha = Math.min(elapsedTime / animationDuration, 1);
 
         // Используем slerpQuaternions вместо slerp, чтобы избежать проблем с промежуточным состоянием
-        object.quaternion.slerpQuaternions(startQuaternion, endQuaternion, alpha);
+        seeds[current_seed].quaternion.slerpQuaternions(startQuaternion, endQuaternion, alpha);
 
         if (alpha < 1) {
             requestAnimationFrame(animate);
         } else {
-            object.quaternion.copy(initialQuaternion); // Убеждаемся, что выставили финальное значение
+            seeds[current_seed].quaternion.copy(initialQuaternion); // Убеждаемся, что выставили финальное значение
             clock.stop();
         }
     };
@@ -105,7 +109,7 @@ function initThreeScene() {
     renderer.setSize(meshSize,meshSize);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-     // 👉 FXAA: создаём composer после renderer
+     //FXAA: создаём composer после renderer
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
     composer.addPass(renderPass);
@@ -140,30 +144,44 @@ function initThreeScene() {
     scene.add(plane);
 
     updateBackground(currentImageIndex);
+
     // Загружаем FBX модель
     const loader = new FBXLoader();
-    loader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/ring.fbx', (loadedObject) => {
-        object = loadedObject;      
-       object.scale.set(scaleFactor,scaleFactor,scaleFactor);
-        object.position.set(0, 0, 0);
-        object.traverse((child) => {
-            if (child.isMesh) {
-                child.material = new THREE.MeshStandardMaterial({
-                    color: 'white',
-                    metalness: 1,
-                    roughness: 0.6,
-                    emissive: 0x111111,
-                    emissiveIntensity: 0
+   
+    for (let i = 0; i < seedsCount; i++) {
+        loader.load(
+            'https://fear11332.github.io/project-gore/map_move_zoom/fbx/ring.fbx',
+            (loadedObject) => {
+                seeds[i] = loadedObject;
+
+                // Применяем масштаб и позицию
+                seeds[i].scale.set(scaleFactor, scaleFactor, scaleFactor);
+                seeds[i].position.set(0, 0, 0);
+
+                // Применяем материалы ко всем mesh'ам внутри модели
+                seeds[i].traverse((child) => {
+                    if (child.isMesh) {
+                        child.material = new THREE.MeshStandardMaterial({
+                            color: 'white',
+                            metalness: 1,
+                            roughness: 0.6,
+                            emissive: 0x111111,
+                            emissiveIntensity: 0,
+                        });
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
                 });
-                child.castShadow = true;
-                child.receiveShadow = true;
+
+                seeds[i].visible = false; // Сразу скрываем
+                scene.add(seeds[i]);
+            },
+            undefined,
+            (error) => {
+                console.error(`Ошибка при загрузке кольца ${i}:`, error);
             }
-        });
-        object.visible=false; // Скрываем модель сразу после загрузки
-        scene.add(object);
-    }, undefined, (error) => {
-        console.error(error);
-    });
+        );
+    }
 
     camera.position.z = 5; // Коррекция под aspect;
     currentImageIndex++;
@@ -182,7 +200,7 @@ const checkInteraction = (clientX, clientY) => {
             // Если кольцо уже в начальной позиции, сразу закрываем
             overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
             removeEventListeners();
-            if (object.quaternion.equals(initialQuaternion)) {
+            if (seeds[current_seed].quaternion.equals(initialQuaternion)) {
                 cancelAnimationFrame(animationFrameId);
                 OpenConstructorPopUp();
             } else {
@@ -203,8 +221,7 @@ function ini(){
         // Сохраняем загруженные текстуры
         loadedTextures.push(...textures);
     })
-    .then((loadedObject) => {
-        object = loadedObject;
+    .then(() => {
         initThreeScene();
     })
     .catch((error) => {
@@ -236,13 +253,12 @@ function chandeBackVisiableRing(){
             updateBackground(currentImageIndex);
         } 
         if (currentImageIndex === backgroundImages.length - 1) {
-            if (object) {
-                object.visible = true; // Показываем кольцо
+            if (seeds[current_seed]) {
+                seeds[current_seed].visible = true; // Показываем кольцо
                 stageImageIsOpen = false; // Закрываем стадию изображений
             }
         }
 }
-
 
 // Обработчики для касания
 const handleTouchStart = (event) => {
@@ -258,7 +274,7 @@ const handleTouchStart = (event) => {
 
 const handleTouchMove = (event) => {
     if(!stageImageIsOpen){
-        if (!isTouching || !object ) return;
+        if (!isTouching || !seeds[current_seed] ) return;
 
         event.preventDefault(); // Предотвращаем прокрутку
         const touch = event.touches[0];
@@ -268,36 +284,36 @@ const handleTouchMove = (event) => {
             y: event.touches[0].clientY - previousTouchPosition.y
         };
 
-        if (Math.abs(deltaMove.x) > moveThreshold || Math.abs(deltaMove.y) > moveThreshold) {
-            
-            isMoved = true;
-            // Создаём кватернион для поворота вокруг осей
-            const axisX = new THREE.Vector3(1, 0, 0); // Вращение по X
-            const axisY = new THREE.Vector3(0, 1, 0); // Вращение по Y
-            const angleX = deltaMove.y * 0.009; // Скорость вращения
-            const angleY = deltaMove.x * 0.009;
+            if (Math.abs(deltaMove.x) > moveThreshold || Math.abs(deltaMove.y) > moveThreshold) {               
+                isMoved = true;
+                // Создаём кватернион для поворота вокруг осей
+                const axisX = new THREE.Vector3(1, 0, 0); // Вращение по X
+                const axisY = new THREE.Vector3(0, 1, 0); // Вращение по Y
+                const angleX = deltaMove.y * 0.009; // Скорость вращения
+                const angleY = deltaMove.x * 0.009;
 
-            // Применяем вращение через кватернионы
-            const quaternionX = new THREE.Quaternion();
-            quaternionX.setFromAxisAngle(axisX, angleX);
-            const quaternionY = new THREE.Quaternion();
-            quaternionY.setFromAxisAngle(axisY, angleY);
+                // Применяем вращение через кватернионы
+                const quaternionX = new THREE.Quaternion();
+                quaternionX.setFromAxisAngle(axisX, angleX);
+                const quaternionY = new THREE.Quaternion();
+                quaternionY.setFromAxisAngle(axisY, angleY);
 
-            object.quaternion.multiplyQuaternions(quaternionY, object.quaternion);
-            object.quaternion.multiplyQuaternions(quaternionX, object.quaternion);
+                seeds[current_seed].quaternion.multiplyQuaternions(quaternionY, seeds[current_seed].quaternion);
+                seeds[current_seed].quaternion.multiplyQuaternions(quaternionX, seeds[current_seed].quaternion);
 
-            previousTouchPosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+                previousTouchPosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+            }
+
+            const rect = canvas.getBoundingClientRect();
+            if (
+                touch.clientX < rect.left ||
+                touch.clientX > rect.right ||
+                touch.clientY < rect.top ||
+                touch.clientY > rect.bottom        
+            ) {
+                handleTouchEnd(event); // Завершаем обработку
+            }
         }
-        const rect = canvas.getBoundingClientRect();
-        if (
-            touch.clientX < rect.left ||
-            touch.clientX > rect.right ||
-            touch.clientY < rect.top ||
-            touch.clientY > rect.bottom        
-        ) {
-            handleTouchEnd(event); // Завершаем обработку
-        }
-    }
 };
 
 
@@ -311,7 +327,7 @@ const handleTouchEnd = (event) => {
         }
         isTouching = false;
         isMoved = false;
-    }
+    } 
 };
 
 // Обработчики для мыши
@@ -329,7 +345,7 @@ const handleMouseDown = (event) => {
 const handleMouseMove = (event) => {
     event.preventDefault(); // Предотвращаем прокрутку
     if(!stageImageIsOpen){
-        if (!isMouseDown || !object ) return;
+        if (!isMouseDown || !seeds[current_seed] ) return;
 
         const deltaMove = {
             x: event.clientX - previousMousePosition.x,
@@ -348,8 +364,8 @@ const handleMouseMove = (event) => {
             const quaternionY = new THREE.Quaternion();
             quaternionY.setFromAxisAngle(axisY, angleY);
 
-            object.quaternion.multiplyQuaternions(quaternionY, object.quaternion);
-            object.quaternion.multiplyQuaternions(quaternionX, object.quaternion);
+            seeds[current_seed].quaternion.multiplyQuaternions(quaternionY, seeds[current_seed].quaternion);
+            seeds[current_seed].quaternion.multiplyQuaternions(quaternionX, seeds[current_seed].quaternion);
 
             previousMousePosition = { x: event.clientX, y: event.clientY };
         }
@@ -386,11 +402,21 @@ const handleCloseRing = (event)=>{
     CloseRingPopUp();
 };
 
+const changeSeed = (event) => {    
+    event.preventDefault();
+    if(seeds && !stageImageIsOpen){
+        seeds[current_seed].visible = false;
+        current_seed = parseFloat(radiusSlider.value-1);
+        seeds[current_seed].visible = true;
+    }
+}
+
 function registerEventListers(){
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
     overlay.addEventListener('click',handleCloseRing,{passive:false});
+    radiusSlider.addEventListener('input', changeSeed, {passive:false});
     // Добавляем обработчики для мыши
     canvas.addEventListener('mousedown', handleMouseDown, { passive: false });
     canvas.addEventListener('mousemove', handleMouseMove, { passive: false });
@@ -404,6 +430,7 @@ function removeEventListeners() {
     canvas.removeEventListener('touchstart', handleTouchStart);
     canvas.removeEventListener('touchmove', handleTouchMove);
     canvas.removeEventListener('touchend', handleTouchEnd);
+    radiusSlider.removeEventListener('input', changeSeed);
 
     canvas.removeEventListener('mousedown', handleMouseDown);
     canvas.removeEventListener('mousemove', handleMouseMove);
@@ -415,8 +442,9 @@ function removeEventListeners() {
 function animate() {
     if (scene && camera && renderer && !isPaused) {
         animationFrameId = requestAnimationFrame(animate);
+            // Например, вращаем точку по кругу (по часовой стрелке)
         composer.render();
     }
 }
 
-export {ini,registerEventListers, animate,removeEventListeners};
+export {ini,registerEventListers, animate,removeEventListeners,current_seed};

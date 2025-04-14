@@ -14,7 +14,7 @@ body, html {
             pointer-events: none;
             z-index: 0; /* Ниже чем #ring, но выше остального контента */
         }
-        /* Контейнер для iframe */
+    
         #canvas-container {
             position: fixed;
             top: 50%;
@@ -26,7 +26,6 @@ body, html {
             pointer-events: none;
         }
 
-        /* iframe */
         #ring {
             top: 50%;
             left: 50%;
@@ -45,25 +44,57 @@ body, html {
             position: absolute;
             opacity: 0; /* По умолчанию невидим */
             pointer-events: none;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: black;
         }
-
+    
         #controls {
             position: absolute;
-            top: calc(50% + 150px); /* Смещаем вниз на половину высоты #mobile (300/2) */
-            left: 50%;
-            transform: translateX(-50%);
             text-align: center;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0);
             padding: 10px;
             border-radius: 8px;
             pointer-events: none;
             opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        /* По умолчанию (портрет) — горизонтальный слайдер */
+        @media screen and (orientation: portrait) {
+            #controls {
+                top: calc(50% + 180px);
+                left: 50%;
+                transform: translateX(-50%);
+                flex-direction: row;
+            }
+
+            #radiusSlider {
+                transform: rotate(0deg);
+                width: 200px;
+                height: auto;
+            }
+        }
+
+        /* Горизонтальный экран — слайдер становится вертикальным */
+        @media screen and (orientation: landscape) {
+            #controls {
+                top: 50%;
+                left: calc(100% - 85px); /* регулируй по вкусу */
+                transform: translateY(-50%);
+                flex-direction: column;
+            }
+
+            #radiusSlider {
+                transform: rotate(270deg); /* Поворачиваем на 270° чтобы бегунок был вверх/вниз */
+                width: 200px; /* длина слайдера — будет вертикальной */
+                height: auto;
+            }
+        }
+
 
         label {
             color: white;
             display: block;
             margin-bottom: 5px;
-
         }

@@ -1,4 +1,4 @@
-import {registerEventListers,animate,removeEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import {registerEventListers,animate,removeEventListeners,current_seed} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
 import { switchingState } from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
 import { addConstructEventListeners,removeConstructEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js";
 
@@ -6,30 +6,39 @@ let ring = document.getElementById('ring');
 let overlay = document.getElementById('overlay');
 let construct = document.getElementById('construct');
 let controls = document.getElementById('controls');
+let radiusSlider = document.getElementById('radiusSlider');
 
 function OpenRingPopUp(){
     overlay.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
     overlay.style.background = 'rgba(0, 0, 0, 0.5)'; // Затемняем фон
     ring.style.transition = 'opacity 1.9s ease-in-out';
     ring.style.opacity = '1';
+    controls.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
+    controls.style.opacity = '1';
+    
+    radiusSlider.min = '1';
+    radiusSlider.max = '3';
+    radiusSlider.value = current_seed+1;
     animate();
     setTimeout(() => {
         ring.style.pointerEvents = 'auto';
-        overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействие 
+        overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействи
         registerEventListers();
+        radiusSlider.style.pointerEvents = 'auto';
     }, 1300);
 }
 
 function OpenConstructorPopUp(){
+     radiusSlider.min = '45';
+    radiusSlider.max = '70';
+    radiusSlider.value = '45';
     ring.style.pointerEvents = 'none';
     ring.style.transition = 'opacity 1.9s ease-in-out';
     ring.style.opacity = '0';
     construct.style.transition = 'opacity 1.9s ease-in-out';
     construct.style.opacity = '1';
-    controls.style.transition = 'opacity 1.9s ease-in-out';
-    controls.style.opacity = '1';
     setTimeout(() => {
-        controls.style.pointerEvents = 'auto';
+        radiusSlider.style.pointerEvents = 'auto';
         construct.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействие 
         addConstructEventListeners();
@@ -37,6 +46,7 @@ function OpenConstructorPopUp(){
 }
 
 function CloseRingPopUp(){
+    radiusSlider.style.pointerEvents = 'none';
     ring.style.pointerEvents = 'none';
     overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
     removeEventListeners();
@@ -44,13 +54,15 @@ function CloseRingPopUp(){
     overlay.style.background = 'rgba(0, 0, 0, 0)'; // Затемняем фон
     ring.style.transition = 'opacity 1.9s ease-in-out';
     ring.style.opacity = '0';
+    controls.style.transition = 'opacity 1.9s ease-in-out';
+    controls.style.opacity = '0';
     setTimeout(() => {
         switchingState();
     }, 1300);
 }
 
 function CloseConstructorPopUp(){
-    controls.style.pointerEvents = 'none';
+    radiusSlider.style.pointerEvents = 'none';
     construct.style.pointerEvents = 'none';
     overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие
     removeConstructEventListeners();
