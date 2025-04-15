@@ -48,6 +48,9 @@ body, html {
         }
     
         #controls {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, calc(-50% + 240px));
             position: absolute;
             text-align: center;
             background: rgba(0, 0, 0, 0);
@@ -60,34 +63,18 @@ body, html {
             justify-content: center;
         }
 
-        /* По умолчанию (портрет) — горизонтальный слайдер */
-        @media screen and (orientation: portrait) {
-            #controls {
-                top: calc(50% + 180px);
-                left: 50%;
-                transform: translateX(-50%);
-                flex-direction: row;
-            }
 
-            #radiusSlider {
-                transform: rotate(0deg);
-                width: 200px;
-                height: auto;
-            }
-        }
-
-        /* Горизонтальный экран — слайдер становится вертикальным */
-        @media screen and (orientation: landscape) {
+        @media screen and (orientation: landscape) and (hover: none) and (pointer: coarse) {
             #controls {
                 top: 50%;
-                left: calc(100% - 85px); /* регулируй по вкусу */
-                transform: translateY(-50%);
-                flex-direction: column;
+                left: 50%;
+                transform: translate(calc(-50% + 230px), -50%); /* Смещение вправо от центра */
+                flex-direction: column; /* Ползунок вертикально */
             }
 
             #radiusSlider {
-                transform: rotate(270deg); /* Поворачиваем на 270° чтобы бегунок был вверх/вниз */
-                width: 200px; /* длина слайдера — будет вертикальной */
+                transform: rotate(270deg); /* Повернуть ползунок вертикально */
+                width: 200px;
                 height: auto;
             }
         }
