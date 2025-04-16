@@ -19,9 +19,10 @@
 </head>
 <body>
     <div id="overlay"></div>
-    <audio controls>
+    <audio id="bg-music" autoplay loop>
         <source src="https://fear11332.github.io/project-gore/map_move_zoom/music/mus.mp3" type="audio/mpeg">
     </audio>
+    <button id="mute-toggle">▶</button>
     <div id="canvas-container">
         <canvas id="ring"></canvas>
         <canvas id="construct"></canvas>
@@ -33,6 +34,7 @@
     <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js"></script>
     <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js"></script>
     <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js"></script>
+    <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/audio.js"></script>
 </body>
 </html>
 

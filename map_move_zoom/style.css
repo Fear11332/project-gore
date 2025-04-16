@@ -87,15 +87,19 @@ body, html {
         }
 
         audio {
-            display: block;
+            display: none; /* скрываем стандартный плеер */
+        }
+
+        #mute-toggle {
             position: absolute;
             top: 10px;
             left: 10px;
-            width: 150px;               /* Устанавливает ширину плеера — уменьшает его размер */
-            transform-origin: top left;/* Указывает точку, относительно которой применяется scale — верхний левый угол */
-            background-color: transparent;
-            box-shadow: none;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
             border: none;
-            outline: none;
-            filter: brightness(1.1); /* Иногда помогает убрать серость */
-        } 
+            background: transparent;
+            color: #be0000;
+            cursor: pointer;
+            filter: brightness(1.1);
+        }       
