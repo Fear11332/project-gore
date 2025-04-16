@@ -25,7 +25,11 @@ body, html {
             border: none;
             pointer-events: none;
         }
-
+        
+        #radiusSlider {
+            pointer-events: none;
+        }
+        
         #ring {
             top: 50%;
             left: 50%;
