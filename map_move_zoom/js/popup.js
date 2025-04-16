@@ -18,13 +18,13 @@ function OpenRingPopUp(){
     
     radiusSlider.min = '1';
     radiusSlider.max = '3';
-    radiusSlider.value = '1';//temp fix
     animate();
     setTimeout(() => {
         ring.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействи
         registerEventListers();
-        radiusSlider.style.pointerEvents = 'none';
+        radiusSlider.style.pointerEvents = 'auto';
+        radiusSlider.value = current_seed+1;
     }, 1300);
 }
 
