@@ -24,7 +24,7 @@ function OpenRingPopUp(){
         ring.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействи
         registerEventListers();
-        radiusSlider.style.pointerEvents = 'auto';
+        radiusSlider.style.pointerEvents = 'none';
     }, 1300);
 }
 
