@@ -256,6 +256,7 @@ function chandeBackVisiableRing(){
             if (seeds[current_seed]) {
                 seeds[current_seed].visible = true; // Показываем кольцо
                 stageImageIsOpen = false; // Закрываем стадию изображений
+                radiusSlider.value = current_seed + 1;
             }
         }
 }
@@ -406,8 +407,7 @@ const changeSeed = (event) => {
     event.preventDefault();
     if(seeds && !stageImageIsOpen){
         seeds[current_seed].visible = false;
-        current_seed = parseFloat(radiusSlider.value-1);
-        seeds[current_seed].visible = true;
+        seeds[current_seed = parseFloat(radiusSlider.value-1)].visible = true;
     }
 }
 

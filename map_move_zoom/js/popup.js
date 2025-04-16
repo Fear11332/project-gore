@@ -19,17 +19,17 @@ function OpenRingPopUp(){
     radiusSlider.min = '1';
     radiusSlider.max = '3';
     animate();
-    setTimeout(() => {
+    setTimeout(() => {   
+        registerEventListers();
         ring.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействи
-        registerEventListers();
         radiusSlider.style.pointerEvents = 'auto';
         radiusSlider.value = current_seed+1;
     }, 1300);
 }
 
 function OpenConstructorPopUp(){
-     radiusSlider.min = '45';
+    radiusSlider.min = '45';
     radiusSlider.max = '70';
     radiusSlider.value = '45';
     ring.style.pointerEvents = 'none';
@@ -38,10 +38,10 @@ function OpenConstructorPopUp(){
     construct.style.transition = 'opacity 1.9s ease-in-out';
     construct.style.opacity = '1';
     setTimeout(() => {
+        addConstructEventListeners();
         radiusSlider.style.pointerEvents = 'auto';
         construct.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействие 
-        addConstructEventListeners();
     }, 1300); 
 }
 
