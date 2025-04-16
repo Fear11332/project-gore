@@ -18,7 +18,7 @@ function OpenRingPopUp(){
     
     radiusSlider.min = '1';
     radiusSlider.max = '3';
-    radiusSlider.value = current_seed+1;
+    radiusSlider.value = '1';//temp fix
     animate();
     setTimeout(() => {
         ring.style.pointerEvents = 'auto';
