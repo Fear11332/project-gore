@@ -85,3 +85,17 @@ body, html {
             display: block;
             margin-bottom: 5px;
         }
+
+        audio {
+            display: block;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 150px;               /* Устанавливает ширину плеера — уменьшает его размер */
+            transform-origin: top left;/* Указывает точку, относительно которой применяется scale — верхний левый угол */
+            background-color: transparent;
+            box-shadow: none;
+            border: none;
+            outline: none;
+            filter: brightness(1.1); /* Иногда помогает убрать серость */
+        } 
