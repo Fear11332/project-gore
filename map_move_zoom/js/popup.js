@@ -15,16 +15,16 @@ function OpenRingPopUp(){
     ring.style.opacity = '1';
     controls.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
     controls.style.opacity = '1';
-    
+
     radiusSlider.min = '1';
     radiusSlider.max = '3';
+    radiusSlider.value = current_seed+1;
     animate();
     setTimeout(() => {   
         registerEventListers();
         ring.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействи
         radiusSlider.style.pointerEvents = 'auto';
-        radiusSlider.value = current_seed+1;
     }, 1300);
 }
 
