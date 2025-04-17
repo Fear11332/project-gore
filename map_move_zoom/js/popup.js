@@ -17,7 +17,7 @@ function OpenRingPopUp(){
     controls.style.opacity = '1';
 
     radiusSlider.min = '1';
-    radiusSlider.max = '3';
+    radiusSlider.max = '4';
     radiusSlider.value = current_seed+1;
     animate();
     setTimeout(() => {   

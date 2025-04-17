@@ -43,7 +43,7 @@ let distance = null;
 let composer;
 let seeds = [];
 let current_seed = 0;
-const seedsCount = 3;
+const seedsCount = 4;
 
 const animateReturnToInitialPosition = () => {
     if (!seeds[current_seed]) return;
@@ -150,7 +150,7 @@ function initThreeScene() {
    
     for (let i = 0; i < seedsCount; i++) {
         loader.load(
-            'https://fear11332.github.io/project-gore/map_move_zoom/fbx/ring.fbx',
+            `https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_dehydration_${i+1}_01.fbx`,
             (loadedObject) => {
                 seeds[i] = loadedObject;
 
