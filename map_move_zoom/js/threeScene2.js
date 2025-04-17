@@ -150,7 +150,7 @@ function initThreeScene() {
    
     for (let i = 0; i < seedsCount; i++) {
         loader.load(
-            `https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_dehydration_${i+1}_01.fbx`,
+            `https://fear11332.github.io/project-gore/map_move_zoom/fbx/seed_${i+1}.fbx`,
             (loadedObject) => {
                 seeds[i] = loadedObject;
 
