@@ -47,9 +47,6 @@ let layout='map';
 let popUpWindowOpen=false;
 let isPoint = false;
 let background;
-let bgLayer;       // задний слой (фон)
-let frontLayer;    // передний слой (основная карта)
-let bgImage;
 
 let greenDot;
 let startX = null;
@@ -58,6 +55,10 @@ const DRAG_THRESHOLD = 0; // Порог для определения перем
 let deltaX = null;
 let deltaY = null;
 let isStopping = false;
+
+let bgLayer;       // задний слой (фон)
+let frontLayer;    // передний слой (основная карта)
+let bgImage;
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
@@ -104,8 +105,8 @@ function animateLoading() {
 function loadAllImages() {
     return new Promise((resolve, reject) => {
         this.load.image('map', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_1_09.webp');
-        // Когда все ресурсы загружены, resolve промис
-        this.load.image('bg','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
+        this.load.image('bg', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
+        // Когда все ресурсы загружены, resolve проми
         this.load.once('complete', resolve);
         this.load.start();
     });
@@ -125,24 +126,25 @@ function create() {
 
         mapImage = this.add.image(0, 0, 'map').setOrigin(0.5, 0.5);
         //mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
-        mapImage.setDisplaySize(originalSize,originalSize); 
+        mapImage.setDisplaySize(originalSize,originalSize);
 
         frontLayer.add(mapImage); 
         
-        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
+        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0.5);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
         //redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
         redSquare.setSize(originalSize , originalSize);
-        
+
         frontLayer.add(redSquare);
+        
         
         // Создаем точку, которая будет находиться в 
         greenDot = this.add.circle(0, 0, 10, 0x00ff00);  // Синяя точка радиусом 10px
         greenDot.setOrigin(0.5, 0.5);  // Центр точки в его середину
         greenDot.setVisible(false);
 
-        frontLayer.add(greenDot);
+         frontLayer.add(greenDot);
 
          // Создаём интерактивную зону для маркера
         markerZone = this.add.zone(0, 0, 20, 20)
@@ -247,6 +249,8 @@ function create() {
 
             isDown = false;
             isDragging = false;
+           // console.log("eee");
+                      // Когда отпустили — фон плавно догоняет основной слой
             
         });
 
@@ -291,6 +295,7 @@ function moveSquareToGreenDot(scene, flag) {
             }
         });
 }
+
 
 function showPopup() {
     OpenRingPopUp();
@@ -350,6 +355,7 @@ function moveSquareToTap(scene, pointer) {
         });
     }
 }
+
 
 function zoomIn(scene) {
     if (isAnimating) {
@@ -470,6 +476,7 @@ function moveMap(pointer) {
     previousX = pointer.x;
     previousY = pointer.y;
 }
+
 
 // Функция для обновления
 function update() {
