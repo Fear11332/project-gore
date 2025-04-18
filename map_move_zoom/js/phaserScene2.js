@@ -47,6 +47,9 @@ let layout='map';
 let popUpWindowOpen=false;
 let isPoint = false;
 let background;
+let bgLayer;       // задний слой (фон)
+let frontLayer;    // передний слой (основная карта)
+let bgImage;
 
 let greenDot;
 let startX = null;
@@ -100,8 +103,9 @@ function animateLoading() {
 // Функция загрузки всех изображений
 function loadAllImages() {
     return new Promise((resolve, reject) => {
-        this.load.image('map', 'https://fear11332.github.io/project-gore/map_move_zoom/images/map.webp');
+        this.load.image('map', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_1_09.webp');
         // Когда все ресурсы загружены, resolve промис
+        this.load.image('bg','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
         this.load.once('complete', resolve);
         this.load.start();
     });
@@ -112,9 +116,18 @@ function create() {
         // Создаем черный фон, который занимает весь экран
         background = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000000).setOrigin(0, 0);
 
+        bgLayer = this.add.container(0, 0);       // Слой фона
+        frontLayer = this.add.container(0, 0);
+
+        bgImage = this.add.image(0, 0, 'bg').setOrigin(0.5, 0.5);
+        bgImage.setDisplaySize(originalSize, originalSize);
+        bgLayer.add(bgImage);
+
         mapImage = this.add.image(0, 0, 'map').setOrigin(0.5, 0.5);
         //mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         mapImage.setDisplaySize(originalSize,originalSize); 
+
+        frontLayer.add(mapImage); 
         
         redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
@@ -122,16 +135,21 @@ function create() {
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
         redSquare.setSize(originalSize , originalSize);
         
+        frontLayer.add(redSquare);
         
         // Создаем точку, которая будет находиться в 
         greenDot = this.add.circle(0, 0, 10, 0x00ff00);  // Синяя точка радиусом 10px
         greenDot.setOrigin(0.5, 0.5);  // Центр точки в его середину
         greenDot.setVisible(false);
 
+        frontLayer.add(greenDot);
+
          // Создаём интерактивную зону для маркера
         markerZone = this.add.zone(0, 0, 20, 20)
         .setOrigin(0.5, 0.5)
         .setInteractive();
+
+        frontLayer.add(markerZone);
 
         objestPositionRebuild(this);  // Сразу вызываем resize, чтобы канвас занимал весь экран
 
@@ -205,6 +223,13 @@ function create() {
                     isDragging = true;
                     isPoint = false;
                     moveMap(pointer);
+                    this.tweens.add({
+                        targets: bgLayer,
+                        x: frontLayer.x ,
+                        y: frontLayer.y,
+                        duration: 200,
+                        ease: 'Quad.easeOut'
+                    });
                 }
             }
         });
@@ -233,42 +258,36 @@ function create() {
 }
 
 function moveSquareToGreenDot(scene, flag) {
-    let duration = 1400;
-    if(flag)
-        duration = 1;
-        // Центр экрана
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+    let duration = flag ? 1 : 1400;
 
-        // Смещение относительно зеленой точки
-        const offsetX = centerX - greenDot.x;
-        const offsetY = centerY - greenDot.y;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
 
-        // Анимация перемещения карты и объектов
+    // Координаты greenDot в мировых координатах
+    const worldGreenDotX = frontLayer.x + greenDot.x;
+    const worldGreenDotY = frontLayer.y + greenDot.y;
+
+    const offsetX = centerX - worldGreenDotX;
+    const offsetY = centerY - worldGreenDotY;
+
+    const targetX = frontLayer.x + offsetX;
+    const targetY = frontLayer.y + offsetY;
+
+      // Двигаем оба слоя одновременно, но с разной амплитудой
         scene.tweens.add({
-            targets: { x: mapImage.x, y: mapImage.y },
-            x: mapImage.x + offsetX,
-            y: mapImage.y + offsetY,
-            duration:duration, // Длительность анимации
+            targets: frontLayer,
+            x: targetX,
+            y: targetY,
+            duration: duration,
             ease: 'Quad.easeInOut',
-            onUpdate: (tween, targets) => {
-                // Перемещаем карту
-                mapImage.setPosition(targets.x, targets.y);
-
-                // Перемещаем красный квадрат
-                redSquare.setPosition(targets.x, targets.y);
-
-                // Перемещаем зеленую точку
-                greenDot.setPosition(
-                    redSquare.x + greeDotPositionOfsset.x,
-                    redSquare.y + greeDotPositionOfsset.y
-                );
-
-                // Перемещаем зону маркера
-                markerZone.setPosition(
-                    redSquare.x + greeDotPositionOfsset.x,
-                    redSquare.y + greeDotPositionOfsset.y
-                );
+            onUpdate:()=>{
+                    scene.tweens.add({
+                            targets: bgLayer,
+                            x: frontLayer.x ,
+                            y: frontLayer.y,
+                            duration: 600,
+                            ease: 'Quad.easeOut'
+                        });
             }
         });
 }
@@ -289,47 +308,43 @@ function moveSquareToTap(scene, pointer) {
     if (!isAnimating) {
         isAnimating = true;
 
-        // Координаты тапа
         const tapX = pointer.x;
         const tapY = pointer.y;
 
-        // Центр экрана
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        // Рассчитываем смещение с учетом текущего масштаба
-        const offsetX = (centerX - tapX) / scene.cameras.main.zoom;
-        const offsetY = (centerY - tapY) / scene.cameras.main.zoom;
+        const zoom = scene.cameras.main.zoom;
 
-        // Анимация перемещения карты и объектов
+        const offsetX = (centerX - tapX) / zoom;
+        const offsetY = (centerY - tapY) / zoom;
+
+        const frontTargetX = frontLayer.x + offsetX;
+        const frontTargetY = frontLayer.y + offsetY;
+
+        // Двигаем оба слоя одновременно, но с разной амплитудой
         scene.tweens.add({
-            targets: { x: mapImage.x, y: mapImage.y },
-            x: mapImage.x + offsetX,
-            y: mapImage.y + offsetY,
-            duration: 1400, // Длительность анимации
+            targets: frontLayer,
+            x: frontTargetX,
+            y: frontTargetY,
+            duration: 1400,
             ease: 'Quad.easeInOut',
-            onUpdate: (tween, targets) => {
-                // Обновляем позицию карты
-                mapImage.setPosition(targets.x, targets.y);
-
-                // Перемещаем квадрат с картой
-                redSquare.setPosition(targets.x, targets.y);
-
-                // Перемещаем зеленую точку
-                greenDot.setPosition(redSquare.x+greeDotPositionOfsset.x, 
-                    redSquare.y+greeDotPositionOfsset.y);
-                
-                markerZone.setPosition(redSquare.x+greeDotPositionOfsset.x,
-                    redSquare.y+greeDotPositionOfsset.y
-                );
+            onUpdate:()=>{
+                    scene.tweens.add({
+                            targets: bgLayer,
+                            x: frontLayer.x ,
+                            y: frontLayer.y,
+                            duration: 600,
+                            ease: 'Quad.easeOut'
+                        });
             },
-            onComplete: () => {
-                if(layout==='map') {
-                    if(zoomInFlag)
+             onComplete: () => {
+                // По завершению — можно зумить
+                if (layout === 'map') {
+                    if (zoomInFlag)
                         zoomIn(scene);
-                    else {
+                    else
                         zoomOut(scene);
-                    }
                 }
             }
         });
@@ -432,33 +447,28 @@ function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
 }
    
 function moveMap(pointer) {
-    if(!isDragging || isAnimating) return;
- 
-    // Рассчитываем смещение квадрата с учётом масштаба
-    const deltaX = (pointer.x - previousX)*0.8;
-    const deltaY = (pointer.y - previousY)*0.8;
+    if (!isDragging || isAnimating) return;
 
-    // Новый расчет для возможных границ
-    const newX = redSquare.x + deltaX;
-    const newY = redSquare.y + deltaY;   
+    const deltaX = (pointer.x - previousX) * 0.5;
+    const deltaY = (pointer.y - previousY) * 0.5;
 
-            if(checkSquareOutOfBoundsWithAnimation(newX , newY, redSquare)){
-                redSquare.x = newX;
-                redSquare.y = newY;
-                mapImage.setPosition(redSquare.x, redSquare.y);
+    const newX = frontLayer.x + deltaX;
+    const newY = frontLayer.y + deltaY;
 
-                greenDot.setPosition(redSquare.x+greeDotPositionOfsset.x,
-                    redSquare.y+greeDotPositionOfsset.y
-                );
-                
-                markerZone.setPosition(redSquare.x+greeDotPositionOfsset.x,
-                    redSquare.y+greeDotPositionOfsset.y
-                );
-            }
+    // Проверка на границы через redSquare внутри frontLayer
+    if (checkSquareOutOfBoundsWithAnimation(newX, newY, redSquare)) {
+        // Верхний слой двигается сразу
+        frontLayer.setPosition(newX, newY);
 
-            // Обновляем предыдущие координаты
-            previousX = pointer.x;
-            previousY = pointer.y;
+        // Нижний — двигается чуть медленнее, например на 0.8 скорости
+        const bgTargetX = bgLayer.x + deltaX * 0.5;
+        const bgTargetY = bgLayer.y + deltaY * 0.5;
+
+        bgLayer.setPosition(bgTargetX, bgTargetY);
+    }
+
+    previousX = pointer.x;
+    previousY = pointer.y;
 }
 
 // Функция для обновления
