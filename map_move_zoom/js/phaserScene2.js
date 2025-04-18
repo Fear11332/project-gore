@@ -502,16 +502,17 @@ document.body.style.userSelect = 'none';
 
 // Функция для перерасчета размера канваса
 function objestPositionRebuild(scene) {
-    redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
-    mapImage.setPosition(redSquare.x, redSquare.y);
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
 
-    greenDot.setPosition(redSquare.x+greeDotPositionOfsset.x,
-        redSquare.y+greeDotPositionOfsset.y
-    );
+    redSquare.setPosition(0, 0);  // Центрируем относительно frontLayer
+    mapImage.setPosition(0, 0);   // Центрируем относительно frontLayer
+    greenDot.setPosition(greeDotPositionOfsset.x, greeDotPositionOfsset.y);
+    markerZone.setPosition(greeDotPositionOfsset.x, greeDotPositionOfsset.y);
+    bgImage.setPosition(0, 0);
 
-    markerZone.setPosition(redSquare.x+greeDotPositionOfsset.x,
-        redSquare.y+greeDotPositionOfsset.y
-    );
+    frontLayer.setPosition(centerX, centerY);
+    bgLayer.setPosition(centerX , centerY);    
 }
 
 export {switchingState,showPopup};
