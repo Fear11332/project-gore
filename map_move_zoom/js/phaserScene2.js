@@ -130,7 +130,7 @@ function create() {
 
         frontLayer.add(mapImage); 
         
-        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0.5);  // Квадрат 2048x2048px красного цвета
+        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
         //redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
