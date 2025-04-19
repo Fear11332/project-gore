@@ -23,11 +23,11 @@ const config = {
     },
 };
 
+const game = new Phaser.Game(config);
 let redSquare;
 let scaleMap = 0.6;
 const originalSize = 2048*scaleMap;  // Исходный размер квадрата 2048x2048
 let isDown = false;
-const game = new Phaser.Game(config);
 let isAnimating = false; // Флаг состояния анимации
 let isDragging = false;
 let previousX = 0;
@@ -36,7 +36,7 @@ let greenDotX = 450*scaleMap;
 let greenDotY = 630*scaleMap;
 // Вычисляем коэффициент масштабирования
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize);
-let mapImage;
+
 const minZoom = 1; // Минимальный зум равен начальному
 const maxZoom = 1.48; // Максимальный зум — 3x начального
 let greeDotPositionOfsset = { x: greenDotX, y: greenDotY};
@@ -46,7 +46,6 @@ let setTime=2000;
 let layout='map';
 let popUpWindowOpen=false;
 let isPoint = false;
-let background;
 
 let greenDot;
 let startX = null;
@@ -56,36 +55,54 @@ let deltaX = null;
 let deltaY = null;
 let isStopping = false;
 
-let bgLayer;       // задний слой (фон)
-let frontLayer;    // передний слой (основная карта)
-let bgImage;
+let lvl0;       // задний слой (фон)
+let lvl1;    // передний слой (основная карта)
+let lvl2;
+let lvl3;
+let lvl4;
+let lvl5;
+let lvl6;
+let lvl7;
+let lvlPoint;
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
-    // Отображаем текст "Загрузка..." в центре экрана
+      // 1. Добавляем текст сразу, чтобы он был на экране как можно раньше
     this.loadingText = this.add.text(window.innerWidth / 2, window.innerHeight / 2, 'Loading', {
         fontSize: '32px',
         fill: '#5DE100',
         align: 'center'
     }).setOrigin(0.5);
-     // Создаем анимацию с точками для загрузки
+
     animateLoading.call(this);
 
-    // Загружаем ресурсы асинхронно
-    const loadPromise = loadAllImages.call(this);
-    // Дожидаемся завершения загрузки
-    await loadPromise;
-    // После завершения загрузки, добавляем искусственную задержку
-    //await delay(500); // Задержка в 1 секунду после завершения загрузки
+    // 2. Даем 1 кадр на отрисовку текста
+    await new Promise((resolve) => this.time.delayedCall(0, resolve));
 
-    // После задержки скрываем текст "Загрузка"
+    // 3. Запускаем загрузку ассетов
+    await loadAllImages.call(this);
+
+    // 4. Ждем, пока браузер загрузит всё (включая шрифты и т.д.)
+    await waitForWindowLoad();
+
+    // 5. Прячем текст
     this.loadingText.setVisible(false);
 
+    // 6. Запускаем остальную логику
     ini();
-
     create.call(this);
-    // Здесь можно продолжать работу с картой
 }
+
+function waitForWindowLoad() {
+    return new Promise((resolve) => {
+        if (document.readyState === 'complete') {
+            resolve(); // Уже загружено
+        } else {
+            window.addEventListener('load', () => resolve(), { once: true });
+        }
+    });
+}
+
 // Функция для анимации текста "Загрузка..." с точками
 function animateLoading() {
     let dotCount = 0; // Количество точек
@@ -104,8 +121,15 @@ function animateLoading() {
 // Функция загрузки всех изображений
 function loadAllImages() {
     return new Promise((resolve, reject) => {
-        this.load.image('map', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_1_09.webp');
-        this.load.image('bg', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
+        this.load.image('lvl1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_1_09.webp');
+        this.load.image('lvl0', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
+        this.load.image('lvl2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_2_03.webp');
+        this.load.image('lvl3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_3_06.webp');
+        this.load.image('lvl4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_4_03.webp');
+        this.load.image('lvl5', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_5_06.webp');
+        this.load.image('lvl6', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_6_04.webp');
+        this.load.image('lvl7', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_7_03.webp');
+        this.load.image('lvlPoint', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_mark_1_01.webp');
         // Когда все ресурсы загружены, resolve проми
         this.load.once('complete', resolve);
         this.load.start();
@@ -115,43 +139,48 @@ function loadAllImages() {
 // Функция для создания сцены
 function create() {
         // Создаем черный фон, который занимает весь экран
-        background = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000000).setOrigin(0, 0);
+        this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000000).setOrigin(0, 0);
+        
+        lvl0=this.add.container(0,0);
+        lvl1 = this.add.container(0,0);
+        lvl2 = this.add.container(0,0);
+        lvl3 = this.add.container(0,0);
+        lvl4 = this.add.container(0,0);
+        lvl5 = this.add.container(0,0);
+        lvl6 = this.add.container(0,0);
+        lvl7 = this.add.container(0,0);
+        lvlPoint = this.add.container(0,0);
 
-        bgLayer = this.add.container(0, 0);       // Слой фона
-        frontLayer = this.add.container(0, 0);
-
-        bgImage = this.add.image(0, 0, 'bg').setOrigin(0.5, 0.5);
-        bgImage.setDisplaySize(originalSize, originalSize);
-        bgLayer.add(bgImage);
-
-        mapImage = this.add.image(0, 0, 'map').setOrigin(0.5, 0.5);
-        //mapImage.setPosition(window.innerWidth / 2, window.innerHeight / 2);
-        mapImage.setDisplaySize(originalSize,originalSize);
-
-        frontLayer.add(mapImage); 
+        lvl0.add(this.add.image(0, 0, 'lvl0').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl1.add(this.add.image(0, 0, 'lvl1').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize)); 
+        lvl2.add(this.add.image(0, 0, 'lvl2').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl3.add(this.add.image(0, 0, 'lvl3').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl4.add(this.add.image(0, 0, 'lvl4').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl5.add(this.add.image(0, 0, 'lvl5').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl6.add(this.add.image(0, 0, 'lvl6').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl7.add(this.add.image(0, 0, 'lvl7').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvlPoint.add(this.add.image(0, 0, 'lvlPoint').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         
         redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
-        //redSquare.setPosition(window.innerWidth / 2, window.innerHeight / 2);
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
         redSquare.setSize(originalSize , originalSize);
 
-        frontLayer.add(redSquare);
-        
+        lvl1.add(redSquare);
         
         // Создаем точку, которая будет находиться в 
         greenDot = this.add.circle(0, 0, 10, 0x00ff00);  // Синяя точка радиусом 10px
         greenDot.setOrigin(0.5, 0.5);  // Центр точки в его середину
         greenDot.setVisible(false);
 
-         frontLayer.add(greenDot);
+        lvl1.add(greenDot);
 
          // Создаём интерактивную зону для маркера
         markerZone = this.add.zone(0, 0, 20, 20)
         .setOrigin(0.5, 0.5)
         .setInteractive();
 
-        frontLayer.add(markerZone);
+        lvl1.add(markerZone);
 
         objestPositionRebuild(this);  // Сразу вызываем resize, чтобы канвас занимал весь экран
 
@@ -223,15 +252,64 @@ function create() {
     // Если сдвиг больше порога -> считаем это перемещением
             if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
                     isDragging = true;
-                    isPoint = false;
-                    moveMap(pointer);
-                    this.tweens.add({
-                        targets: bgLayer,
-                        x: frontLayer.x ,
-                        y: frontLayer.y,
-                        duration: 200,
-                        ease: 'Quad.easeOut'
+                    isPoint = false
+                    moveMap(pointer,this);
+                     this.tweens.add({
+                        targets: lvl2,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
                     });
+                    this.tweens.add({
+                        targets: lvl4,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
+                    this.tweens.add({
+                        targets: lvl7,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
+                 this.tweens.add({
+                        targets: lvl6,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 100,
+                            ease: 'Quad.easeOut'
+                    });
+                this.tweens.add({
+                            targets: lvl5,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 200,
+                            ease: 'Quad.easeOut'
+                        });
+                 this.tweens.add({
+                            targets: lvl3,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 200,
+                            ease: 'Quad.easeOut'
+                        });
+                    this.tweens.add({
+                            targets: lvl1,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 300,
+                            ease: 'Quad.easeOut'
+                        });
+                     this.tweens.add({
+                            targets: lvl0,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 600,
+                            ease: 'Quad.easeOut'
+                        });
                 }
             }
         });
@@ -249,8 +327,6 @@ function create() {
 
             isDown = false;
             isDragging = false;
-           // console.log("eee");
-                      // Когда отпустили — фон плавно догоняет основной слой
             
         });
 
@@ -268,27 +344,76 @@ function moveSquareToGreenDot(scene, flag) {
     const centerY = window.innerHeight / 2;
 
     // Координаты greenDot в мировых координатах
-    const worldGreenDotX = frontLayer.x + greenDot.x;
-    const worldGreenDotY = frontLayer.y + greenDot.y;
+    const worldGreenDotX = lvlPoint.x + greenDot.x;
+    const worldGreenDotY = lvlPoint.y + greenDot.y;
 
     const offsetX = centerX - worldGreenDotX;
     const offsetY = centerY - worldGreenDotY;
 
-    const targetX = frontLayer.x + offsetX;
-    const targetY = frontLayer.y + offsetY;
+    const targetX = lvlPoint.x + offsetX;
+    const targetY = lvlPoint.y + offsetY;
 
       // Двигаем оба слоя одновременно, но с разной амплитудой
-        scene.tweens.add({
-            targets: frontLayer,
+     scene.tweens.add({
+            targets: lvlPoint,
             x: targetX,
             y: targetY,
             duration: duration,
             ease: 'Quad.easeInOut',
             onUpdate:()=>{
+                 scene.tweens.add({
+                        targets: lvl2,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
                     scene.tweens.add({
-                            targets: bgLayer,
-                            x: frontLayer.x ,
-                            y: frontLayer.y,
+                        targets: lvl4,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
+                    scene.tweens.add({
+                        targets: lvl7,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
+                 scene.tweens.add({
+                        targets: lvl6,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 100,
+                            ease: 'Quad.easeOut'
+                    });
+                scene.tweens.add({
+                            targets: lvl5,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 200,
+                            ease: 'Quad.easeOut'
+                        });
+                 scene.tweens.add({
+                            targets: lvl3,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 200,
+                            ease: 'Quad.easeOut'
+                        });
+                    scene.tweens.add({
+                            targets: lvl1,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 300,
+                            ease: 'Quad.easeOut'
+                        });
+                     scene.tweens.add({
+                            targets: lvl0,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
                             duration: 600,
                             ease: 'Quad.easeOut'
                         });
@@ -324,21 +449,70 @@ function moveSquareToTap(scene, pointer) {
         const offsetX = (centerX - tapX) / zoom;
         const offsetY = (centerY - tapY) / zoom;
 
-        const frontTargetX = frontLayer.x + offsetX;
-        const frontTargetY = frontLayer.y + offsetY;
+        const frontTargetX = lvlPoint.x + offsetX;
+        const frontTargetY = lvlPoint.y + offsetY;
 
         // Двигаем оба слоя одновременно, но с разной амплитудой
         scene.tweens.add({
-            targets: frontLayer,
+            targets: lvlPoint,
             x: frontTargetX,
             y: frontTargetY,
             duration: 1400,
             ease: 'Quad.easeInOut',
             onUpdate:()=>{
+                scene.tweens.add({
+                        targets: lvl2,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
                     scene.tweens.add({
-                            targets: bgLayer,
-                            x: frontLayer.x ,
-                            y: frontLayer.y,
+                        targets: lvl4,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
+                    scene.tweens.add({
+                        targets: lvl7,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 70,
+                            ease: 'Quad.easeOut'
+                    });
+                 scene.tweens.add({
+                        targets: lvl6,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 100,
+                            ease: 'Quad.easeOut'
+                    });
+                scene.tweens.add({
+                            targets: lvl5,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 200,
+                            ease: 'Quad.easeOut'
+                        });
+                 scene.tweens.add({
+                            targets: lvl3,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 200,
+                            ease: 'Quad.easeOut'
+                        });
+                    scene.tweens.add({
+                            targets: lvl1,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
+                            duration: 300,
+                            ease: 'Quad.easeOut'
+                        });
+                     scene.tweens.add({
+                            targets: lvl0,
+                            x: lvlPoint.x ,
+                            y: lvlPoint.y,
                             duration: 600,
                             ease: 'Quad.easeOut'
                         });
@@ -452,25 +626,22 @@ function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
     return true;
 }
    
-function moveMap(pointer) {
+function moveMap(pointer,scene) {
     if (!isDragging || isAnimating) return;
 
-    const deltaX = (pointer.x - previousX) * 0.5;
-    const deltaY = (pointer.y - previousY) * 0.5;
+    const deltaX = (pointer.x - previousX);
+    const deltaY = (pointer.y - previousY);
 
-    const newX = frontLayer.x + deltaX;
-    const newY = frontLayer.y + deltaY;
+    // lvl2 двигается быстрее — например, в 1.2 раза
+    const lvlPointSpeed = 1.2;
 
-    // Проверка на границы через redSquare внутри frontLayer
-    if (checkSquareOutOfBoundsWithAnimation(newX, newY, redSquare)) {
-        // Верхний слой двигается сразу
-        frontLayer.setPosition(newX, newY);
+    const newX_lvlPoint = lvlPoint.x + deltaX * lvlPointSpeed;
+    const newY_lvlPoint = lvlPoint.y + deltaY * lvlPointSpeed;
 
-        // Нижний — двигается чуть медленнее, например на 0.8 скорости
-        const bgTargetX = bgLayer.x + deltaX * 0.5;
-        const bgTargetY = bgLayer.y + deltaY * 0.5;
 
-        bgLayer.setPosition(bgTargetX, bgTargetY);
+    // Проверка — только по lvl1, например
+    if (checkSquareOutOfBoundsWithAnimation(newX_lvlPoint, newY_lvlPoint, redSquare)) {
+        lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
     }
 
     previousX = pointer.x;
@@ -513,13 +684,18 @@ function objestPositionRebuild(scene) {
     const centerY = window.innerHeight / 2;
 
     redSquare.setPosition(0, 0);  // Центрируем относительно frontLayer
-    mapImage.setPosition(0, 0);   // Центрируем относительно frontLayer
     greenDot.setPosition(greeDotPositionOfsset.x, greeDotPositionOfsset.y);
     markerZone.setPosition(greeDotPositionOfsset.x, greeDotPositionOfsset.y);
-    bgImage.setPosition(0, 0);
 
-    frontLayer.setPosition(centerX, centerY);
-    bgLayer.setPosition(centerX , centerY);    
+    lvl0.setPosition(centerX , centerY);
+    lvl1.setPosition(centerX , centerY);    
+    lvl2.setPosition(centerX , centerY);
+    lvl3.setPosition(centerX , centerY);
+    lvl4.setPosition(centerX , centerY);
+    lvl5.setPosition(centerX , centerY);
+    lvl6.setPosition(centerX , centerY);
+    lvl7.setPosition(centerX , centerY);
+    lvlPoint.setPosition(centerX , centerY);
 }
 
 export {switchingState,showPopup};
