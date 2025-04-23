@@ -393,7 +393,7 @@ function create() {
 }
 
 function moveSquareToGreenDot(scene, flag) {
-    let duration = flag ? 1 : 1400;
+    let duration = flag ? 1 : 1750;
 
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
@@ -413,7 +413,7 @@ function moveSquareToGreenDot(scene, flag) {
             targets: lvlPoint,
             x: targetX,
             y: targetY,
-            duration: 1750,
+            duration: duration,
             ease: 'Quad.easeInOut',
             onUpdate: () => {
                 // Двигаем слои вручную с инерцией (линейно или easing через формулу)
@@ -537,7 +537,7 @@ function zoomIn(scene) {
             zoom: maxZoom,  // Плавное увеличение
             scrollX: centerX-offsetX, // Центрирование камеры по оси X
             scrollY: centerY-offsetY, // Центрирование камеры по оси Y
-            duration: 1400,  // Длительность анимации
+            duration: 1750,  // Длительность анимации
             ease: 'Quad.easeInOut',  // Тип easing для плавности
             onComplete: () => {
                 greenDot.setVisible(true);
@@ -552,7 +552,7 @@ function zoomIn(scene) {
             scaleX: 1.1,       // Увеличение по оси X
             scaleY: 1.1,       // Увеличение по оси Y
            // alpha: 1,          // Полная видимость
-            duration: 1400,
+            duration: 1750,
             ease: 'Quad.easeInOut',
             onStart: () => {
                 scene.tweens.add({
@@ -561,7 +561,7 @@ function zoomIn(scene) {
                     scaleX: 1,       // Увеличение по оси X
                     scaleY: 1,       // Увеличение по оси Y
                     alpha: 1,          // Полная видимость
-                    duration: 1400,
+                    duration: 1750,
                     ease: 'Quad.easeInOut',
                 });
             }
@@ -573,7 +573,7 @@ function zoomIn(scene) {
             scaleX: 1.05,       // Увеличение по оси X
             scaleY: 1.05,       // Увеличение по оси Y
            // alpha: 1,          // Полная видимость
-            duration: 1400,
+            duration: 1750,
             ease: 'Quad.easeInOut',
              onStart: () => {
                 scene.tweens.add({
@@ -582,7 +582,7 @@ function zoomIn(scene) {
                     scaleX: 1,       // Увеличение по оси X
                     scaleY: 1,       // Увеличение по оси Y
                     alpha: 1,          // Полная видимость
-                    duration: 1400,
+                    duration: 1750,
                     ease: 'Quad.easeInOut',
                 });
             }
@@ -595,7 +595,7 @@ function zoomIn(scene) {
             scaleX: 1.1,       // Увеличение по оси X
             scaleY: 1.1,       // Увеличение по оси Y
            // alpha: 1,          // Полная видимость
-            duration: 1400,
+            duration: 1750,
             ease: 'Quad.easeInOut',
 
               onStart: () => {
@@ -605,7 +605,7 @@ function zoomIn(scene) {
                     scaleX: 1,       // Увеличение по оси X
                     scaleY: 1,       // Увеличение по оси Y
                     alpha: 1,          // Полная видимость
-                    duration: 1400,
+                    duration: 1750,
                     ease: 'Quad.easeInOut',
                 });
             }
@@ -633,7 +633,7 @@ function zoomOut(scene) {
             scaleX: 1,       // Увеличение по оси X
             scaleY: 1,       // Увеличение по оси Y
            // alpha: 1,          // Полная видимость
-            duration: 1400,
+            duration: 1750,
             ease: 'Quad.easeInOut',
               onStart: () => {
                 scene.tweens.add({
@@ -642,7 +642,7 @@ function zoomOut(scene) {
                     scaleX: 1,       // Увеличение по оси X
                     scaleY: 1,       // Увеличение по оси Y
                     alpha: 0,          // Полная видимость
-                    duration: 1400,
+                    duration: 1750,
                     ease: 'Quad.easeInOut',
                 })
             }
@@ -654,7 +654,7 @@ function zoomOut(scene) {
             scaleX: 1,       // Увеличение по оси X
             scaleY: 1,       // Увеличение по оси Y
            // alpha: 1,          // Полная видимость
-            duration: 1400,
+            duration: 1750,
             ease: 'Quad.easeInOut',
             onStart: () => {
                 scene.tweens.add({
@@ -663,7 +663,7 @@ function zoomOut(scene) {
                     scaleX: 1,       // Увеличение по оси X
                     scaleY: 1,       // Увеличение по оси Y
                     alpha: 0,          // Полная видимость
-                    duration: 1400,
+                    duration: 1750,
                     ease: 'Quad.easeInOut',
                 })
             }
@@ -676,7 +676,7 @@ function zoomOut(scene) {
             scaleX: 1,       // Увеличение по оси X
             scaleY: 1,       // Увеличение по оси Y
            // alpha: 1,          // Полная видимость
-            duration: 1400,
+            duration: 1750,
             ease: 'Quad.easeInOut',
 
               onStart: () => {
@@ -686,7 +686,7 @@ function zoomOut(scene) {
                     scaleX: 1,       // Увеличение по оси X
                     scaleY: 1,       // Увеличение по оси Y
                     alpha: 0,          // Полная видимость
-                    duration: 1400,
+                    duration: 1750,
                     ease: 'Quad.easeInOut',
                 });
             }
@@ -698,7 +698,7 @@ function zoomOut(scene) {
             zoom: minZoom,  // Плавное увеличение
             scrollX: centerX-offsetX,//+ offsetX, // Плавное перемещение по оси X
             scrollY: centerY-offsetY,// + offsetY, // Плавное перемещение по оси Y
-            duration: 1400,  // Длительность анимации
+            duration: 1750,  // Длительность анимации
             ease: 'Quad.easeInOut',  // Тип easing для плавности
             onStart:()=>{
                 zoomInFlag = true;  // Снимаем флаг зума
