@@ -64,6 +64,7 @@ let lvl5;
 let lvl6;
 let lvl7;
 let lvlPoint;
+let shadowBox,shadowBox2, shadowBox3;
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
@@ -136,8 +137,39 @@ function loadAllImages() {
     });
 }
 
+function createSoftShadow(scene, x, y, w, h, maxAlpha) {
+    const g = scene.add.graphics({ x, y });
+
+    const steps = 10;  // Чем больше, тем мягче размытие
+    const blur = 20;   // Радиус размытия
+
+    // Предварительные вычисления для всех шагов
+    const stepAlphaFactor = 1 / steps;
+    const stepExpandFactor = blur / steps;
+
+    // Используем заранее подготовленные значения
+    let alpha, expand;
+    
+    for (let i = 0; i < steps; i++) {
+        alpha = maxAlpha * (1 - stepAlphaFactor * i);  // Прозрачность на каждом шаге
+        expand = stepExpandFactor * i;  // Увеличение радиуса размытия
+
+        g.fillStyle(0x000000, alpha);
+        g.fillRect(
+            -w / 2 - expand,
+            -h / 2 - expand,
+            w + expand * 2,
+            h + expand * 2
+        );
+    }
+
+    return g;
+}
+
+
 // Функция для создания сцены
 function create() {
+        //this.renderer.pipelines.add('blurFX', new BlurPostFX(this.game));
         // Создаем черный фон, который занимает весь экран
         this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000000).setOrigin(0, 0);
         
@@ -159,7 +191,30 @@ function create() {
         lvl5.add(this.add.image(0, 0, 'lvl5').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         lvl6.add(this.add.image(0, 0, 'lvl6').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         lvl7.add(this.add.image(0, 0, 'lvl7').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        
         lvlPoint.add(this.add.image(0, 0, 'lvlPoint').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+
+        shadowBox = createSoftShadow(this, 0, 0, 200, 350,0.2);
+        //this.add.rectangle(0,0, 200, 350, 0x000000, 0.7)
+        //.setOrigin(0.5,0.5)
+        shadowBox.setAlpha(0);      // Изначально невидим
+        shadowBox2 =createSoftShadow(this, 0, 0, 150, 250,0.3);
+        // this.add.rectangle(0,0, 150, 250, 0x000000, 0.5)
+        //.setOrigin(0.5,0.5)
+        shadowBox2.setAlpha(0);  
+        shadowBox3 = createSoftShadow(this, 0, 0, 200, 300,0.2);
+        //this.add.rectangle(0,0, 220, 330, 0x000000, 0.5)
+        //.setOrigin(0.5,0.5)
+        shadowBox3.setAlpha(0); 
+        
+        shadowBox.setDepth(12);
+        shadowBox2.setDepth(10);
+        shadowBox3.setDepth(10);
+        lvl6.setDepth(11);
+        lvl2.setDepth(13);
+        lvl5.setDepth(14);
+        lvl4.setDepth(15);
+        //lvl1.add(shadowBox);
         
         redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
@@ -254,63 +309,64 @@ function create() {
                     isDragging = true;
                     isPoint = false
                     moveMap(pointer,this);
-                     this.tweens.add({
-                        targets: lvl2,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
+                    const tweenData = [
+                    { target: lvl2, duration: 70 },
+                    { target: lvl4, duration: 70 },
+                    { target: lvl7, duration: 70 },
+                    { target: lvl6, duration: 100 },
+                    { target: lvl5, duration: 200 },
+                    { target: lvl3, duration: 200 },
+                    {
+                        target: lvl1,
+                        duration: 300,
+                        onUpdate: () => {
+                            const shadowTweens = [
+                                {
+                                    target: shadowBox,
+                                    x: lvl2.x - 290,
+                                    y: lvl2.y + 70,
+                                    duration: 100
+                                },
+                                {
+                                    target: shadowBox2,
+                                    x: lvl5.x + 350,
+                                    y: lvl5.y - 50,
+                                    duration: 150
+                                },
+                                {
+                                    target: shadowBox3,
+                                    x: lvl6.x - 175,
+                                    y: lvl6.y - 170,
+                                    duration: 200
+                                }
+                            ];
+
+                            shadowTweens.forEach(({ target, x, y, duration }) => {
+                                this.tweens.add({
+                                    targets: target,
+                                    x,
+                                    y,
+                                    duration,
+                                    ease: 'Quad.easeOut'
+                                });
+                            });
+                        }
+                    },
+                    { target: lvl0, duration: 600 }
+                ];
+
+                // Запускаем все анимации
+                tweenData.forEach(({ target, duration, onUpdate }) => {
                     this.tweens.add({
-                        targets: lvl4,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
+                        targets: target,
+                        x: lvlPoint.x,
+                        y: lvlPoint.y,
+                        duration,
+                        ease: 'Quad.easeOut',
+                        onUpdate: onUpdate || undefined
                     });
-                    this.tweens.add({
-                        targets: lvl7,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
-                 this.tweens.add({
-                        targets: lvl6,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 100,
-                            ease: 'Quad.easeOut'
-                    });
-                this.tweens.add({
-                            targets: lvl5,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 200,
-                            ease: 'Quad.easeOut'
-                        });
-                 this.tweens.add({
-                            targets: lvl3,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 200,
-                            ease: 'Quad.easeOut'
-                        });
-                    this.tweens.add({
-                            targets: lvl1,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 300,
-                            ease: 'Quad.easeOut'
-                        });
-                     this.tweens.add({
-                            targets: lvl0,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 600,
-                            ease: 'Quad.easeOut'
-                        });
-                }
+                });
+            }
             }
         });
 
@@ -358,69 +414,35 @@ function moveSquareToGreenDot(scene, flag) {
             targets: lvlPoint,
             x: targetX,
             y: targetY,
-            duration: duration,
+            duration: 1750,
             ease: 'Quad.easeInOut',
-            onUpdate:()=>{
-                 scene.tweens.add({
-                        targets: lvl2,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
-                    scene.tweens.add({
-                        targets: lvl4,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
-                    scene.tweens.add({
-                        targets: lvl7,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
-                 scene.tweens.add({
-                        targets: lvl6,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 100,
-                            ease: 'Quad.easeOut'
-                    });
-                scene.tweens.add({
-                            targets: lvl5,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 200,
-                            ease: 'Quad.easeOut'
-                        });
-                 scene.tweens.add({
-                            targets: lvl3,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 200,
-                            ease: 'Quad.easeOut'
-                        });
-                    scene.tweens.add({
-                            targets: lvl1,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 300,
-                            ease: 'Quad.easeOut'
-                        });
-                     scene.tweens.add({
-                            targets: lvl0,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 600,
-                            ease: 'Quad.easeOut'
-                        });
-            }
-        });
-}
+            onUpdate: () => {
+                // Двигаем слои вручную с инерцией (линейно или easing через формулу)
+                const follow = (target, speed = 2.7) => {
+                    target.x += (lvlPoint.x - target.x) * speed;
+                    target.y += (lvlPoint.y - target.y) * speed;
+                };
 
+                follow(lvl2, 1.8);   // Быстро
+                follow(lvl4, 1.8);
+                follow(lvl7, 1.8);
+                follow(lvl6, 1.3);   // Чуть медленнее
+                follow(lvl5, 0.6);
+                follow(lvl3, 0.6);
+                follow(lvl1, 0.4);   // Самый медленный
+                follow(lvl0, 0.2);  // Очень медленно, как фон
+
+                const followShadow = (shadow, target, offsetX, offsetY, speed) => {
+                    shadow.x += ((target.x + offsetX) - shadow.x) * speed;
+                    shadow.y += ((target.y + offsetY) - shadow.y) * speed;
+                };
+
+                followShadow(shadowBox, lvl2, -290, 70, 1.3);
+                followShadow(shadowBox2, lvl5, 350, -50, 0.4);
+                followShadow(shadowBox3, lvl6, -175, -170, 1.1);
+            }
+    });
+}
 
 function showPopup() {
     OpenRingPopUp();
@@ -457,77 +479,41 @@ function moveSquareToTap(scene, pointer) {
             targets: lvlPoint,
             x: frontTargetX,
             y: frontTargetY,
-            duration: 1400,
+            duration: 1750,
             ease: 'Quad.easeInOut',
-            onUpdate:()=>{
-                scene.tweens.add({
-                        targets: lvl2,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
-                    scene.tweens.add({
-                        targets: lvl4,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
-                    scene.tweens.add({
-                        targets: lvl7,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 70,
-                            ease: 'Quad.easeOut'
-                    });
-                 scene.tweens.add({
-                        targets: lvl6,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 100,
-                            ease: 'Quad.easeOut'
-                    });
-                scene.tweens.add({
-                            targets: lvl5,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 200,
-                            ease: 'Quad.easeOut'
-                        });
-                 scene.tweens.add({
-                            targets: lvl3,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 200,
-                            ease: 'Quad.easeOut'
-                        });
-                    scene.tweens.add({
-                            targets: lvl1,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 300,
-                            ease: 'Quad.easeOut'
-                        });
-                     scene.tweens.add({
-                            targets: lvl0,
-                            x: lvlPoint.x ,
-                            y: lvlPoint.y,
-                            duration: 600,
-                            ease: 'Quad.easeOut'
-                        });
-            },
-             onComplete: () => {
-                // По завершению — можно зумить
+            onUpdate: () => {
+                // Двигаем слои вручную с инерцией (линейно или easing через формулу)
+                const follow = (target, speed = 2.7) => {
+                    target.x += (lvlPoint.x - target.x) * speed;
+                    target.y += (lvlPoint.y - target.y) * speed;
+                };
+
+                follow(lvl2, 1.8);   // Быстро
+                follow(lvl4, 1.8);
+                follow(lvl7, 1.8);
+                follow(lvl6, 1.3);   // Чуть медленнее
+                follow(lvl5, 0.6);
+                follow(lvl3, 0.6);
+                follow(lvl1, 0.4);   // Самый медленный
+                follow(lvl0, 0.2);  // Очень медленно, как фон
+
+                const followShadow = (shadow, target, offsetX, offsetY, speed) => {
+                    shadow.x += ((target.x + offsetX) - shadow.x) * speed;
+                    shadow.y += ((target.y + offsetY) - shadow.y) * speed;
+                };
+
+                followShadow(shadowBox, lvl2, -290, 70, 1.3);
+                followShadow(shadowBox2, lvl5, 350, -50, 0.4);
+                followShadow(shadowBox3, lvl6, -175, -170, 1.1);
+                },
+            onComplete: () => {
                 if (layout === 'map') {
-                    if (zoomInFlag)
-                        zoomIn(scene);
-                    else
-                        zoomOut(scene);
+                    zoomInFlag ? zoomIn(scene) : zoomOut(scene);
                 }
             }
         });
     }
+
 }
 
 
@@ -560,6 +546,71 @@ function zoomIn(scene) {
                 zoomInFlag = false;  // Снимаем флаг зума
             }
         });
+
+        scene.tweens.add({
+            targets: lvl2,
+            //depth: 200,        // Ближе к пользователю
+            scaleX: 1.1,       // Увеличение по оси X
+            scaleY: 1.1,       // Увеличение по оси Y
+           // alpha: 1,          // Полная видимость
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+            onStart: () => {
+                scene.tweens.add({
+                    targets: shadowBox,
+                    //depth: 200,        // Ближе к пользователю
+                    scaleX: 1,       // Увеличение по оси X
+                    scaleY: 1,       // Увеличение по оси Y
+                    alpha: 1,          // Полная видимость
+                    duration: 1400,
+                    ease: 'Quad.easeInOut',
+                });
+            }
+        });
+
+        scene.tweens.add({
+            targets: lvl5,
+            //depth: 200,        // Ближе к пользователю
+            scaleX: 1.05,       // Увеличение по оси X
+            scaleY: 1.05,       // Увеличение по оси Y
+           // alpha: 1,          // Полная видимость
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+             onStart: () => {
+                scene.tweens.add({
+                    targets: shadowBox2,
+                    //depth: 200,        // Ближе к пользователю
+                    scaleX: 1,       // Увеличение по оси X
+                    scaleY: 1,       // Увеличение по оси Y
+                    alpha: 1,          // Полная видимость
+                    duration: 1400,
+                    ease: 'Quad.easeInOut',
+                });
+            }
+        });
+
+
+        scene.tweens.add({
+            targets: lvl6,
+            //depth: 200,        // Ближе к пользователю
+            scaleX: 1.1,       // Увеличение по оси X
+            scaleY: 1.1,       // Увеличение по оси Y
+           // alpha: 1,          // Полная видимость
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+
+              onStart: () => {
+                scene.tweens.add({
+                    targets: shadowBox3,
+                    //depth: 200,        // Ближе к пользователю
+                    scaleX: 1,       // Увеличение по оси X
+                    scaleY: 1,       // Увеличение по оси Y
+                    alpha: 1,          // Полная видимость
+                    duration: 1400,
+                    ease: 'Quad.easeInOut',
+                });
+            }
+        });
     }
 }
 
@@ -576,6 +627,71 @@ function zoomOut(scene) {
         // Вычисляем смещение относительно центра экрана
         const offsetX = centerX - currentScrollX;
         const offsetY = centerY - currentScrollY;
+
+        scene.tweens.add({
+            targets: lvl2,
+            //depth: 200,        // Ближе к пользователю
+            scaleX: 1,       // Увеличение по оси X
+            scaleY: 1,       // Увеличение по оси Y
+           // alpha: 1,          // Полная видимость
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+              onStart: () => {
+                scene.tweens.add({
+                    targets: shadowBox,
+                    //depth: 200,        // Ближе к пользователю
+                    scaleX: 1,       // Увеличение по оси X
+                    scaleY: 1,       // Увеличение по оси Y
+                    alpha: 0,          // Полная видимость
+                    duration: 1400,
+                    ease: 'Quad.easeInOut',
+                })
+            }
+        });
+
+        scene.tweens.add({
+            targets: lvl5,
+            //depth: 200,        // Ближе к пользователю
+            scaleX: 1,       // Увеличение по оси X
+            scaleY: 1,       // Увеличение по оси Y
+           // alpha: 1,          // Полная видимость
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+            onStart: () => {
+                scene.tweens.add({
+                    targets: shadowBox2,
+                    //depth: 200,        // Ближе к пользователю
+                    scaleX: 1,       // Увеличение по оси X
+                    scaleY: 1,       // Увеличение по оси Y
+                    alpha: 0,          // Полная видимость
+                    duration: 1400,
+                    ease: 'Quad.easeInOut',
+                })
+            }
+        });
+
+
+        scene.tweens.add({
+            targets: lvl6,
+            //depth: 200,        // Ближе к пользователю
+            scaleX: 1,       // Увеличение по оси X
+            scaleY: 1,       // Увеличение по оси Y
+           // alpha: 1,          // Полная видимость
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+
+              onStart: () => {
+                scene.tweens.add({
+                    targets: shadowBox3,
+                    //depth: 200,        // Ближе к пользователю
+                    scaleX: 1,       // Увеличение по оси X
+                    scaleY: 1,       // Увеличение по оси Y
+                    alpha: 0,          // Полная видимость
+                    duration: 1400,
+                    ease: 'Quad.easeInOut',
+                });
+            }
+        });
 
         // Анимация зума
         scene.tweens.add({
@@ -696,6 +812,9 @@ function objestPositionRebuild(scene) {
     lvl6.setPosition(centerX , centerY);
     lvl7.setPosition(centerX , centerY);
     lvlPoint.setPosition(centerX , centerY);
+    shadowBox.setPosition(lvl2.x-290, lvl2.y+70);
+    shadowBox2.setPosition(lvl5.x+350, lvl5.y-50);
+    shadowBox3.setPosition(lvl6.x-175, lvl6.y-170);
 }
 
 export {switchingState,showPopup};
