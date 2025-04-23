@@ -266,7 +266,7 @@ function create() {
 
         // Обработчик события "тап" по зоне маркера
         markerZone.on('pointerdown', (pointer) => {
-            if (!zoomInFlag && !popUpWindowOpen && !isAnimating) {
+            if (!zoomInFlag && !popUpWindowOpen && !isAnimating && !isDragging) {
                         layout = 'zoom';
                         popUpWindowOpen = true; 
                         if(!isPoint){
@@ -456,7 +456,7 @@ function switchingState(){
 
 // Функция для перемещения карты и объектов, чтобы точка тапа стала в центре экрана
 function moveSquareToTap(scene, pointer) {
-    if (!isAnimating) {
+    if (!isAnimating && !isaDragging) {
         isAnimating = true;
 
         const tapX = pointer.x;
