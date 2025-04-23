@@ -456,7 +456,7 @@ function switchingState(){
 
 // Функция для перемещения карты и объектов, чтобы точка тапа стала в центре экрана
 function moveSquareToTap(scene, pointer) {
-    if (!isAnimating && !isaDragging) {
+    if (!isAnimating && !isDragging) {
         isAnimating = true;
 
         const tapX = pointer.x;
