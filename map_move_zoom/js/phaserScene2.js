@@ -36,7 +36,6 @@ let greenDotX = 450*scaleMap;
 let greenDotY = 630*scaleMap;
 // Вычисляем коэффициент масштабирования
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize);
-
 const minZoom = 1; // Минимальный зум равен начальному
 const maxZoom = 1.48; // Максимальный зум — 3x начального
 let greeDotPositionOfsset = { x: greenDotX, y: greenDotY};
