@@ -266,7 +266,7 @@ function create() {
 
         // Обработчик события "тап" по зоне маркера
         markerZone.on('pointerdown', (pointer) => {
-            if (!zoomInFlag && !popUpWindowOpen) {
+            if (!zoomInFlag && !popUpWindowOpen && !isAnimating) {
                         layout = 'zoom';
                         popUpWindowOpen = true; 
                         if(!isPoint){
@@ -282,7 +282,7 @@ function create() {
         });
 
         this.input.on('pointerdown', (pointer)=> {
-            if(layout==='map'){
+            if(layout==='map' && !isAnimating){
                 // Преобразуем координаты указателя в мировые
                 const worldPointer = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
                 // Проверяем, что пользователь кликнул на квадрат с учетом масштаба
