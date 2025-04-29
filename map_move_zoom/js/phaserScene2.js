@@ -36,6 +36,7 @@ let greenDotX = 450*scaleMap;
 let greenDotY = 630*scaleMap;
 // Вычисляем коэффициент масштабирования
 const scaleFactor = (Math.min(window.innerWidth , window.innerHeight ) / originalSize);
+
 const minZoom = 1; // Минимальный зум равен начальному
 const maxZoom = 1.48; // Максимальный зум — 3x начального
 let greeDotPositionOfsset = { x: greenDotX, y: greenDotY};
@@ -46,13 +47,11 @@ let layout='map';
 let popUpWindowOpen=false;
 let isPoint = false;
 
-let greenDot;
 let startX = null;
 let startY = null;
 const DRAG_THRESHOLD = 0; // Порог для определения перемещения
 let deltaX = null;
 let deltaY = null;
-let isStopping = false;
 
 let lvl0;       // задний слой (фон)
 let lvl1;    // передний слой (основная карта)
@@ -64,6 +63,8 @@ let lvl6;
 let lvl7;
 let lvlPoint;
 let shadowBox,shadowBox2, shadowBox3;
+
+let lastCameraCenter = null;
 
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
@@ -165,7 +166,6 @@ function createSoftShadow(scene, x, y, w, h, maxAlpha) {
     return g;
 }
 
-
 // Функция для создания сцены
 function create() {
         //this.renderer.pipelines.add('blurFX', new BlurPostFX(this.game));
@@ -192,6 +192,7 @@ function create() {
         lvl7.add(this.add.image(0, 0, 'lvl7').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         
         lvlPoint.add(this.add.image(0, 0, 'lvlPoint').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvlPoint.setAlpha(0);
 
         shadowBox = createSoftShadow(this, 0, 0, 200, 350,0.2);
         //this.add.rectangle(0,0, 200, 350, 0x000000, 0.7)
@@ -215,54 +216,20 @@ function create() {
         lvl4.setDepth(15);
         //lvl1.add(shadowBox);
         
-        redSquare = this.add.rectangle(0, 0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
-        redSquare.setOrigin(0.5, 0.5);  // Центр квадрата в его середину
+        redSquare = this.add.rectangle(0,0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
+        redSquare.setOrigin(0.5,0.5);  // Центр квадрата в его середину
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
-        redSquare.setSize(originalSize , originalSize);
-
-        lvl1.add(redSquare);
         
-        // Создаем точку, которая будет находиться в 
-        greenDot = this.add.circle(0, 0, 10, 0x00ff00);  // Синяя точка радиусом 10px
-        greenDot.setOrigin(0.5, 0.5);  // Центр точки в его середину
-        greenDot.setVisible(false);
-
-        lvl1.add(greenDot);
-
+        lvl1.add(redSquare);
+    
          // Создаём интерактивную зону для маркера
-        markerZone = this.add.zone(0, 0, 20, 20)
+        markerZone = this.add.zone(greeDotPositionOfsset.x, greeDotPositionOfsset.y, 160, 160)
         .setOrigin(0.5, 0.5)
         .setInteractive();
 
         lvl1.add(markerZone);
 
-        objestPositionRebuild(this);  // Сразу вызываем resize, чтобы канвас занимал весь экран
-
-        // Добавляем обработчик события изменения размера окна
-        window.addEventListener('resize', () => {
-            // Обновляем размеры игры
-            requestAnimationFrame(() => {
-                game.scale.resize(window.innerWidth, window.innerHeight);
-                if (layout === 'zoom') {
-                    moveSquareToGreenDot(this, 1);
-                } else {
-                    objestPositionRebuild(this);
-                }
-            });
-        });
-
-        // Добавляем обработчик события поворота устройства
-        window.addEventListener('orientationchange', () => {
-            // Обновляем размеры игры
-            requestAnimationFrame(() => {
-                game.scale.resize(window.innerWidth, window.innerHeight);
-                if (layout === 'zoom') {
-                    moveSquareToGreenDot(this, 1);
-                } else {
-                    objestPositionRebuild(this);
-                }
-            });
-        });
+        objestPositionRebuild();  // Сразу вызываем resize, чтобы канвас занимал весь экран
 
         // Обработчик события "тап" по зоне маркера
         markerZone.on('pointerdown', (pointer) => {
@@ -271,6 +238,7 @@ function create() {
                         popUpWindowOpen = true; 
                         if(!isPoint){
                             moveSquareToGreenDot(this,0);
+                            
                             isPoint = true;
                             setTimeout(() => {
                                 showPopup(); // Показываем окно после перемещения
@@ -307,65 +275,67 @@ function create() {
             if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
                     isDragging = true;
                     isPoint = false
-                    moveMap(pointer,this);
-                    const tweenData = [
-                    { target: lvl2, duration: 70 },
-                    { target: lvl4, duration: 70 },
-                    { target: lvl7, duration: 70 },
-                    { target: lvl6, duration: 100 },
-                    { target: lvl5, duration: 200 },
-                    { target: lvl3, duration: 200 },
-                    {
-                        target: lvl1,
-                        duration: 300,
-                        onUpdate: () => {
-                            const shadowTweens = [
-                                {
-                                    target: shadowBox,
-                                    x: lvl2.x - 290,
-                                    y: lvl2.y + 70,
-                                    duration: 100
-                                },
-                                {
-                                    target: shadowBox2,
-                                    x: lvl5.x + 350,
-                                    y: lvl5.y - 50,
-                                    duration: 150
-                                },
-                                {
-                                    target: shadowBox3,
-                                    x: lvl6.x - 175,
-                                    y: lvl6.y - 170,
-                                    duration: 200
+                    moveMap(pointer);
+                    if(!zoomInFlag){
+                            const tweenData = [
+                            { target: lvl2, duration: 70 },
+                            { target: lvl4, duration: 70 },
+                            { target: lvl7, duration: 70 },
+                            { target: lvl6, duration: 100 },
+                            { target: lvl5, duration: 200 },
+                            { target: lvl3, duration: 200 },
+                            {
+                                target: lvl1,
+                                duration: 300,
+                                onUpdate: () => {
+                                    const shadowTweens = [
+                                        {
+                                            target: shadowBox,
+                                            x: lvl2.x - 290,
+                                            y: lvl2.y + 70,
+                                            duration: 100
+                                        },
+                                        {
+                                            target: shadowBox2,
+                                            x: lvl5.x + 350,
+                                            y: lvl5.y - 50,
+                                            duration: 150
+                                        },
+                                        {
+                                            target: shadowBox3,
+                                            x: lvl6.x - 175,
+                                            y: lvl6.y - 170,
+                                            duration: 200
+                                        }
+                                    ];
+
+                                    shadowTweens.forEach(({ target, x, y, duration }) => {
+                                        this.tweens.add({
+                                            targets: target,
+                                            x,
+                                            y,
+                                            duration,
+                                            ease: 'Quad.easeOut'
+                                        });
+                                    });
                                 }
-                            ];
+                            },
+                            { target: lvl0, duration: 600 }
+                        ];
 
-                            shadowTweens.forEach(({ target, x, y, duration }) => {
-                                this.tweens.add({
-                                    targets: target,
-                                    x,
-                                    y,
-                                    duration,
-                                    ease: 'Quad.easeOut'
-                                });
+                        // Запускаем все анимации
+                        tweenData.forEach(({ target, duration, onUpdate }) => {
+                            this.tweens.add({
+                                targets: target,
+                                x: lvlPoint.x,
+                                y: lvlPoint.y,
+                                duration,
+                                ease: 'Quad.easeOut',
+                                onUpdate: onUpdate || undefined
                             });
-                        }
-                    },
-                    { target: lvl0, duration: 600 }
-                ];
-
-                // Запускаем все анимации
-                tweenData.forEach(({ target, duration, onUpdate }) => {
-                    this.tweens.add({
-                        targets: target,
-                        x: lvlPoint.x,
-                        y: lvlPoint.y,
-                        duration,
-                        ease: 'Quad.easeOut',
-                        onUpdate: onUpdate || undefined
-                    });
-                });
-            }
+                        });
+                    }
+                }
             }
         });
 
@@ -385,6 +355,16 @@ function create() {
             
         });
 
+        this.scale.on('resize', (gameSize) => {
+            const camera = this.cameras.main;
+            camera.setSize(gameSize.width, gameSize.height);
+
+            // После ресайза вернуть центр на прежнюю точку
+            if (lastCameraCenter) {
+                camera.centerOn(lastCameraCenter.x, lastCameraCenter.y);
+            }            
+        });
+
         // Глобальный обработчик завершения ввода (для мыши, сенсорных экранов и других устройств)
         window.addEventListener('pointerup', () => {
             isDown = false;
@@ -393,29 +373,34 @@ function create() {
 }
 
 function moveSquareToGreenDot(scene, flag) {
+    
     let duration = flag ? 1 : 1750;
 
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
+    const camera = scene.cameras.main;
+
+    // Получаем центр экрана в МИРОВЫХ координатах, не в window.innerWidth
+    const center = camera.getWorldPoint(camera.width / 2, camera.height / 2);
 
     // Координаты greenDot в мировых координатах
-    const worldGreenDotX = lvlPoint.x + greenDot.x;
-    const worldGreenDotY = lvlPoint.y + greenDot.y;
+    const worldGreenDotX = lvlPoint.x + markerZone.x;
+    const worldGreenDotY = lvlPoint.y + markerZone.y;
 
-    const offsetX = centerX - worldGreenDotX;
-    const offsetY = centerY - worldGreenDotY;
+    // Смещение от центра камеры к метке
+    const offsetX = center.x - worldGreenDotX;
+    const offsetY = center.y - worldGreenDotY;
 
     const targetX = lvlPoint.x + offsetX;
     const targetY = lvlPoint.y + offsetY;
 
       // Двигаем оба слоя одновременно, но с разной амплитудой
-     scene.tweens.add({
+    scene.tweens.add({
             targets: lvlPoint,
             x: targetX,
             y: targetY,
-            duration: duration,
+            duration:duration,
             ease: 'Quad.easeInOut',
             onUpdate: () => {
+                
                 // Двигаем слои вручную с инерцией (линейно или easing через формулу)
                 const follow = (target, speed = 2.7) => {
                     target.x += (lvlPoint.x - target.x) * speed;
@@ -443,37 +428,27 @@ function moveSquareToGreenDot(scene, flag) {
     });
 }
 
-function showPopup() {
-    OpenRingPopUp();
-}
-
-function switchingState(){
-    popUpWindowOpen = false;
-    layout  = 'map';
-    isAnimating = false;
-    isStopping = false;
-}
-
 // Функция для перемещения карты и объектов, чтобы точка тапа стала в центре экрана
 function moveSquareToTap(scene, pointer) {
-    if (!isAnimating ) {
+    if (!isAnimating) {
         isAnimating = true;
 
-        const tapX = pointer.x;
-        const tapY = pointer.y;
+        const camera = scene.cameras.main;
+        const tap = camera.getWorldPoint(pointer.x, pointer.y);
+        const center = {
+            x: camera.midPoint.x,
+            y: camera.midPoint.y
+        };
 
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+        // Сохраняем центр камеры в мировых координатах
+        lastCameraCenter = center;
 
-        const zoom = scene.cameras.main.zoom;
-
-        const offsetX = (centerX - tapX) / zoom;
-        const offsetY = (centerY - tapY) / zoom;
+        const offsetX = center.x - tap.x;
+        const offsetY = center.y - tap.y;
 
         const frontTargetX = lvlPoint.x + offsetX;
         const frontTargetY = lvlPoint.y + offsetY;
 
-        // Двигаем оба слоя одновременно, но с разной амплитудой
         scene.tweens.add({
             targets: lvlPoint,
             x: frontTargetX,
@@ -481,20 +456,20 @@ function moveSquareToTap(scene, pointer) {
             duration: 1750,
             ease: 'Quad.easeInOut',
             onUpdate: () => {
-                // Двигаем слои вручную с инерцией (линейно или easing через формулу)
+                // Параллакс-движение
                 const follow = (target, speed = 2.7) => {
                     target.x += (lvlPoint.x - target.x) * speed;
                     target.y += (lvlPoint.y - target.y) * speed;
                 };
 
-                follow(lvl2, 1.8);   // Быстро
+                follow(lvl2, 1.8);
                 follow(lvl4, 1.8);
                 follow(lvl7, 1.8);
-                follow(lvl6, 1.3);   // Чуть медленнее
+                follow(lvl6, 1.3);
                 follow(lvl5, 0.6);
                 follow(lvl3, 0.6);
-                follow(lvl1, 0.4);   // Самый медленный
-                follow(lvl0, 0.2);  // Очень медленно, как фон
+                follow(lvl1, 0.4);
+                follow(lvl0, 0.2);
 
                 const followShadow = (shadow, target, offsetX, offsetY, speed) => {
                     shadow.x += ((target.x + offsetX) - shadow.x) * speed;
@@ -504,7 +479,7 @@ function moveSquareToTap(scene, pointer) {
                 followShadow(shadowBox, lvl2, -290, 70, 1.3);
                 followShadow(shadowBox2, lvl5, 350, -50, 0.4);
                 followShadow(shadowBox3, lvl6, -175, -170, 1.1);
-                },
+            },
             onComplete: () => {
                 if (layout === 'map') {
                     zoomInFlag ? zoomIn(scene) : zoomOut(scene);
@@ -512,199 +487,111 @@ function moveSquareToTap(scene, pointer) {
             }
         });
     }
-
 }
-
 
 function zoomIn(scene) {
     if (isAnimating) {
+        const camera = scene.cameras.main;
 
-        // Получаем текущий центр экрана
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+        // 1. Получаем фиксированную мировую координату центра экрана на момент старта зума
+        const worldCenter = camera.getWorldPoint(window.innerWidth / 2, window.innerHeight / 2);
 
-        // Получаем текущие значения scrollX и scrollY
-        const currentScrollX = scene.cameras.main.scrollX;
-        const currentScrollY = scene.cameras.main.scrollY;
-
-        // Вычисляем смещение относительно центра экрана
-        const offsetX = centerX - currentScrollX;
-        const offsetY = centerY - currentScrollY;
-
-        // Анимация зума
+        // 2. Анимация зума
         scene.tweens.add({
-            targets: scene.cameras.main,
-            zoom: maxZoom,  // Плавное увеличение
-            scrollX: centerX-offsetX, // Центрирование камеры по оси X
-            scrollY: centerY-offsetY, // Центрирование камеры по оси Y
-            duration: 1400,  // Длительность анимации
-            ease: 'Quad.easeInOut',  // Тип easing для плавности
+            targets: camera,
+            zoom: maxZoom,
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+            onUpdate: () => {
+                // 3. Во время анимации всегда центрируем на зафиксированной world-точке
+                camera.centerOn(worldCenter.x, worldCenter.y);
+            },
             onComplete: () => {
-                greenDot.setVisible(true);
-                isAnimating = false; // Снимаем флаг анимации
-                zoomInFlag = false;  // Снимаем флаг зума
+                lvlPoint.setAlpha(1);
+                isAnimating = false;
+                zoomInFlag = false;
             }
         });
 
-        scene.tweens.add({
-            targets: lvl2,
-            //depth: 200,        // Ближе к пользователю
-            scaleX: 1.1,       // Увеличение по оси X
-            scaleY: 1.1,       // Увеличение по оси Y
-           // alpha: 1,          // Полная видимость
-            duration: 1400,
-            ease: 'Quad.easeInOut',
-            onStart: () => {
-                scene.tweens.add({
-                    targets: shadowBox,
-                    //depth: 200,        // Ближе к пользователю
-                    scaleX: 1,       // Увеличение по оси X
-                    scaleY: 1,       // Увеличение по оси Y
-                    alpha: 1,          // Полная видимость
-                    duration: 1400,
-                    ease: 'Quad.easeInOut',
-                });
-            }
-        });
+        // 4. Массив слоёв и их теней
+        const layers = [
+            { layer: lvl2, shadow: shadowBox },
+            { layer: lvl5, shadow: shadowBox2 },
+            { layer: lvl6, shadow: shadowBox3 }
+        ];
 
-        scene.tweens.add({
-            targets: lvl5,
-            //depth: 200,        // Ближе к пользователю
-            scaleX: 1.05,       // Увеличение по оси X
-            scaleY: 1.05,       // Увеличение по оси Y
-           // alpha: 1,          // Полная видимость
-            duration: 1400,
-            ease: 'Quad.easeInOut',
-             onStart: () => {
-                scene.tweens.add({
-                    targets: shadowBox2,
-                    //depth: 200,        // Ближе к пользователю
-                    scaleX: 1,       // Увеличение по оси X
-                    scaleY: 1,       // Увеличение по оси Y
-                    alpha: 1,          // Полная видимость
-                    duration: 1400,
-                    ease: 'Quad.easeInOut',
-                });
-            }
-        });
-
-
-        scene.tweens.add({
-            targets: lvl6,
-            //depth: 200,        // Ближе к пользователю
-            scaleX: 1.1,       // Увеличение по оси X
-            scaleY: 1.1,       // Увеличение по оси Y
-           // alpha: 1,          // Полная видимость
-            duration: 1400,
-            ease: 'Quad.easeInOut',
-
-              onStart: () => {
-                scene.tweens.add({
-                    targets: shadowBox3,
-                    //depth: 200,        // Ближе к пользователю
-                    scaleX: 1,       // Увеличение по оси X
-                    scaleY: 1,       // Увеличение по оси Y
-                    alpha: 1,          // Полная видимость
-                    duration: 1400,
-                    ease: 'Quad.easeInOut',
-                });
-            }
+        // 5. Анимация всех слоёв через цикл
+        layers.forEach(({ layer, shadow }) => {
+            scene.tweens.add({
+                targets: layer,
+                scaleX: 1,
+                scaleY: 1,
+                duration: 1400,
+                ease: 'Quad.easeInOut',
+                onStart: () => {
+                    scene.tweens.add({
+                        targets: shadow,
+                        scaleX: 1,
+                        scaleY: 1,
+                        alpha: 1,
+                        duration: 1400,
+                        ease: 'Quad.easeInOut',
+                    });
+                }
+            });
         });
     }
 }
 
 function zoomOut(scene) {
-    if ( isAnimating) {
-         // Получаем текущий центр экрана
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+    if (isAnimating) {
+        const camera = scene.cameras.main;
 
-        // Получаем текущие значения scrollX и scrollY
-        const currentScrollX = scene.cameras.main.scrollX;
-        const currentScrollY = scene.cameras.main.scrollY;
+        // 1. Получаем фиксированную мировую координату центра экрана на момент старта зума
+        const worldCenter = camera.getWorldPoint(window.innerWidth / 2, window.innerHeight / 2);
 
-        // Вычисляем смещение относительно центра экрана
-        const offsetX = centerX - currentScrollX;
-        const offsetY = centerY - currentScrollY;
+        // 2. Массив слоёв и их теней
+        const layers = [
+            { layer: lvl2, shadow: shadowBox },
+            { layer: lvl5, shadow: shadowBox2 },
+            { layer: lvl6, shadow: shadowBox3 }
+        ];
 
-        scene.tweens.add({
-            targets: lvl2,
-            //depth: 200,        // Ближе к пользователю
-            scaleX: 1,       // Увеличение по оси X
-            scaleY: 1,       // Увеличение по оси Y
-           // alpha: 1,          // Полная видимость
-            duration: 1400,
-            ease: 'Quad.easeInOut',
-              onStart: () => {
-                scene.tweens.add({
-                    targets: shadowBox,
-                    //depth: 200,        // Ближе к пользователю
-                    scaleX: 1,       // Увеличение по оси X
-                    scaleY: 1,       // Увеличение по оси Y
-                    alpha: 0,          // Полная видимость
-                    duration: 1400,
-                    ease: 'Quad.easeInOut',
-                })
-            }
+        // 3. Анимация всех слоёв через цикл
+        layers.forEach(({ layer, shadow }) => {
+            scene.tweens.add({
+                targets: layer,
+                scaleX: 1,
+                scaleY: 1,
+                duration: 1400,
+                ease: 'Quad.easeInOut',
+                onStart: () => {
+                    scene.tweens.add({
+                        targets: shadow,
+                        scaleX: 1,
+                        scaleY: 1,
+                        alpha: 0,
+                        duration: 1400,
+                        ease: 'Quad.easeInOut',
+                    });
+                }
+            });
         });
 
+        // 4. Анимация зума
         scene.tweens.add({
-            targets: lvl5,
-            //depth: 200,        // Ближе к пользователю
-            scaleX: 1,       // Увеличение по оси X
-            scaleY: 1,       // Увеличение по оси Y
-           // alpha: 1,          // Полная видимость
+            targets: camera,
+            zoom: minZoom,  // Плавное уменьшение
             duration: 1400,
             ease: 'Quad.easeInOut',
+            onUpdate: () => {
+                camera.centerOn(worldCenter.x, worldCenter.y);
+            },
             onStart: () => {
-                scene.tweens.add({
-                    targets: shadowBox2,
-                    //depth: 200,        // Ближе к пользователю
-                    scaleX: 1,       // Увеличение по оси X
-                    scaleY: 1,       // Увеличение по оси Y
-                    alpha: 0,          // Полная видимость
-                    duration: 1400,
-                    ease: 'Quad.easeInOut',
-                })
-            }
-        });
-
-
-        scene.tweens.add({
-            targets: lvl6,
-            //depth: 200,        // Ближе к пользователю
-            scaleX: 1,       // Увеличение по оси X
-            scaleY: 1,       // Увеличение по оси Y
-           // alpha: 1,          // Полная видимость
-            duration: 1400,
-            ease: 'Quad.easeInOut',
-
-              onStart: () => {
-                scene.tweens.add({
-                    targets: shadowBox3,
-                    //depth: 200,        // Ближе к пользователю
-                    scaleX: 1,       // Увеличение по оси X
-                    scaleY: 1,       // Увеличение по оси Y
-                    alpha: 0,          // Полная видимость
-                    duration: 1400,
-                    ease: 'Quad.easeInOut',
-                });
-            }
-        });
-
-        // Анимация зума
-        scene.tweens.add({
-            targets: scene.cameras.main,
-            zoom: minZoom,  // Плавное увеличение
-            scrollX: centerX-offsetX,//+ offsetX, // Плавное перемещение по оси X
-            scrollY: centerY-offsetY,// + offsetY, // Плавное перемещение по оси Y
-            duration: 1400,  // Длительность анимации
-            ease: 'Quad.easeInOut',  // Тип easing для плавности
-            onStart:()=>{
                 zoomInFlag = true;  // Снимаем флаг зума
             },
             onComplete: () => {
-                greenDot.setVisible(false);
+                lvlPoint.setAlpha(0);
                 isAnimating = false; // Снимаем флаг анимации
             }
         });
@@ -741,14 +628,14 @@ function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
     return true;
 }
    
-function moveMap(pointer,scene) {
+function moveMap(pointer) {
     if (!isDragging || isAnimating) return;
 
     const deltaX = (pointer.x - previousX);
     const deltaY = (pointer.y - previousY);
 
     // lvl2 двигается быстрее — например, в 1.2 раза
-    const lvlPointSpeed = 1.2;
+    const lvlPointSpeed = 0.7;
 
     const newX_lvlPoint = lvlPoint.x + deltaX * lvlPointSpeed;
     const newY_lvlPoint = lvlPoint.y + deltaY * lvlPointSpeed;
@@ -756,6 +643,16 @@ function moveMap(pointer,scene) {
 
     // Проверка — только по lvl1, например
     if (checkSquareOutOfBoundsWithAnimation(newX_lvlPoint, newY_lvlPoint, redSquare)) {
+        if(zoomInFlag){
+            lvl0.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvl1.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvl2.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvl3.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvl4.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvl5.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvl6.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvl7.setPosition(newX_lvlPoint,newY_lvlPoint);
+        }
         lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
     }
 
@@ -763,6 +660,15 @@ function moveMap(pointer,scene) {
     previousY = pointer.y;
 }
 
+function showPopup() {
+    OpenRingPopUp();
+}
+
+function switchingState(){
+    popUpWindowOpen = false;
+    layout  = 'map';
+    isAnimating = false;
+}
 
 // Функция для обновления
 function update() {
@@ -794,13 +700,12 @@ document.addEventListener('contextmenu', function(event) {
 document.body.style.userSelect = 'none';
 
 // Функция для перерасчета размера канваса
-function objestPositionRebuild(scene) {
+function objestPositionRebuild() {
+    
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
-    redSquare.setPosition(0, 0);  // Центрируем относительно frontLayer
-    greenDot.setPosition(greeDotPositionOfsset.x, greeDotPositionOfsset.y);
-    markerZone.setPosition(greeDotPositionOfsset.x, greeDotPositionOfsset.y);
+    console.log(window.innerWidth,window.innerHeight);
 
     lvl0.setPosition(centerX , centerY);
     lvl1.setPosition(centerX , centerY);    
