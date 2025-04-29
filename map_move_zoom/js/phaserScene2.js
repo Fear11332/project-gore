@@ -557,6 +557,24 @@ function zoomOut(scene) {
             { layer: lvl6, shadow: shadowBox3 }
         ];
 
+          // 4. Анимация зума
+        scene.tweens.add({
+            targets: camera,
+            zoom: minZoom,  // Плавное уменьшение
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+            onUpdate: () => {
+                camera.centerOn(worldCenter.x, worldCenter.y);
+            },
+            onStart: () => {
+                zoomInFlag = true;  // Снимаем флаг зума
+            },
+            onComplete: () => {
+                lvlPoint.setAlpha(0);
+                isAnimating = false; // Снимаем флаг анимации
+            }
+        });
+
         // 3. Анимация всех слоёв через цикл
         layers.forEach(({ layer, shadow }) => {
             scene.tweens.add({
@@ -576,25 +594,7 @@ function zoomOut(scene) {
                     });
                 }
             });
-        });
-
-        // 4. Анимация зума
-        scene.tweens.add({
-            targets: camera,
-            zoom: minZoom,  // Плавное уменьшение
-            duration: 1400,
-            ease: 'Quad.easeInOut',
-            onUpdate: () => {
-                camera.centerOn(worldCenter.x, worldCenter.y);
-            },
-            onStart: () => {
-                zoomInFlag = true;  // Снимаем флаг зума
-            },
-            onComplete: () => {
-                lvlPoint.setAlpha(0);
-                isAnimating = false; // Снимаем флаг анимации
-            }
-        });
+        })
     }
 }
 
@@ -642,8 +642,7 @@ function moveMap(pointer) {
 
 
     // Проверка — только по lvl1, например
-    if (checkSquareOutOfBoundsWithAnimation(newX_lvlPoint, newY_lvlPoint, redSquare)) {
-        if(zoomInFlag){
+    if (checkSquareOutOfBoundsWithAnimation(newX_lvlPoint, newY_lvlPoint, redSquare)) {  
             lvl0.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl1.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl2.setPosition(newX_lvlPoint,newY_lvlPoint);
@@ -652,8 +651,7 @@ function moveMap(pointer) {
             lvl5.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl6.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl7.setPosition(newX_lvlPoint,newY_lvlPoint);
-        }
-        lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
     }
 
     previousX = pointer.x;
