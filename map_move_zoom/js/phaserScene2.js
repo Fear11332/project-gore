@@ -66,6 +66,8 @@ let shadowBox,shadowBox2, shadowBox3;
 
 let lastCameraCenter = null;
 
+
+
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
       // 1. Добавляем текст сразу, чтобы он был на экране как можно раньше
@@ -220,6 +222,7 @@ function create() {
         redSquare.setOrigin(0.5,0.5);  // Центр квадрата в его середину
         // Пересчитываем размер квадрата с учетом коэффициента масштабирования
         
+
         lvl1.add(redSquare);
     
          // Создаём интерактивную зону для маркера
@@ -492,20 +495,13 @@ function moveSquareToTap(scene, pointer) {
 function zoomIn(scene) {
     if (isAnimating) {
         const camera = scene.cameras.main;
-
-        // 1. Получаем фиксированную мировую координату центра экрана на момент старта зума
-        const worldCenter = camera.getWorldPoint(window.innerWidth / 2, window.innerHeight / 2);
-
+        
         // 2. Анимация зума
         scene.tweens.add({
             targets: camera,
             zoom: maxZoom,
             duration: 1400,
             ease: 'Quad.easeInOut',
-            onUpdate: () => {
-                // 3. Во время анимации всегда центрируем на зафиксированной world-точке
-                camera.centerOn(worldCenter.x, worldCenter.y);
-            },
             onComplete: () => {
                 lvlPoint.setAlpha(1);
                 isAnimating = false;
@@ -547,33 +543,12 @@ function zoomOut(scene) {
     if (isAnimating) {
         const camera = scene.cameras.main;
 
-        // 1. Получаем фиксированную мировую координату центра экрана на момент старта зума
-        const worldCenter = camera.getWorldPoint(window.innerWidth / 2, window.innerHeight / 2);
-
         // 2. Массив слоёв и их теней
         const layers = [
             { layer: lvl2, shadow: shadowBox },
             { layer: lvl5, shadow: shadowBox2 },
             { layer: lvl6, shadow: shadowBox3 }
         ];
-
-          // 4. Анимация зума
-        scene.tweens.add({
-            targets: camera,
-            zoom: minZoom,  // Плавное уменьшение
-            duration: 1400,
-            ease: 'Quad.easeInOut',
-            onUpdate: () => {
-                camera.centerOn(worldCenter.x, worldCenter.y);
-            },
-            onStart: () => {
-                zoomInFlag = true;  // Снимаем флаг зума
-            },
-            onComplete: () => {
-                lvlPoint.setAlpha(0);
-                isAnimating = false; // Снимаем флаг анимации
-            }
-        });
 
         // 3. Анимация всех слоёв через цикл
         layers.forEach(({ layer, shadow }) => {
@@ -594,7 +569,22 @@ function zoomOut(scene) {
                     });
                 }
             });
-        })
+        });
+
+        // 4. Анимация зума
+        scene.tweens.add({
+            targets: camera,
+            zoom: minZoom,  // Плавное уменьшение
+            duration: 1400,
+            ease: 'Quad.easeInOut',
+            onStart: () => {
+                zoomInFlag = true;  // Снимаем флаг зума
+            },
+            onComplete: () => {
+                lvlPoint.setAlpha(0);
+                isAnimating = false; // Снимаем флаг анимации
+            }
+        });
     }
 }
 
@@ -642,7 +632,7 @@ function moveMap(pointer) {
 
 
     // Проверка — только по lvl1, например
-    if (checkSquareOutOfBoundsWithAnimation(newX_lvlPoint, newY_lvlPoint, redSquare)) {  
+    if (checkSquareOutOfBoundsWithAnimation(newX_lvlPoint, newY_lvlPoint, redSquare)) {
             lvl0.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl1.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl2.setPosition(newX_lvlPoint,newY_lvlPoint);
@@ -651,7 +641,8 @@ function moveMap(pointer) {
             lvl5.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl6.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl7.setPosition(newX_lvlPoint,newY_lvlPoint);
-            lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
+        
+        lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
     }
 
     previousX = pointer.x;
