@@ -115,16 +115,10 @@ body, html {
             }
         }
 
-
-        label {
-            color: white;
-            display: block;
-            margin-bottom: 5px;
-        }
-
         audio {
             display: none; /* скрываем стандартный плеер */
         }
+
 
         #mute-toggle {
             position: absolute;
@@ -135,7 +129,7 @@ body, html {
             font-size: 20px;
             border: none;
             background: transparent;
-            color: rgb(76, 180, 170);
+            color: #be0000;
             cursor: pointer;
              z-index: 5;  /* Кнопки управления — выше всего */
             filter: brightness(1.1);
