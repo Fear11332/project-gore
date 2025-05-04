@@ -3,11 +3,12 @@ import {OpenRingPopUp } from "https://fear11332.github.io/project-gore/map_move_
 
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    parent:"phaser",
+    width: 500,
+    height: 500,
     scale: {
-        mode: Phaser.Scale.RESIZE,  // Автоматическая подстройка канваса под размер экрана
-        autoCenter: Phaser.Scale.CENTER_BOTH,  // Центрирование канваса на экране
+        mode: Phaser.Scale.NONE,  // НЕ масштабировать под размер окна
+        autoCenter: Phaser.Scale.NO_CENTER
     },
     physics: {
         default: 'arcade',
@@ -17,7 +18,7 @@ const config = {
         }
     },
     scene: {
-        preload: preload,
+        preload:preload,
         update: update,
         clearScene: clearScene,  // Добавляем функцию очистки в сцену
     },
@@ -66,12 +67,10 @@ let shadowBox,shadowBox2, shadowBox3;
 
 let lastCameraCenter = null;
 
-
-
 // Функция для асинхронной загрузки ресурсов
 async function preload() {
       // 1. Добавляем текст сразу, чтобы он был на экране как можно раньше
-    this.loadingText = this.add.text(window.innerWidth / 2, window.innerHeight / 2, 'Loading', {
+    this.loadingText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Loading', {
         fontSize: '32px',
         fill: '#5DE100',
         align: 'center'
@@ -170,9 +169,9 @@ function createSoftShadow(scene, x, y, w, h, maxAlpha) {
 
 // Функция для создания сцены
 function create() {
-        //this.renderer.pipelines.add('blurFX', new BlurPostFX(this.game));
+        
         // Создаем черный фон, который занимает весь экран
-        this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000000).setOrigin(0, 0);
+        this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x000000).setOrigin(0, 0);
         
         lvl0=this.add.container(0,0);
         lvl1 = this.add.container(0,0);
@@ -232,7 +231,23 @@ function create() {
 
         lvl1.add(markerZone);
 
-        objestPositionRebuild();  // Сразу вызываем resize, чтобы канвас занимал весь экран
+        const centerX = this.scale.width / 2;
+    const centerY = this.scale.height / 2;
+
+        //console.log(window.innerWidth,window.innerHeight);
+        //this.scale.width / 2; this.scale.height / 2;
+        lvl0.setPosition(centerX , centerY);
+        lvl1.setPosition(centerX , centerY);    
+        lvl2.setPosition(centerX , centerY);
+        lvl3.setPosition(centerX , centerY);
+        lvl4.setPosition(centerX , centerY);
+        lvl5.setPosition(centerX , centerY);
+        lvl6.setPosition(centerX , centerY);
+        lvl7.setPosition(centerX , centerY);
+        lvlPoint.setPosition(centerX , centerY);
+        shadowBox.setPosition(lvl2.x-290, lvl2.y+70);
+        shadowBox2.setPosition(lvl5.x+350, lvl5.y-50);
+        shadowBox3.setPosition(lvl6.x-175, lvl6.y-170);
 
         // Обработчик события "тап" по зоне маркера
         markerZone.on('pointerdown', (pointer) => {
@@ -278,7 +293,7 @@ function create() {
             if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
                     isDragging = true;
                     isPoint = false
-                    moveMap(pointer);
+                    moveMap(this,pointer);
                     if(!zoomInFlag){
                             const tweenData = [
                             { target: lvl2, duration: 70 },
@@ -502,8 +517,16 @@ function zoomIn(scene) {
             zoom: maxZoom,
             duration: 1400,
             ease: 'Quad.easeInOut',
+
+            onUpdate: () => {
+                // Нормализуем zoom: от minZoom до maxZoom → 0..1
+                // Например, делаем alpha расти от 0 до 1
+                lvlPoint.setAlpha(Phaser.Math.Clamp(
+                    (camera.zoom - minZoom) / (maxZoom - minZoom),
+                    0, 1
+                ));
+            },
             onComplete: () => {
-                lvlPoint.setAlpha(1);
                 isAnimating = false;
                 zoomInFlag = false;
             }
@@ -580,17 +603,22 @@ function zoomOut(scene) {
             onStart: () => {
                 zoomInFlag = true;  // Снимаем флаг зума
             },
+            onUpdate: () => {
+                lvlPoint.setAlpha(Phaser.Math.Clamp(
+                    (camera.zoom - minZoom) / (maxZoom - minZoom),
+                    0, 1));
+            },
             onComplete: () => {
-                lvlPoint.setAlpha(0);
+                
                 isAnimating = false; // Снимаем флаг анимации
             }
         });
     }
 }
 
-function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+function checkSquareOutOfBoundsWithAnimation(scene,newX, newY, square) {
+    const screenWidth = scene.scale.width;
+    const screenHeight = scene.scale.height;
 
     let minGap = zoomInFlag?200:350;
 
@@ -618,7 +646,7 @@ function checkSquareOutOfBoundsWithAnimation(newX, newY, square) {
     return true;
 }
    
-function moveMap(pointer) {
+function moveMap(scene,pointer) {
     if (!isDragging || isAnimating) return;
 
     const deltaX = (pointer.x - previousX);
@@ -632,7 +660,7 @@ function moveMap(pointer) {
 
 
     // Проверка — только по lvl1, например
-    if (checkSquareOutOfBoundsWithAnimation(newX_lvlPoint, newY_lvlPoint, redSquare)) {
+    if (checkSquareOutOfBoundsWithAnimation(scene,newX_lvlPoint, newY_lvlPoint, redSquare)) {
             lvl0.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl1.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl2.setPosition(newX_lvlPoint,newY_lvlPoint);
@@ -689,25 +717,4 @@ document.addEventListener('contextmenu', function(event) {
 document.body.style.userSelect = 'none';
 
 // Функция для перерасчета размера канваса
-function objestPositionRebuild() {
-    
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
-    console.log(window.innerWidth,window.innerHeight);
-
-    lvl0.setPosition(centerX , centerY);
-    lvl1.setPosition(centerX , centerY);    
-    lvl2.setPosition(centerX , centerY);
-    lvl3.setPosition(centerX , centerY);
-    lvl4.setPosition(centerX , centerY);
-    lvl5.setPosition(centerX , centerY);
-    lvl6.setPosition(centerX , centerY);
-    lvl7.setPosition(centerX , centerY);
-    lvlPoint.setPosition(centerX , centerY);
-    shadowBox.setPosition(lvl2.x-290, lvl2.y+70);
-    shadowBox2.setPosition(lvl5.x+350, lvl5.y-50);
-    shadowBox3.setPosition(lvl6.x-175, lvl6.y-170);
-}
-
 export {switchingState,showPopup};

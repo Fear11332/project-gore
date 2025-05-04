@@ -12,7 +12,7 @@ body, html {
             width: 100vw;
             height: 100vh;
             pointer-events: none;
-            z-index: 0; /* Ниже чем #ring, но выше остального контента */
+            z-index: 3; /* Ниже чем #ring, но выше остального контента */
         }
     
         #canvas-container {
@@ -24,8 +24,9 @@ body, html {
             height: calc(min(100vw, 100vh)); /* Пропорциональная высота */
             border: none;
             pointer-events: none;
+             z-index: 4;  /* Кольцо и верхние канвасы */
         }
-        
+
         #ring {
             top: 50%;
             left: 50%;
@@ -34,6 +35,41 @@ body, html {
             position: absolute;
             pointer-events: none; /* Скрытие для кликов, пока не активно */
             opacity: 0; /* По умолчанию невидим */
+        }
+
+        #stage1 {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;  /* ниже overlay2 */
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            
+        }
+
+        #phaser {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: hidden;  /* важно, чтобы обрезать “вылезающие” части */
+            z-index: 2;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.9s ease-in-out;
+        }
+
+        #overlay2 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1; /* Ниже чем #ring, но выше остального контента */
         }
 
         #construct {
@@ -99,7 +135,8 @@ body, html {
             font-size: 20px;
             border: none;
             background: transparent;
-            color: #be0000;
+            color: rgb(76, 180, 170);
             cursor: pointer;
+             z-index: 5;  /* Кнопки управления — выше всего */
             filter: brightness(1.1);
-        }       
+        }

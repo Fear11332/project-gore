@@ -7,6 +7,7 @@ let overlay = document.getElementById('overlay');
 let construct = document.getElementById('construct');
 let controls = document.getElementById('controls');
 let radiusSlider = document.getElementById('radiusSlider');
+let overlayVisiable = false;
 
 function OpenRingPopUp(){
     overlay.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
@@ -15,16 +16,17 @@ function OpenRingPopUp(){
     ring.style.opacity = '1';
     controls.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
     controls.style.opacity = '1';
-
+    
     radiusSlider.min = '1';
     radiusSlider.max = '4';
     radiusSlider.value = current_seed+1;
     animate();
-    setTimeout(() => {   
+    setTimeout(() => {
         registerEventListers();
         ring.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействи
         radiusSlider.style.pointerEvents = 'auto';
+        overlayVisiable = true;
     }, 1300);
 }
 
@@ -46,6 +48,7 @@ function OpenConstructorPopUp(){
 }
 
 function CloseRingPopUp(){
+    overlayVisiable = false;
     radiusSlider.style.pointerEvents = 'none';
     ring.style.pointerEvents = 'none';
     overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
@@ -74,7 +77,8 @@ function CloseConstructorPopUp(){
     construct.style.opacity = '0';
     setTimeout(() => {
         switchingState();
+        overlayVisiable = false;
     }, 1300);
 }
 
-export {OpenRingPopUp,OpenConstructorPopUp,CloseRingPopUp,CloseConstructorPopUp};
+export {OpenRingPopUp,OpenConstructorPopUp,CloseRingPopUp,CloseConstructorPopUp,overlayVisiable};
