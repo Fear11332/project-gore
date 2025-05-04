@@ -133,4 +133,5 @@ body, html {
             cursor: pointer;
              z-index: 5;  /* Кнопки управления — выше всего */
             filter: brightness(1.1);
+            
         }
