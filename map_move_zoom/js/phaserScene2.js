@@ -325,6 +325,7 @@ function create() {
                                             x: lvl6.x - 175,
                                             y: lvl6.y - 170,
                                             duration: 200
+
                                         }
                                     ];
 
@@ -362,7 +363,7 @@ function create() {
             // Отпускаем квадрат, когда пользователь отпускает кнопку мыши или палец
 
             deltaX = Math.abs(pointer.x - startX);
-            deltaY = Math.abs(pointer.y - startY);
+            deltaY = Math.abs(pointer.y - startY);//
 
             if (!isDragging && deltaX == DRAG_THRESHOLD && deltaY == DRAG_THRESHOLD) {
                 
@@ -652,9 +653,9 @@ function moveMap(scene,pointer) {
 
     const deltaX = (pointer.x - previousX);
     const deltaY = (pointer.y - previousY);
-
+    
     // lvl2 двигается быстрее — например, в 1.2 раза
-    const lvlPointSpeed = 0.6;
+    const lvlPointSpeed = 0.46;
 
     const newX_lvlPoint = lvlPoint.x + deltaX * lvlPointSpeed;
     const newY_lvlPoint = lvlPoint.y + deltaY * lvlPointSpeed;
