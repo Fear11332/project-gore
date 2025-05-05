@@ -297,15 +297,15 @@ function create() {
                     moveMap(this,pointer);
                     if(!zoomInFlag){
                             const tweenData = [
-                            { target: lvl2, duration: 330 },
-                            { target: lvl3, duration: 290 },
-                            { target: lvl4, duration: 260 },//lvl5 image
-                            { target: lvl5, duration: 280 },//lvl4 image
-                            { target: lvl6, duration: 200 },
-                            { target: lvl7, duration: 250 },                                                            
+                            { target: lvl2, duration: 180 },
+                            { target: lvl3, duration: 140 },
+                            { target: lvl4, duration: 110 },//lvl5 image
+                            { target: lvl5, duration: 130 },//lvl4 image
+                            { target: lvl6, duration: 50 },
+                            { target: lvl7, duration:100 },                                                            
                             {
                                 target: lvl1,
-                                duration: 370,
+                                duration: 220,
                                 onUpdate: () => {
                                     const shadowTweens = [
                                         {
@@ -339,7 +339,7 @@ function create() {
                                     });
                                 }
                             },
-                            { target: lvl0, duration: 400 }
+                            { target: lvl0, duration: 250 }
                         ];
 
                         // Запускаем все анимации
@@ -654,7 +654,7 @@ function moveMap(scene,pointer) {
     const deltaY = (pointer.y - previousY);
 
     // lvl2 двигается быстрее — например, в 1.2 раза
-    const lvlPointSpeed = 0.25;
+    const lvlPointSpeed = 0.6;
 
     const newX_lvlPoint = lvlPoint.x + deltaX * lvlPointSpeed;
     const newY_lvlPoint = lvlPoint.y + deltaY * lvlPointSpeed;
