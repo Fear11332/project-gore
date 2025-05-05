@@ -125,11 +125,11 @@ function loadAllImages() {
     return new Promise((resolve, reject) => {
         this.load.image('lvl1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_1_09.webp');
         this.load.image('lvl0', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
-        this.load.image('lvl2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_2_03.webp');
-        this.load.image('lvl3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_3_06.webp');
-        this.load.image('lvl4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_4_03.webp');
+        this.load.image('lvl2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_6_04.webp');
+        this.load.image('lvl3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_2_03.webp');
+        this.load.image('lvl4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_3_06.webp');
         this.load.image('lvl5', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_5_06.webp');
-        this.load.image('lvl6', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_6_04.webp');
+        this.load.image('lvl6', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_4_03.webp');
         this.load.image('lvl7', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_7_03.webp');
         this.load.image('lvlPoint', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_mark_1_01.webp');
         // Когда все ресурсы загружены, resolve проми
@@ -185,11 +185,11 @@ function create() {
 
         lvl0.add(this.add.image(0, 0, 'lvl0').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         lvl1.add(this.add.image(0, 0, 'lvl1').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize)); 
-        lvl2.add(this.add.image(0, 0, 'lvl6').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
-        lvl3.add(this.add.image(0, 0, 'lvl2').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
-        lvl4.add(this.add.image(0, 0, 'lvl3').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl2.add(this.add.image(0, 0, 'lvl2').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl3.add(this.add.image(0, 0, 'lvl3').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl4.add(this.add.image(0, 0, 'lvl4').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         lvl5.add(this.add.image(0, 0, 'lvl5').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
-        lvl6.add(this.add.image(0, 0, 'lvl4').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
+        lvl6.add(this.add.image(0, 0, 'lvl6').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         lvl7.add(this.add.image(0, 0, 'lvl7').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         
         lvlPoint.add(this.add.image(0, 0, 'lvlPoint').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
@@ -211,8 +211,8 @@ function create() {
         shadowBox.setDepth(12);
         shadowBox2.setDepth(10);
         shadowBox3.setDepth(10);
-        lvl2.setDepth(11);
-        lvl3.setDepth(13);
+        lvl6.setDepth(11);
+        lvl2.setDepth(13);
         lvl5.setDepth(14);
         lvl4.setDepth(15);
         //lvl1.add(shadowBox);
@@ -297,11 +297,11 @@ function create() {
                     if(!zoomInFlag){
                             const tweenData = [
                             { target: lvl2, duration: 330 },
-                            { target: lvl4, duration: 200 },//lvl5 image
-                            { target: lvl7, duration: 260 },
-                            { target: lvl6, duration: 290 },
+                            { target: lvl3, duration: 290 },
+                            { target: lvl4, duration: 260 },//lvl5 image
                             { target: lvl5, duration: 240 },//lvl4 image
-                            { target: lvl3, duration: 260 },
+                            { target: lvl6, duration: 200 },
+                            { target: lvl7, duration: 250 },                                                            
                             {
                                 target: lvl1,
                                 duration: 370,
