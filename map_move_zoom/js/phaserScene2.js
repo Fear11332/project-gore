@@ -220,8 +220,7 @@ function create() {
         
         redSquare = this.add.rectangle(0,0, originalSize, originalSize, 0xff0000,0);  // Квадрат 2048x2048px красного цвета
         redSquare.setOrigin(0.5,0.5);  // Центр квадрата в его середину
-        // Пересчитываем размер квадрата с учетом коэффициента масштабирования
-        
+        // Пересчитываем размер квадрата с учетом коэффициента масштабирования        
 
         lvl1.add(redSquare);
     
@@ -302,8 +301,7 @@ function create() {
                             { target: lvl4, duration: 190 },
                             { target: lvl5, duration: 210 },
                             { target: lvl6, duration: 160 },
-                            { target: lvl7, duration: 180 },  
-                            { target: lvlPoint, duration: 60 },                                                          
+                            { target: lvl7, duration: 180 },                                                            
                             {
                                 target: lvl1,
                                 duration: 300,
