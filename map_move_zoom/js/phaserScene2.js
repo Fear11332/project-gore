@@ -653,7 +653,7 @@ function moveMap(scene,pointer) {
     const deltaY = (pointer.y - previousY);
 
     // lvl2 двигается быстрее — например, в 1.2 раза
-    const lvlPointSpeed = 0.4;
+    const lvlPointSpeed = 0.3;
 
     const newX_lvlPoint = lvlPoint.x + deltaX * lvlPointSpeed;
     const newY_lvlPoint = lvlPoint.y + deltaY * lvlPointSpeed;
