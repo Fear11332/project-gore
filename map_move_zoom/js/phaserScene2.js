@@ -195,15 +195,15 @@ function create() {
         lvlPoint.add(this.add.image(0, 0, 'lvlPoint').setOrigin(0.5, 0.5).setDisplaySize(originalSize, originalSize));
         lvlPoint.setAlpha(0);
 
-        shadowBox = createSoftShadow(this, 0, 0, 200, 350,0.2);
+        shadowBox = createSoftShadow(this, 0, 0, 200, 350,0.2);//0.2
         //this.add.rectangle(0,0, 200, 350, 0x000000, 0.7)
         //.setOrigin(0.5,0.5)
         shadowBox.setAlpha(0);      // Изначально невидим
-        shadowBox2 =createSoftShadow(this, 0, 0, 150, 250,0.3);
+        shadowBox2 =createSoftShadow(this, 0, 0, 150, 250,0.3);//0.3
         // this.add.rectangle(0,0, 150, 250, 0x000000, 0.5)
         //.setOrigin(0.5,0.5)
         shadowBox2.setAlpha(0);  
-        shadowBox3 = createSoftShadow(this, 0, 0, 200, 300,0.2);
+        shadowBox3 = createSoftShadow(this, 0, 0, 200, 300,0.2);//02
         //this.add.rectangle(0,0, 220, 330, 0x000000, 0.5)
         //.setOrigin(0.5,0.5)
         shadowBox3.setAlpha(0); 
@@ -296,16 +296,16 @@ function create() {
                     moveMap(this,pointer);
                     if(!zoomInFlag){
                             const tweenData = [
-                            { target: lvl2, duration: 500 },
-                            { target: lvl4, duration: 400 },
-                            { target: lvl7, duration: 250 },
-                            { target: lvl6, duration:300 },
-                            { target: lvl5, duration: 350 },
-                            { target: lvl3, duration: 450 },
+                            { target: lvl2, duration: 510 },
+                            { target: lvl4, duration: 440 },
+                            { target: lvl7, duration: 370 },
+                            { target: lvl6, duration: 390 },
+                            { target: lvl5, duration: 410 },
+                            { target: lvl3, duration: 470 },
                             {
                                 target: lvl1,
                                 duration: 550,
-                               /* onUpdate: () => {
+                                onUpdate: () => {
                                     const shadowTweens = [
                                         {
                                             target: shadowBox,
@@ -336,7 +336,7 @@ function create() {
                                             ease: 'Quad.easeOut'
                                         });
                                     });
-                                }*/
+                                }
                             },
                             { target: lvl0, duration: 600 }
                         ];
@@ -552,7 +552,7 @@ function zoomIn(scene) {
                         targets: shadow,
                         scaleX: 1,
                         scaleY: 1,
-                        alpha: 1,
+                        alpha: 0,
                         duration: 1400,
                         ease: 'Quad.easeInOut',
                     });
