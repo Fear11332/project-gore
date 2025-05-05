@@ -297,10 +297,10 @@ function create() {
                     if(!zoomInFlag){
                             const tweenData = [
                             { target: lvl2, duration: 330 },
-                            { target: lvl4, duration: 240 },
-                            { target: lvl7, duration: 190 },
+                            { target: lvl4, duration: 240 },//lvl5 image
+                            { target: lvl7, duration: 270 },
                             { target: lvl6, duration: 290 },
-                            { target: lvl5, duration: 200 },
+                            { target: lvl5, duration: 200 },//lvl4 image
                             { target: lvl3, duration: 260 },
                             {
                                 target: lvl1,
