@@ -302,7 +302,8 @@ function create() {
                             { target: lvl4, duration: 190 },
                             { target: lvl5, duration: 210 },
                             { target: lvl6, duration: 160 },
-                            { target: lvl7, duration: 180 },                                                            
+                            { target: lvl7, duration: 180 },  
+                            { target: lvlPoint, duration: 60 },                                                          
                             {
                                 target: lvl1,
                                 duration: 300,
@@ -672,7 +673,7 @@ function moveMap(scene,pointer) {
             lvl6.setPosition(newX_lvlPoint,newY_lvlPoint);
             lvl7.setPosition(newX_lvlPoint,newY_lvlPoint);
         
-        lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
+            lvlPoint.setPosition(newX_lvlPoint,newY_lvlPoint);
     }
 
     previousX = pointer.x;
