@@ -299,9 +299,9 @@ function create() {
                             { target: lvl2, duration: 310 },
                             { target: lvl4, duration: 210 },
                             { target: lvl7, duration: 170 },
-                            { target: lvl6, duration: 240 },
+                            { target: lvl6, duration: 270 },
                             { target: lvl5, duration: 190 },
-                            { target: lvl3, duration: 270 },
+                            { target: lvl3, duration: 240 },
                             {
                                 target: lvl1,
                                 duration: 350,
