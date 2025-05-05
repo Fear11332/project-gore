@@ -297,15 +297,15 @@ function create() {
                     moveMap(this,pointer);
                     if(!zoomInFlag){
                             const tweenData = [
-                            { target: lvl2, duration: 230 },
-                            { target: lvl3, duration: 190 },
-                            { target: lvl4, duration: 160 },//lvl5 image
-                            { target: lvl5, duration: 180 },//lvl4 image
-                            { target: lvl6, duration: 100 },
-                            { target: lvl7, duration:150 },                                                            
+                            { target: lvl2, duration: 260 },
+                            { target: lvl3, duration: 220 },
+                            { target: lvl4, duration: 190 },
+                            { target: lvl5, duration: 210 },
+                            { target: lvl6, duration: 160 },
+                            { target: lvl7, duration: 180 },                                                            
                             {
                                 target: lvl1,
-                                duration: 270,
+                                duration: 300,
                                 onUpdate: () => {
                                     const shadowTweens = [
                                         {
@@ -340,7 +340,7 @@ function create() {
                                     });
                                 }
                             },
-                            { target: lvl0, duration: 300 }
+                            { target: lvl0, duration: 330 }
                         ];
 
                         // Запускаем все анимации
@@ -363,7 +363,7 @@ function create() {
             // Отпускаем квадрат, когда пользователь отпускает кнопку мыши или палец
 
             deltaX = Math.abs(pointer.x - startX);
-            deltaY = Math.abs(pointer.y - startY);//
+            deltaY = Math.abs(pointer.y - startY);
 
             if (!isDragging && deltaX == DRAG_THRESHOLD && deltaY == DRAG_THRESHOLD) {
                 
@@ -655,7 +655,7 @@ function moveMap(scene,pointer) {
     const deltaY = (pointer.y - previousY);
     
     // lvl2 двигается быстрее — например, в 1.2 раза
-    const lvlPointSpeed = 0.44;
+    const lvlPointSpeed = 0.45;
 
     const newX_lvlPoint = lvlPoint.x + deltaX * lvlPointSpeed;
     const newY_lvlPoint = lvlPoint.y + deltaY * lvlPointSpeed;
