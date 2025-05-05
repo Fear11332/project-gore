@@ -4,8 +4,8 @@ import {OpenRingPopUp } from "https://fear11332.github.io/project-gore/map_move_
 const config = {
     type: Phaser.AUTO,
     parent:"phaser",
-    width: 500,
-    height: 500,
+    width: window.innerWidth,
+    height: window.innerHeight,
     scale: {
         mode: Phaser.Scale.NONE,  // НЕ масштабировать под размер окна
         autoCenter: Phaser.Scale.NO_CENTER
