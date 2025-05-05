@@ -296,15 +296,15 @@ function create() {
                     moveMap(this,pointer);
                     if(!zoomInFlag){
                             const tweenData = [
-                            { target: lvl2, duration: 510 },
-                            { target: lvl4, duration: 440 },
-                            { target: lvl7, duration: 370 },
-                            { target: lvl6, duration: 390 },
-                            { target: lvl5, duration: 410 },
-                            { target: lvl3, duration: 470 },
+                            { target: lvl2, duration: 310 },
+                            { target: lvl4, duration: 240 },
+                            { target: lvl7, duration: 170 },
+                            { target: lvl6, duration: 190 },
+                            { target: lvl5, duration: 210 },
+                            { target: lvl3, duration: 270 },
                             {
                                 target: lvl1,
-                                duration: 550,
+                                duration: 350,
                                 onUpdate: () => {
                                     const shadowTweens = [
                                         {
@@ -338,7 +338,7 @@ function create() {
                                     });
                                 }
                             },
-                            { target: lvl0, duration: 600 }
+                            { target: lvl0, duration: 400 }
                         ];
 
                         // Запускаем все анимации
