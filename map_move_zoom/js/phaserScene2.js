@@ -211,8 +211,8 @@ function create() {
         shadowBox.setDepth(12);
         shadowBox2.setDepth(10);
         shadowBox3.setDepth(10);
-        lvl6.setDepth(11);
-        lvl2.setDepth(13);
+        lvl2.setDepth(11);
+        lvl3.setDepth(13);
         lvl5.setDepth(14);
         lvl4.setDepth(15);
         //lvl1.add(shadowBox);
@@ -297,10 +297,10 @@ function create() {
                     if(!zoomInFlag){
                             const tweenData = [
                             { target: lvl2, duration: 330 },
-                            { target: lvl4, duration: 240 },//lvl5 image
+                            { target: lvl4, duration: 200 },//lvl5 image
                             { target: lvl7, duration: 260 },
                             { target: lvl6, duration: 290 },
-                            { target: lvl5, duration: 200 },//lvl4 image
+                            { target: lvl5, duration: 240 },//lvl4 image
                             { target: lvl3, duration: 260 },
                             {
                                 target: lvl1,
