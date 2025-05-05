@@ -298,7 +298,7 @@ function create() {
                             const tweenData = [
                             { target: lvl2, duration: 330 },
                             { target: lvl4, duration: 240 },//lvl5 image
-                            { target: lvl7, duration: 270 },
+                            { target: lvl7, duration: 260 },
                             { target: lvl6, duration: 290 },
                             { target: lvl5, duration: 200 },//lvl4 image
                             { target: lvl3, duration: 260 },
