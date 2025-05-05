@@ -296,15 +296,15 @@ function create() {
                     moveMap(this,pointer);
                     if(!zoomInFlag){
                             const tweenData = [
-                            { target: lvl2, duration: 310 },
-                            { target: lvl4, duration: 210 },
-                            { target: lvl7, duration: 170 },
-                            { target: lvl6, duration: 270 },
-                            { target: lvl5, duration: 190 },
-                            { target: lvl3, duration: 240 },
+                            { target: lvl2, duration: 330 },
+                            { target: lvl4, duration: 240 },
+                            { target: lvl7, duration: 190 },
+                            { target: lvl6, duration: 290 },
+                            { target: lvl5, duration: 200 },
+                            { target: lvl3, duration: 260 },
                             {
                                 target: lvl1,
-                                duration: 350,
+                                duration: 370,
                                 onUpdate: () => {
                                     const shadowTweens = [
                                         {
@@ -653,7 +653,7 @@ function moveMap(scene,pointer) {
     const deltaY = (pointer.y - previousY);
 
     // lvl2 двигается быстрее — например, в 1.2 раза
-    const lvlPointSpeed = 0.3;
+    const lvlPointSpeed = 0.25;
 
     const newX_lvlPoint = lvlPoint.x + deltaX * lvlPointSpeed;
     const newY_lvlPoint = lvlPoint.y + deltaY * lvlPointSpeed;
