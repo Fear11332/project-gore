@@ -296,16 +296,16 @@ function create() {
                     moveMap(this,pointer);
                     if(!zoomInFlag){
                             const tweenData = [
-                            { target: lvl2, duration: 70 },
-                            { target: lvl4, duration: 70 },
-                            { target: lvl7, duration: 70 },
-                            { target: lvl6, duration: 100 },
-                            { target: lvl5, duration: 200 },
-                            { target: lvl3, duration: 200 },
+                            { target: lvl2, duration: 500 },
+                            { target: lvl4, duration: 400 },
+                            { target: lvl7, duration: 250 },
+                            { target: lvl6, duration:300 },
+                            { target: lvl5, duration: 350 },
+                            { target: lvl3, duration: 450 },
                             {
                                 target: lvl1,
-                                duration: 300,
-                                onUpdate: () => {
+                                duration: 550,
+                               /* onUpdate: () => {
                                     const shadowTweens = [
                                         {
                                             target: shadowBox,
@@ -336,7 +336,7 @@ function create() {
                                             ease: 'Quad.easeOut'
                                         });
                                     });
-                                }
+                                }*/
                             },
                             { target: lvl0, duration: 600 }
                         ];
