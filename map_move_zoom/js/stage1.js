@@ -16,7 +16,7 @@ const config = {
 const game = new Phaser.Game(config);
 
 function preload() { 
-    this.load.image('map', './imgs/goreme_site_stage1_4_01.webp');
+    this.load.image('map', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_4_01.webp');
 }
 
 function create() {
