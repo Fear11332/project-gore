@@ -150,7 +150,7 @@ function initThreeScene() {
     const diffuseMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_01.png');
     const normalMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png');
     const roughnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png');
-    //const bumpMap = textureLoader.load('https://your-site/height.png'); // Или displacement
+    const metalnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png');
         // Загружаем FBX модель
     const loader = new FBXLoader();
    
@@ -170,7 +170,8 @@ function initThreeScene() {
                         child.material = new THREE.MeshStandardMaterial({
                             map: diffuseMap,
                             normalMap: normalMap,
-                            
+                            metalnessMap: metalnessMap,
+                            metalness: 1.0, // Уровень металличности
                             roughnessMap: roughnessMap,
                             
                         });
