@@ -145,7 +145,13 @@ function initThreeScene() {
 
     updateBackground(currentImageIndex);
 
-    // Загружаем FBX модель
+    const textureLoader = new THREE.TextureLoader();
+
+    const diffuseMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_01.png');
+    const normalMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png');
+    const roughnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png');
+    const bumpMap = textureLoader.load('https://your-site/height.png'); // Или displacement
+        // Загружаем FBX модель
     const loader = new FBXLoader();
    
     for (let i = 0; i < seedsCount; i++) {
@@ -162,11 +168,11 @@ function initThreeScene() {
                 seeds[i].traverse((child) => {
                     if (child.isMesh) {
                         child.material = new THREE.MeshStandardMaterial({
-                            color: 'white',
-                            metalness: 1,
-                            roughness: 0.6,
-                            emissive: 0x111111,
-                            emissiveIntensity: 0,
+                            map: diffuseMap,
+                            normalMap: normalMap,
+                            
+                            roughnessMap: roughnessMap,
+                            
                         });
                         child.castShadow = true;
                         child.receiveShadow = true;
