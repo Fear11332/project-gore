@@ -14,7 +14,17 @@ body, html {
             pointer-events: none;
             z-index: 3; /* Ниже чем #ring, но выше остального контента */
         }
-    
+
+        #overlay2 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 2; /* Ниже чем #ring, но выше остального контента */
+        }
+
         #canvas-container {
             position: fixed;
             top: 50%;
@@ -60,16 +70,6 @@ body, html {
             opacity: 0;
             pointer-events: none;
             transition: opacity 1.9s ease-in-out;
-        }
-
-        #overlay2 {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 1; /* Ниже чем #ring, но выше остального контента */
         }
 
         #construct {
