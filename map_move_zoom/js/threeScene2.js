@@ -150,7 +150,7 @@ function initThreeScene() {
     const diffuseMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_01.png');
     const normalMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png');
     const roughnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png');
-    const bumpMap = textureLoader.load('https://your-site/height.png'); // Или displacement
+    //const bumpMap = textureLoader.load('https://your-site/height.png'); // Или displacement
         // Загружаем FBX модель
     const loader = new FBXLoader();
    
