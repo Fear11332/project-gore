@@ -59,6 +59,7 @@ function OpenRingPopUp(){
 }
 
 function OpenConstructorPopUp(){
+    stageThreeIsOpen = false;
     constructorIsOpen = true;
     radiusSlider.min = '45';
     radiusSlider.max = '70';

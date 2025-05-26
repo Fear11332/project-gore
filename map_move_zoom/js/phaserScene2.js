@@ -4,8 +4,8 @@ import {OpenRingPopUp } from "https://fear11332.github.io/project-gore/map_move_
 const config = {
     type: Phaser.AUTO,
     parent:"phaser",
-    width:  window.innerWidth*0.7,
-    height: window.innerHeight*0.7,
+    width:  window.innerWidth*0.86,
+    height: window.innerHeight*0.86,
     scale: {
         mode: Phaser.Scale.NONE,  // НЕ масштабировать под размер окна
         autoCenter: Phaser.Scale.NO_CENTER
@@ -384,22 +384,26 @@ function create() {
                 isDragging = false;
         });
 
-        this.scale.on('resize', (gameSize) => {
-            
-            const camera = this.cameras.main;
-            camera.setSize(gameSize.width, gameSize.height);
-
-            // После ресайза вернуть центр на прежнюю точку
-            if (lastCameraCenter) {
-                camera.centerOn(lastCameraCenter.x, lastCameraCenter.y);
-            }            
-        });
-
         // Глобальный обработчик завершения ввода (для мыши, сенсорных экранов и других устройств)
         window.addEventListener('pointerup', () => {
             
             isDown = false;
             isDragging = false;
+        });
+
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth * 0.86;
+            const height = window.innerHeight * 0.86;
+
+            game.scale.resize(width, height);
+
+            const camera = game.scene.scenes[0].cameras.main;
+
+            camera.setSize(width, height);
+
+            if (lastCameraCenter) {
+                camera.centerOn(lastCameraCenter.x, lastCameraCenter.y);
+            }
         });
 }
 
