@@ -20,19 +20,44 @@ function preload() {
 }
 
 function create() {
-    // 1. Отрисовываем фон
-    this.bg = this.add.image(this.scale.width / 2, this.scale.height / 2, 'map')
+     this.bg = this.add.image(this.scale.width / 2, this.scale.height / 2, 'map')
         .setOrigin(0.5)
-        .setDisplaySize(this.scale.width, this.scale.height)
-        .setInteractive();
+        .setScrollFactor(0); // Не двигается вместе с камерой
+
+    // 2. Сохраняем оригинальные размеры изображения
+    const originalWidth = this.textures.get('map').getSourceImage().width;
+    const originalHeight = this.textures.get('map').getSourceImage().height;
+
+    const screenW = this.scale.width;
+    const screenH = this.scale.height;
+
+    const scaleX = screenW / originalWidth;
+    const scaleY = screenH / originalHeight;
+    const scale = Math.min(scaleX, scaleY); // сохраняет пропорции
+
+    this.bg.setDisplaySize(originalWidth * scale, originalHeight * scale);
+
+    // 3. Центрируем при старте
+    this.bg.setPosition(this.scale.width / 2, this.scale.height / 2);
+
+    // 4. Центрируем при изменении размера окна
+    this.scale.on('resize', (gameSize) => {
+        const screenW = gameSize.width;
+        const screenH = gameSize.height;
+
+        const scaleX = screenW / originalWidth;
+        const scaleY = screenH / originalHeight;
+        const scale = Math.min(scaleX, scaleY);
+
+        this.bg.setDisplaySize(originalWidth * scale, originalHeight * scale);
+        this.bg.setPosition(screenW / 2, screenH / 2);
+    });
 
     // 2. Слушаем клик
-    this.bg.on('pointerdown', (pointer) => {
+    this.input.on('pointerdown', (pointer) => {
         const canvasBounds = this.game.canvas.getBoundingClientRect();
         const x = canvasBounds.left + pointer.x;
         const y = canvasBounds.top + pointer.y;
-
-        // Проверка безопасности
         if (!isFinite(x) || !isFinite(y)) return;
 
         const clickedElement = document.elementFromPoint(x, y);
@@ -44,6 +69,7 @@ function create() {
         ) return;
 
         const inTarget = isInTargetArea.call(this, pointer);
+        console.log('click');
 
         if (inTarget) {
             openStage2();
@@ -52,13 +78,6 @@ function create() {
                 closeStage2();
             }
         }
-    });
-
-
-    // 3. При ресайзе обновляем размеры
-    this.scale.on('resize', (gameSize) => {
-        this.bg.setDisplaySize(gameSize.width, gameSize.height);
-        this.bg.setPosition(gameSize.width / 2, gameSize.height / 2);
     });
 }
 
