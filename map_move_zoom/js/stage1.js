@@ -69,7 +69,6 @@ function create() {
         ) return;
 
         const inTarget = isInTargetArea.call(this, pointer);
-        console.log('click');
 
         if (inTarget) {
             openStage2();
