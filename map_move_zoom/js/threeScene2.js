@@ -121,14 +121,14 @@ function initThreeScene() {
     );
     composer.addPass(fxaaPass);
 
-    ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
     scene.add(ambientLight);
 
     directionalLight = new THREE.DirectionalLight(0xA1C1CA, 3);
     directionalLight.position.set(1,2.5, 7);
     scene.add(directionalLight);
 
-    pointLight = new THREE.PointLight(0x5B090B, 8, 1);
+    pointLight = new THREE.PointLight(0x50080D, 8, 1);
     pointLight.position.set(0, 0, 0);
     pointLight.castShadow = true;
     scene.add(pointLight);
