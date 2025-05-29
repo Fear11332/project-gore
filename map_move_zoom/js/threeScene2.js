@@ -175,7 +175,7 @@ function initThreeScene() {
                             metalnessMap: metalnessMap,
                             metalness: 1.0, // Уровень металличности
                             roughnessMap: roughnessMap,
-                            color: new THREE.Color(1.5, 1.5, 1.5)
+                           // color: new THREE.Color(1.5, 1.5, 1.5)
                         });
                         child.castShadow = true;
                         child.receiveShadow = true;
