@@ -124,11 +124,11 @@ function initThreeScene() {
     ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    directionalLight = new THREE.DirectionalLight(0x87B9FF, 5);
     directionalLight.position.set(1,2.5, 7);
     scene.add(directionalLight);
 
-    pointLight = new THREE.PointLight(0xbefc88, 25, 1);
+    pointLight = new THREE.PointLight(0xbefc88, 10, 1);
     pointLight.position.set(0, 0, 0);
     pointLight.castShadow = true;
     scene.add(pointLight);
