@@ -128,7 +128,7 @@ function initThreeScene() {
     directionalLight.position.set(1,2.5, 7);
     scene.add(directionalLight);
 
-    pointLight = new THREE.PointLight(0xff5040, 25, 1);
+    pointLight = new THREE.PointLight(0xbefc88, 25, 1);
     pointLight.position.set(0, 0, 0);
     pointLight.castShadow = true;
     scene.add(pointLight);
@@ -174,7 +174,8 @@ function initThreeScene() {
                             normalMap: normalMap,
                             metalnessMap: metalnessMap,
                             metalness: 1.0, // Уровень металличности
-                            roughnessMap: roughnessMap
+                            roughnessMap: roughnessMap,
+                            color: new THREE.Color(1.5, 1.5, 1.5)
                         });
                         child.castShadow = true;
                         child.receiveShadow = true;
