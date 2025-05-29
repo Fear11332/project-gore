@@ -124,11 +124,11 @@ function initThreeScene() {
     ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     scene.add(ambientLight);
 
-    directionalLight = new THREE.DirectionalLight(0x7B8DA7, 3);
+    directionalLight = new THREE.DirectionalLight(0x749BA0, 3);
     directionalLight.position.set(1,2.5, 7);
     scene.add(directionalLight);
 
-    pointLight = new THREE.PointLight(0x980E13, 6, 1);
+    pointLight = new THREE.PointLight(0x84090D, 6, 1);
     pointLight.position.set(0, 0, 0);
     pointLight.castShadow = true;
     scene.add(pointLight);
@@ -147,7 +147,7 @@ function initThreeScene() {
 
     const textureLoader = new THREE.TextureLoader();
 
-    const diffuseMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_02.png');
+    const diffuseMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_03.png');
     const normalMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png');
     const roughnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png');
     const metalnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png');
