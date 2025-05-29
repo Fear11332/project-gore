@@ -124,12 +124,12 @@ function initThreeScene() {
     ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    directionalLight = new THREE.DirectionalLight(0x2E3E67, 10);
+    directionalLight = new THREE.DirectionalLight(0x2E3E67, 1);
     directionalLight.position.set(1, 3, 3);
     scene.add(directionalLight);
 
-    pointLight = new THREE.PointLight(0x994141, 5, 1);
-    pointLight.position.set(0, 1, 0);
+    pointLight = new THREE.PointLight(0xDB1625, 60, 1);
+    pointLight.position.set(-0.711, 3.54, -1.02);
     pointLight.castShadow = true;
     scene.add(pointLight);
 
@@ -151,7 +151,8 @@ function initThreeScene() {
     const normalMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png');
     const roughnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png');
     const metalnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png');
-        // Загружаем FBX модель
+    
+    // Загружаем FBX модель
     const loader = new FBXLoader();
    
     for (let i = 0; i < seedsCount; i++) {
@@ -172,8 +173,7 @@ function initThreeScene() {
                             normalMap: normalMap,
                             metalnessMap: metalnessMap,
                             metalness: 1.0, // Уровень металличности
-                            roughnessMap: roughnessMap,
-                            
+                            roughnessMap: roughnessMap
                         });
                         child.castShadow = true;
                         child.receiveShadow = true;
