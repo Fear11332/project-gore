@@ -88,7 +88,16 @@ function create() {
     this.input.on('pointerout', () => {
         hideMask();
     });
-        
+    
+    // Скрывать маску при отпускании пальца (или мыши)
+    this.input.on('pointerup', () => {
+        hideMask();
+    });
+
+    // Иногда полезно также слушать pointercancel (отмена события)
+    this.input.on('pointercancel', () => {
+        hideMask();
+    });
     
     // 4. Центрируем при изменении размера окна
     this.scale.on('resize', (gameSize) => {
