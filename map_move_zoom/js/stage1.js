@@ -148,6 +148,7 @@ function create() {
             openStage2();
         } else {
             if (!stageThreeIsOpen && !constructorIsOpen) {
+                hideMask();
                 closeStage2();
             }
         }
