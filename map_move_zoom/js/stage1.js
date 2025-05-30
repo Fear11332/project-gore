@@ -144,6 +144,7 @@ function create() {
         const inTarget = isInTargetArea.call(this, pointer);
 
         if (inTarget) {
+            showMask();
             openStage2();
         } else {
             if (!stageThreeIsOpen && !constructorIsOpen) {
