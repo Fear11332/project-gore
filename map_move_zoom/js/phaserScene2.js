@@ -6,6 +6,7 @@ const config = {
     parent:"phaser",
     width:  window.innerWidth*0.81,
     height: window.innerHeight*0.81,
+    transparent: true, // важно!
     scale: {
         mode: Phaser.Scale.NONE,  // НЕ масштабировать под размер окна
         autoCenter: Phaser.Scale.NO_CENTER
@@ -174,7 +175,7 @@ function createSoftShadow(scene, x, y, w, h, maxAlpha) {
 function create() {
         gameScane = this;
         // Создаем черный фон, который занимает весь экран
-        this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x000000).setOrigin(0, 0);
+        //this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0xffffff).setOrigin(0, 0);
         
         lvl0=this.add.container(0,0);
         lvl1 = this.add.container(0,0);
@@ -270,8 +271,6 @@ function create() {
                 }
             }
         });
-
-
 
         this.input.on('pointerdown', (pointer)=> {
             //if(isSceneFrozen) return; // Игнорируем нажатие, если сцена заморожена

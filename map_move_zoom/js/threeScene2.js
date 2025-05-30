@@ -14,6 +14,7 @@ const backgroundImages = [
     'https://fear11332.github.io/project-gore//map_move_zoom/images/4.webp',
     'https://fear11332.github.io/project-gore//map_move_zoom/images/5.webp'
 ];
+
 let canvas = document.getElementById('ring'), renderer, scene, camera, animationFrameId;
 let overlay = document.getElementById('overlay');
 let radiusSlider = document.getElementById('radiusSlider');
@@ -255,6 +256,31 @@ function preloadTextures(images) {
     );
 }
 
+function animateSeedAppearance(seed, duration) {
+    const startTime = performance.now();
+    seed.visible = true;
+    seed.scale.set(0, 0, 0);
+
+    function animate(time) {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const scale = scaleFactor * easeOutCubic(progress);
+        seed.scale.set(scale, scale, scale);
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+// Кривая плавности
+function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+}
+
+
 function chandeBackVisiableRing(){
         if (currentImageIndex < backgroundImages.length - 1) {
             // Переключаем фон
@@ -263,6 +289,7 @@ function chandeBackVisiableRing(){
         } 
         if (currentImageIndex === backgroundImages.length - 1) {
             if (seeds[current_seed]) {
+                animateSeedAppearance(seeds[current_seed],1500);
                 seeds[current_seed].visible = true; // Показываем кольцо
                 stageImageIsOpen = false; // Закрываем стадию изображений
                 radiusSlider.value = current_seed + 1;

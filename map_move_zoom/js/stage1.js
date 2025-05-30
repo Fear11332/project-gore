@@ -40,6 +40,56 @@ function create() {
     // 3. Центрируем при старте
     this.bg.setPosition(this.scale.width / 2, this.scale.height / 2);
 
+    // 1. Затемнённый оверлей
+    this.overlayDark = this.add.graphics();
+    this.overlayDark.fillStyle(0x000000, 0.5);
+    this.overlayDark.fillRect(0, 0, screenW, screenH);
+
+    // 2. Графика для маски (выреза)
+    this.maskShape = this.make.graphics();
+
+    // 3. Параметры выреза
+    const radius = 50;
+    let holeX = this.scale.width / 2; // координаты выреза
+    let holeY = this.scale.height / 2;
+
+    // 4. Маска по умолчанию — скрыта
+    let maskVisible = false;
+
+    const showMask = () => {
+        if (maskVisible) return;
+        this.maskShape.clear();
+        this.maskShape.fillStyle(0xffffff);
+        this.maskShape.fillRect(holeX - radius, holeY - radius, radius * 2, radius * 2);
+        maskVisible = true;
+    };
+
+    const hideMask = () => {
+        if (!maskVisible) return;
+        this.maskShape.clear();
+        maskVisible = false;
+    };
+
+    // 5. Создаём геометрическую маску
+    const geometryMask = this.maskShape.createGeometryMask();
+    geometryMask.invertAlpha = true;
+    this.overlayDark.setMask(geometryMask);
+
+    // 6. Показываем маску, если курсор внутри области
+    this.input.on('pointermove', pointer => {
+        if (isInTargetArea.call(this, pointer)) {
+            showMask();
+        } else {
+            hideMask();
+        }
+    });
+
+    // 7. Скрываем маску при выходе курсора за пределы канваса
+    this.input.on('pointerout', () => {
+        hideMask();
+    });
+        
+    
     // 4. Центрируем при изменении размера окна
     this.scale.on('resize', (gameSize) => {
         const screenW = gameSize.width;
@@ -49,8 +99,22 @@ function create() {
         const scaleY = screenH / originalHeight;
         const scale = Math.min(scaleX, scaleY);
 
+        holeX = screenW / 2;
+        holeY = screenH / 2;
+
         this.bg.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.bg.setPosition(screenW / 2, screenH / 2);
+        
+         // Обновляем размеры оверлея
+        this.overlayDark.clear();
+        this.overlayDark.fillStyle(0x000000, 0.5);
+        this.overlayDark.fillRect(0, 0, screenW, screenH);
+
+         // Если маска сейчас видна, перерисовываем вырез в новых координатах
+        if (maskVisible) {
+            showMask();
+        }
+
     });
 
     // 2. Слушаем клик
@@ -79,6 +143,7 @@ function create() {
         }
     });
 }
+
 
 function isInTargetArea(pointer) {
     const targetX = this.scale.width / 2;    // центр
