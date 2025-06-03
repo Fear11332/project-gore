@@ -163,10 +163,12 @@ function create() {
 
         const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
-        if (alpha > 0 && key === 'a2') {
-            showStage2 = true;
-            toogleZoomIn(image);
-            openStage2();
+        if (alpha > 0) {
+            toogleZoomIn.call(this, image);
+            if(key==='a2'){
+                showStage2 = true;
+                openStage2();
+            }
         } else {
             if (!stageThreeIsOpen && !constructorIsOpen) {
                 closeStage2();
