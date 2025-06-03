@@ -33,7 +33,7 @@ function create() {
 
     const scaleX = screenW / originalWidth;
     const scaleY = screenH / originalHeight;
-    const scale = Math.min(scaleX, scaleY);
+    const scale = Math.max(scaleX, scaleY);
 
     // Добавляем одно изображение
     this.cross = this.add.image(screenW / 2, screenH / 2, 'cross')
@@ -71,7 +71,7 @@ function create() {
 
     //updateMask();
 
-    const showMask = (image) => {
+   const showMask = (image) => {
         if (!maskVisible) {
             maskVisible = true;
 
@@ -80,41 +80,27 @@ function create() {
         }
 
         if (currentImage && currentImage !== image) {
-            this.tweens.killTweensOf(currentImage); 
-            currentImage.setScale(initialScaleX, initialScaleY);
+            // Возвращаем предыдущему изображению начальный масштаб сразу
+            currentImage.scaleX = initialScaleX;
+            currentImage.scaleY = initialScaleY;
         }
 
-        this.tweens.killTweensOf(image);
         currentImage = image;
 
-        // Масштабируем
-        this.tweens.add({
-            targets: image,
-            scaleX: initialScaleX * 1.1,
-            scaleY: initialScaleY * 1.1,
-            duration: 200,
-            ease: 'Power2'
-        });
-       // updateMask.call(this); // Обновляем маску   
+        // Увеличиваем масштаб сразу без анимации
+        image.scaleX = initialScaleX * 1.1;
+        image.scaleY = initialScaleY * 1.1;
     };
-
 
     const hideMask = () => {
         if (!maskVisible || !currentImage) return;
 
-        this.tweens.killTweensOf(currentImage); // убиваем перед стартом
-        this.tweens.add({
-            targets: currentImage,
-            scaleX: initialScaleX,
-            scaleY: initialScaleY,
-            duration: 200,
-            ease: 'Power2',
-            onComplete: () => {
-                //this.maskShape.clear();
-                maskVisible = false;
-                currentImage = null;
-            }
-        });
+        // Возвращаем текущему изображению начальный масштаб сразу
+        currentImage.scaleX = initialScaleX;
+        currentImage.scaleY = initialScaleY;
+
+        maskVisible = false;
+        currentImage = null;
     };
 
     this.input.on('pointermove', pointer => {
@@ -163,7 +149,7 @@ function create() {
 
         const scaleX = screenW / originalWidth;
         const scaleY = screenH / originalHeight;
-        const scale = Math.min(scaleX, scaleY);
+        const scale = Math.max(scaleX, scaleY);
 
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
