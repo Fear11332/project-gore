@@ -51,33 +51,15 @@ function create() {
             .setScrollFactor(0);
     });
 
-    // Затемнённый оверлей
-    /*this.overlayDark = this.add.graphics();
-    this.overlayDark.fillStyle(0x000000, 0.5);
-    this.overlayDark.fillRect(0, 0, screenW, screenH);
-
-    // Маска (вырезы)
-    this.maskShape = this.make.graphics();
-    const geometryMask = this.maskShape.createGeometryMask();
-    geometryMask.invertAlpha = true;
-    this.overlayDark.setMask(geometryMask);*/
-
-    // 4. Маска по умолчанию — скрыта
-    let maskVisible = false;
-
     let initialScaleX = hoveredImages[1].scaleX;
     let initialScaleY = hoveredImages[1].scaleY;
     let currentImage = null;
 
-    //updateMask();
+    let showStage2 = false;
 
-   const showMask = (image) => {
-        if (!maskVisible) {
-            maskVisible = true;
-
-            if (!initialScaleX) initialScaleX = image.scaleX;
-            if (!initialScaleY) initialScaleY = image.scaleY;
-        }
+   const toogleZoomIn = (image) => {
+        if (!initialScaleX) initialScaleX = image.scaleX;
+        if (!initialScaleY) initialScaleY = image.scaleY;
 
         if (currentImage && currentImage !== image) {
             // Возвращаем предыдущему изображению начальный масштаб сразу
@@ -92,14 +74,11 @@ function create() {
         image.scaleY = initialScaleY * 1.1;
     };
 
-    const hideMask = () => {
-        if (!maskVisible || !currentImage) return;
-
+    const toogleZoomOut = () => {
+        if (!currentImage) return;
         // Возвращаем текущему изображению начальный масштаб сразу
         currentImage.scaleX = initialScaleX;
         currentImage.scaleY = initialScaleY;
-
-        maskVisible = false;
         currentImage = null;
     };
 
@@ -118,11 +97,10 @@ function create() {
         return null;
     };
 
-
     this.input.on('pointermove', pointer => {
         const key = getHoveredImageKey(pointer);
         if (!key) {
-            hideMask();
+            toogleZoomOut();
             return;
         }
 
@@ -135,21 +113,15 @@ function create() {
         const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
 
         const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
-        if (alpha > 0) {
-            showMask.call(this, image);
-        } else {
-            hideMask.call(this);
+        if(!showStage2){
+            if (alpha > 0 ) {
+                toogleZoomIn.call(this, image);
+            } else {
+                toogleZoomOut.call(this);
+            }
         }
     });
-
-
-    // 7. Скрываем маску при выходе курсора за пределы канваса
-    /*this.input.on('pointerout', () => {
-        //hideMask();
-        console.log('Pointer out of canvas');
-    });*/
-        
-    
+           
     // 4. Центрируем при изменении размера окна
     this.scale.on('resize', (gameSize) => {
         const screenW = gameSize.width;
@@ -167,22 +139,14 @@ function create() {
             hoveredImages[index + 1].setPosition(screenW / 2, screenH / 2);
         });
         
-         // Обновляем размеры оверлея
-        /*this.overlayDark.clear();
-        this.overlayDark.fillStyle(0x000000, 0.5);
-        this.overlayDark.fillRect(0, 0, screenW, screenH);*/
         initialScaleX = hoveredImages[1].scaleX;
         initialScaleY = hoveredImages[1].scaleY;
          // Если маска сейчас видна, перерисовываем вырез в новых координатах
-        if (maskVisible && currentImage) {
+        if (currentImage) {
             currentImage.setScale(initialScaleX * 1.1, initialScaleY * 1.1);
         }
     });
 
-    // Иногда полезно также слушать pointercancel (отмена события)
-    /*this.input.on('pointercancel', () => {
-        hideMask();
-    });*/
 
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
@@ -200,12 +164,18 @@ function create() {
         const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
         if (alpha > 0 && key === 'a2') {
-            showMask(image);
+            showStage2 = true;
+            toogleZoomIn(image);
             openStage2();
         } else {
             if (!stageThreeIsOpen && !constructorIsOpen) {
                 closeStage2();
+                showStage2 = false;
             }
         }
+    });
+
+    this.input.on('pointerup', (pointer) => {
+        toogleZoomOut();
     });
 }
