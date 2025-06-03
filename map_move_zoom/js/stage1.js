@@ -103,33 +103,41 @@ function create() {
         currentImage = null;
     };
 
+    const getHoveredImageKey = (pointer) => {
+        const centerX = this.scale.width / 2;
+        const centerY = this.scale.height / 2;
+
+        const isLeft = pointer.x < centerX;
+        const isTop = pointer.y < centerY;
+
+        if (isTop && isLeft) return 'a1'; // верх-лево
+        if (isTop && !isLeft) return 'a2'; // верх-право
+        if (!isTop && isLeft) return 'a3'; // низ-лево
+        if (!isTop && !isLeft) return 'a4'; // низ-право
+
+        return null;
+    };
+
+
     this.input.on('pointermove', pointer => {
-        let found = false;
-
-        for (let index = 0; index < imageKeys.length; index++) {
-            const key = imageKeys[index];
-            const image = hoveredImages[index + 1];
-            const localX = pointer.x - (image.x - image.displayWidth / 2);
-            const localY = pointer.y - (image.y - image.displayHeight / 2);
-
-            if (localX < 0 || localX >= image.displayWidth || localY < 0 || localY >= image.displayHeight) {
-                continue;
-            }
-
-            const frame = this.textures.get(image.texture.key).getSourceImage();
-            const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
-            const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
-
-            const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
-
-            if (alpha > 0) {
-                showMask.call(this, image); // <<< передаём координаты клетки
-                found = true;
-                break;
-            }
+        const key = getHoveredImageKey(pointer);
+        if (!key) {
+            hideMask();
+            return;
         }
 
-        if (!found) {
+        const image = hoveredImages[Number(key.slice(1))];
+
+        const localX = pointer.x - (image.x - image.displayWidth / 2);
+        const localY = pointer.y - (image.y - image.displayHeight / 2);
+        const frame = this.textures.get(image.texture.key).getSourceImage();
+        const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
+        const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
+
+        const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
+        if (alpha > 0) {
+            showMask.call(this, image);
+        } else {
             hideMask.call(this);
         }
     });
@@ -178,48 +186,24 @@ function create() {
 
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
-        const canvasBounds = this.game.canvas.getBoundingClientRect();
-        const x = canvasBounds.left + pointer.x;
-        const y = canvasBounds.top + pointer.y;
-        if (!isFinite(x) || !isFinite(y)) return;
+        const key = getHoveredImageKey(pointer);
+        if (!key) return;
 
-        const clickedElement = document.elementFromPoint(x, y);
+        const image = hoveredImages[Number(key.slice(1))];
 
-        if (
-            clickedElement?.closest('#mute-toggle') || 
-            clickedElement?.closest('#phaser') || 
-            clickedElement?.closest('#controls')
-        ) return;
+        const localX = pointer.x - (image.x - image.displayWidth / 2);
+        const localY = pointer.y - (image.y - image.displayHeight / 2);
+        const frame = this.textures.get(image.texture.key).getSourceImage();
+        const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
+        const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
 
-        let found = false;
+        const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
-        for (let index = 0; index < imageKeys.length; index++) {
-            const key = imageKeys[index];
-            const image = hoveredImages[index + 1];
-            const localX = pointer.x - (image.x - image.displayWidth / 2);
-            const localY = pointer.y - (image.y - image.displayHeight / 2);
-
-            if (localX < 0 || localX >= image.displayWidth || localY < 0 || localY >= image.displayHeight) {
-                continue; // курсор вне изображения
-            }
-
-            const frame = this.textures.get(image.texture.key).getSourceImage();
-            const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
-            const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
-
-            const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
-
-            if (alpha > 0 && key === 'a2') {
-                // Курсор над непрозрачной частью — показать маску
-                showMask(image); // <<< передаём конкретный image
-                openStage2();
-                found = true;
-                break; // не проверяем остальные
-            }
-        }
-
-        if (!found) {
-             if (!stageThreeIsOpen && !constructorIsOpen) {
+        if (alpha > 0 && key === 'a2') {
+            showMask(image);
+            openStage2();
+        } else {
+            if (!stageThreeIsOpen && !constructorIsOpen) {
                 closeStage2();
             }
         }
