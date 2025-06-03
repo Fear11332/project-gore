@@ -14,6 +14,8 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+let showStage2 = false;
+const stage1 = document.getElementById('stage1');
 
 function preload() { 
     this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
@@ -54,8 +56,6 @@ function create() {
     let initialScaleX = hoveredImages[1].scaleX;
     let initialScaleY = hoveredImages[1].scaleY;
     let currentImage = null;
-
-    let showStage2 = false;
 
    const toogleZoomIn = (image) => {
         if (!initialScaleX) initialScaleX = image.scaleX;
@@ -150,6 +150,14 @@ function create() {
 
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
+        if(showStage2){
+            if (!stageThreeIsOpen && !constructorIsOpen) {
+                closeStage2();
+                showStage2 = false;
+            }
+            return;
+        }
+
         const key = getHoveredImageKey(pointer);
         if (!key) return;
 
@@ -164,15 +172,12 @@ function create() {
         const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
         if (alpha > 0) {
-            toogleZoomIn.call(this, image);
-            if(key==='a2'){
-                showStage2 = true;
-                openStage2();
-            }
-        } else {
-            if (!stageThreeIsOpen && !constructorIsOpen) {
-                closeStage2();
-                showStage2 = false;
+            if(!showStage2){
+                toogleZoomIn.call(this, image);
+                if(key==='a2'){
+                    showStage2 = true;
+                    openStage2();
+                }
             }
         }
     });
