@@ -61,9 +61,9 @@ function create() {
     container.add(this.add.image(0, 0, `cloud${i+1}`).setOrigin(0.5, 0.5).setScale(scale));
     container.setPosition(screenW / 2, screenH / 2); // Центрируем контейнер
     this.cloudLayers.push(container);
-  }
+  }*/
 
-  this.cloudLayers.forEach(layer => layer.setDepth(100));
+  //this.cloudLayers.forEach(layer => layer.setDepth(100));
 
   this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
         .setOrigin(0.5)
@@ -71,7 +71,7 @@ function create() {
         .setDepth(200);  // повыше облаков (у них 100)
 
   // Скорости для каждого слоя (чем дальше — тем медленнее)
-  this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];*/
+  //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
 
      
     // Добавляем одно изображение
@@ -161,7 +161,7 @@ function create() {
                 this.cloudLayers[i].y = newY;
             }*/
         //}else{
-            //if(stage==='stage0') return;
+            if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
                 if (!key) {
                     toogleZoomOut();
@@ -213,10 +213,10 @@ function create() {
                 duration: 1000,
                 delay: index *50 // можно добавить небольшую задержку между слоями
             });
-        });
+        });*/
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
-        this.enterToStage1.setPosition(screenW / 2, screenH / 2);*/
+        this.enterToStage1.setPosition(screenW / 2, screenH / 2);
 
         imageKeys.forEach((key, index) => {
             hoveredImages[index + 1].setDisplaySize(originalWidth * scale, originalHeight * scale);
@@ -236,7 +236,7 @@ function create() {
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
         if (isTransitioning) return;
-       // if(stage==='stage1'){
+        if(stage==='stage1'){
             if(showStage2){
                 if (!stageThreeIsOpen && !constructorIsOpen) {
                     closeStage2();
@@ -267,7 +267,7 @@ function create() {
                     }
                 }
             }
-        /*}else{
+        }else{
              // Рассчитываем локальные координаты клика внутри картинки
             const localX = pointer.x - (this.enterToStage1.x - this.enterToStage1.displayWidth / 2);
             const localY = pointer.y - (this.enterToStage1.y - this.enterToStage1.displayHeight / 2);
@@ -285,12 +285,12 @@ function create() {
             if(alpha > 0){
                 // Запускаем анимацию облаков
                 isTransitioning = true;
-                //diveThroughCloudsAnimation.call(this);
+                diveThroughCloudsAnimation.call(this);
             }else{
                 //this.cloudDragStart = { x: pointer.x, y: pointer.y };
                 //this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
             }
-        }*/
+        }
     });
 
     this.input.on('pointerup', (pointer) => {
