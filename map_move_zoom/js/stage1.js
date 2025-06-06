@@ -162,7 +162,7 @@ function create() {
             }*/
         }else{
             if(stage==='stage0') return;
-                const key = getHoveredImageKey(pointer);
+               /* const key = getHoveredImageKey(pointer);
                 if (!key) {
                     //toogleZoomOut();
                     return;
@@ -183,7 +183,7 @@ function create() {
                     } else {
                         toogleZoomOut.call(this);
                     }
-                }
+                }*/
             }
     });
            
