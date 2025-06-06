@@ -39,8 +39,8 @@ function preload() {
 
 
 function create() {
-    //this.cloudDragStart = null;
-    //this.cloudInitialPositions = [];
+    this.cloudDragStart = null;
+    this.cloudInitialPositions = [];
     const texture = this.textures.get('cross').getSourceImage();
     const originalWidth = texture.width;
     const originalHeight = texture.height;
@@ -82,7 +82,7 @@ function create() {
             .setDepth(200);  // повыше облаков (у них 100)
 
     // Скорости для каждого слоя (чем дальше — тем медленнее)
-    //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
+    this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
      
     // Добавляем одно изображение
     this.cross = this.add.image(screenW / 2, screenH / 2, 'cross')
@@ -143,7 +143,7 @@ function create() {
 
     this.input.on('pointermove', (pointer) => {
         if (isTransitioning) return;
-        /*if(stage === 'stage0'  && this.cloudDragStart && pointer.isDown){
+        if(stage === 'stage0'  && this.cloudDragStart && pointer.isDown){
             const mapCenterX = this.cameras.main.centerX;
             const mapCenterY = this.cameras.main.centerY;
             const mapWidth = this.cameras.main.width;
@@ -159,7 +159,7 @@ function create() {
             const topBound = mapCenterY - (mapHeight / 2) * boundaryFactor;
             const bottomBound = mapCenterY + (mapHeight / 2) * boundaryFactor;
 
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 3; i++) {
                 const baseX = this.cloudInitialPositions[i - 1].x;
                 const baseY = this.cloudInitialPositions[i - 1].y;
 
@@ -171,7 +171,7 @@ function create() {
 
                 this[`cloud${i}`].setPosition(newX, newY);
             }
-        }else{*/
+        }else{
             if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
                 if (!key) {
@@ -210,7 +210,7 @@ function create() {
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
 
-        /*for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 3; i++) {
             const cloud = this[`cloud${i}`];
             if (!cloud) continue;
 
@@ -229,7 +229,7 @@ function create() {
             if (this.cloudInitialPositions && this.cloudInitialPositions[i - 1]) {
                 this.cloudInitialPositions[i - 1] = { x: screenW / 2, y: screenH / 2 };
             }
-        }*/
+        }
        this.cloud1.setDisplaySize(originalWidth*scale, originalHeight*scale);
        this.cloud1.setPosition(screenW/2,screenH/2);
 
@@ -314,15 +314,15 @@ function create() {
                 isTransitioning = true;
                 diveThroughCloudsAnimation.call(this);
             }else{
-                 /*this.cloudDragStart = { x: pointer.x, y: pointer.y };
+                this.cloudDragStart = { x: pointer.x, y: pointer.y };
                 // Записываем начальные позиции облаков из переменных cloud1..cloud4
                 this.cloudInitialPositions = [];
-                for(let i = 1; i <= 4; i++){
+                for(let i = 1; i <= 3; i++){
                     const cloud = this[`cloud${i}`];
                     if(cloud){
                         this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
                     }
-                }*/
+                }
             }
         }
     });
@@ -332,10 +332,10 @@ function create() {
         if(stage==='stage1'){
             toogleZoomOut();
         }
-        //else{
-            //this.cloudDragStart = null;
-            //this.cloudInitialPositions = [];
-        //}
+        else{
+            this.cloudDragStart = null;
+            this.cloudInitialPositions = [];
+        }
     });
 }
 
@@ -354,38 +354,30 @@ function diveThroughCloudsAnimation() {
         ease: 'Power1.easeInOut',
         onUpdate: tween => {
             const progress = tween.getValue();
-            const textProgress = Math.min(1, progress * 1.56);
-            const cloudProgress = textProgress;
 
             // Текст
             this.enterToStage1.setScale(
-                Phaser.Math.Linear(currentTextScale, targetTextScale, textProgress)
+                Phaser.Math.Linear(currentTextScale, targetTextScale, Math.min(1, progress * 1.56))
             );
             this.enterToStage1.setAlpha(1 - textProgress);
 
             this.cloud1.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.34))
             );
 
-            this.cloud1.setAlpha(1 - cloudProgress);
+            this.cloud1.setAlpha(1 - Math.min(1, progress * 1.34));
 
              this.cloud2.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale,Math.min(1, progress * 1.39) )
             );
 
-            this.cloud2.setAlpha(1 - cloudProgress);
+            this.cloud2.setAlpha(1 - Math.min(1, progress * 1.39));
 
              this.cloud3.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.46))
             );
 
-            this.cloud3.setAlpha(1 - cloudProgress);
-
-             /*this.cloud4.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
-            );
-
-            this.cloud4.setAlpha(1 - cloudProgress);*/
+            this.cloud3.setAlpha(1 - Math.min(1, progress * 1.46));
         },
         onComplete: () => {
             stage = 'stage1';
