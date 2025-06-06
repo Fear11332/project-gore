@@ -82,7 +82,7 @@ function create() {
             .setDepth(200);  // повыше облаков (у них 100)
 
     // Скорости для каждого слоя (чем дальше — тем медленнее)
-    this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
+    this.cloudSpeeds = [0.04, 0.07, 0.1];
      
     // Добавляем одно изображение
     this.cross = this.add.image(screenW / 2, screenH / 2, 'cross')
@@ -340,7 +340,7 @@ function create() {
 }
 
 function diveThroughCloudsAnimation() {
-    const duration = 1800;
+    const duration = 2900;
     const currentTextScale = this.enterToStage1.scaleX;
     const targetTextScale = currentTextScale * 2;
 
@@ -357,27 +357,27 @@ function diveThroughCloudsAnimation() {
 
             // Текст
             this.enterToStage1.setScale(
-                Phaser.Math.Linear(currentTextScale, targetTextScale, Math.min(1, progress * 1.36))
+                Phaser.Math.Linear(currentTextScale, targetTextScale, Math.min(1, progress * 1.16))
             );
-            this.enterToStage1.setAlpha(1 - Math.min(1, progress * 1.36));
+            this.enterToStage1.setAlpha(1 - Math.min(1, progress * 1.16));
 
             this.cloud1.setScale(
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.2))
+            );
+
+            this.cloud1.setAlpha(1 - Math.min(1, progress * 1.2));
+
+             this.cloud2.setScale(
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale,Math.min(1, progress * 1.5) )
+            );
+
+            this.cloud2.setAlpha(1 - Math.min(1, progress * 1.5));
+
+             this.cloud3.setScale(
                 Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.10))
             );
 
-            this.cloud1.setAlpha(1 - Math.min(1, progress * 1.10));
-
-             this.cloud2.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale,Math.min(1, progress * 1.19) )
-            );
-
-            this.cloud2.setAlpha(1 - Math.min(1, progress * 1.19));
-
-             this.cloud3.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.26))
-            );
-
-            this.cloud3.setAlpha(1 - Math.min(1, progress * 1.26));
+            this.cloud3.setAlpha(1 - Math.min(1, progress * 1.10));
         },
         onComplete: () => {
             stage = 'stage1';
@@ -385,6 +385,10 @@ function diveThroughCloudsAnimation() {
         }
     });
 }
+
+
+
+
 
 
 
