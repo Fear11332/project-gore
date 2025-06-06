@@ -34,6 +34,45 @@ function preload() {
     this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
 }
 
+
+const logger = document.createElement('div');
+logger.style.position = 'fixed';
+logger.style.top = '50%';
+logger.style.left = '50%';
+logger.style.transform = 'translate(-50%, -50%)';
+logger.style.zIndex = '9999';
+logger.style.background = 'rgba(0, 0, 0, 0.8)';
+logger.style.color = 'white';
+logger.style.padding = '20px';
+logger.style.maxHeight = '300px';
+logger.style.overflowY = 'auto';
+logger.style.fontSize = '14px';
+logger.style.fontFamily = 'monospace';
+logger.style.borderRadius = '8px';
+logger.style.whiteSpace = 'pre-wrap';
+document.body.appendChild(logger);
+
+console.log = function (...args) {
+  const message = args.map(a => {
+    try {
+      return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
+    } catch (e) {
+      return '[Unserializable]';
+    }
+  }).join(' ');
+  logger.innerText += message + '\n';
+};
+
+// Пример логгера
+window.onerror = function(message, source, lineno, colno, error) {
+  alert(`JS Error: ${message} at ${source}:${lineno}:${colno}`);
+};
+
+window.addEventListener('unhandledrejection', function(event) {
+  alert(`Promise rejection: ${event.reason}`);
+});
+
+
 function create() {
     this.isTransitioning = false;
     const texture = this.textures.get('cross').getSourceImage();
@@ -302,7 +341,6 @@ function create() {
         }
     });
 }
-
 
 function diveThroughCloudsAnimation() {
     const duration = 1800;
