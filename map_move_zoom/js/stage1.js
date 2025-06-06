@@ -357,27 +357,27 @@ function diveThroughCloudsAnimation() {
 
             // Текст
             this.enterToStage1.setScale(
-                Phaser.Math.Linear(currentTextScale, targetTextScale, Math.min(1, progress * 1.56))
+                Phaser.Math.Linear(currentTextScale, targetTextScale, Math.min(1, progress * 1.36))
             );
-            this.enterToStage1.setAlpha(1 - Math.min(1, progress * 1.56));
+            this.enterToStage1.setAlpha(1 - Math.min(1, progress * 1.36));
 
             this.cloud1.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.34))
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.10))
             );
 
-            this.cloud1.setAlpha(1 - Math.min(1, progress * 1.34));
+            this.cloud1.setAlpha(1 - Math.min(1, progress * 1.10));
 
              this.cloud2.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale,Math.min(1, progress * 1.39) )
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale,Math.min(1, progress * 1.19) )
             );
 
-            this.cloud2.setAlpha(1 - Math.min(1, progress * 1.39));
+            this.cloud2.setAlpha(1 - Math.min(1, progress * 1.19));
 
              this.cloud3.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.46))
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.26))
             );
 
-            this.cloud3.setAlpha(1 - Math.min(1, progress * 1.46));
+            this.cloud3.setAlpha(1 - Math.min(1, progress * 1.26));
         },
         onComplete: () => {
             stage = 'stage1';
