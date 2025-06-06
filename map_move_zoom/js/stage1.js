@@ -359,7 +359,7 @@ function diveThroughCloudsAnimation() {
             this.enterToStage1.setScale(
                 Phaser.Math.Linear(currentTextScale, targetTextScale, Math.min(1, progress * 1.56))
             );
-            this.enterToStage1.setAlpha(1 - textProgress);
+            this.enterToStage1.setAlpha(1 - Math.min(1, progress * 1.56));
 
             this.cloud1.setScale(
                 Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.34))
