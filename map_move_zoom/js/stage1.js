@@ -324,16 +324,18 @@ function diveThroughCloudsAnimation() {
             const textScale = Phaser.Math.Interpolation.Linear([currentTextScale, currentTextScale * 2], textProgress);
             const textAlpha = 1 - textProgress;
 
-            /*this.enterToStage1.setScale(textScale);
+            this.enterToStage1.setScale(textScale);
             this.enterToStage1.setAlpha(textAlpha);
 
-            this.cloudLayers.forEach((layer, i) => {
-                const layerScale = Phaser.Math.Linear(currentCloudScale, currentCloudScale * 2, progress);
-                const layerAlpha = 1 - progress;
+            this.cloudLayers.forEach(container => {
+                const cloudImage = container.list[0]; // получаем изображение из контейнера
 
-                layer.setScale(layerScale);
-                layer.setAlpha(layerAlpha);
-            });*/
+                const scale = Phaser.Math.Linear(currentCloudScale, currentCloudScale * 2, progress);
+                const alpha = 1 - progress;
+
+                cloudImage.setScale(scale);
+                cloudImage.setAlpha(alpha);
+            });
         },
         onComplete: () => {
             stage = 'stage1';
