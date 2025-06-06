@@ -39,8 +39,8 @@ function preload() {
 
 
 function create() {
-    this.cloudDragStart = null;
-    this.cloudInitialPositions = [];
+    //this.cloudDragStart = null;
+    //this.cloudInitialPositions = [];
     const texture = this.textures.get('cross').getSourceImage();
     const originalWidth = texture.width;
     const originalHeight = texture.height;
@@ -52,7 +52,7 @@ function create() {
     const scaleY = screenH / originalHeight;
     const scale = Math.max(scaleX, scaleY);
 
-    this.cloudLayers = [];
+   /* this.cloudLayers = [];
 
   // Создаем контейнеры для облаков
   for (let i = 0; i < 4; i++) {
@@ -71,7 +71,7 @@ function create() {
         .setDepth(200);  // повыше облаков (у них 100)
 
   // Скорости для каждого слоя (чем дальше — тем медленнее)
-  this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
+  this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];*/
 
      
     // Добавляем одно изображение
@@ -133,7 +133,7 @@ function create() {
 
     this.input.on('pointermove', (pointer) => {
         if (isTransitioning) return;
-        if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
+        /*if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
              // Добавьте объявления переменных здесь, если они отсутствуют
             const mapCenterX = this.cameras.main.centerX; // или другое вычисление
             const mapCenterY = this.cameras.main.centerY;
@@ -159,12 +159,12 @@ function create() {
 
                 this.cloudLayers[i].x = newX;
                 this.cloudLayers[i].y = newY;
-            }
-        }else{
-            if(stage==='stage0') return;
-               /* const key = getHoveredImageKey(pointer);
+            }*/
+        //}else{
+            //if(stage==='stage0') return;
+                const key = getHoveredImageKey(pointer);
                 if (!key) {
-                    //toogleZoomOut();
+                    toogleZoomOut();
                     return;
                 }
 
@@ -183,8 +183,8 @@ function create() {
                     } else {
                         toogleZoomOut.call(this);
                     }
-                }*/
-            }
+                }
+           // }
     });
            
     // 4. Центрируем при изменении размера окна
@@ -199,7 +199,7 @@ function create() {
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
 
-        this.cloudLayers.forEach((layer, index) => {
+       /* this.cloudLayers.forEach((layer, index) => {
         layer.list.forEach(child => {
             child.setDisplaySize(originalWidth * scale, originalHeight * scale);
         });
@@ -216,7 +216,7 @@ function create() {
         });
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
-        this.enterToStage1.setPosition(screenW / 2, screenH / 2);
+        this.enterToStage1.setPosition(screenW / 2, screenH / 2);*/
 
         imageKeys.forEach((key, index) => {
             hoveredImages[index + 1].setDisplaySize(originalWidth * scale, originalHeight * scale);
@@ -236,7 +236,7 @@ function create() {
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
         if (isTransitioning) return;
-        if(stage==='stage1'){
+       // if(stage==='stage1'){
             if(showStage2){
                 if (!stageThreeIsOpen && !constructorIsOpen) {
                     closeStage2();
@@ -267,7 +267,7 @@ function create() {
                     }
                 }
             }
-        }else{
+        /*}else{
              // Рассчитываем локальные координаты клика внутри картинки
             const localX = pointer.x - (this.enterToStage1.x - this.enterToStage1.displayWidth / 2);
             const localY = pointer.y - (this.enterToStage1.y - this.enterToStage1.displayHeight / 2);
@@ -285,21 +285,21 @@ function create() {
             if(alpha > 0){
                 // Запускаем анимацию облаков
                 isTransitioning = true;
-                diveThroughCloudsAnimation.call(this);
+                //diveThroughCloudsAnimation.call(this);
             }else{
-                this.cloudDragStart = { x: pointer.x, y: pointer.y };
-                this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
+                //this.cloudDragStart = { x: pointer.x, y: pointer.y };
+                //this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
             }
-        }
+        }*/
     });
 
     this.input.on('pointerup', (pointer) => {
         if (isTransitioning) return;
         if(stage==='stage1'){
-            //toogleZoomOut();
+            toogleZoomOut();
         }else{
-            this.cloudDragStart = null;
-            this.cloudInitialPositions = [];
+            //this.cloudDragStart = null;
+            //this.cloudInitialPositions = [];
         }
     });
 }
