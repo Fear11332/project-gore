@@ -200,24 +200,24 @@ function create() {
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
 
-        // Обновляем каждое облако
         this.cloudLayers.forEach((cloud, index) => {
-        cloud.setDisplaySize(originalWidth * scale, originalHeight * scale);
+            cloud.setDisplaySize(originalWidth * scale, originalHeight * scale);
 
-        // Плавно перемещаем в центр
-        this.tweens.add({
-            targets: cloud,
-            x: screenW / 2,
-            y: screenH / 2,
-            ease: 'Power2',
-            duration: 1000,
-            delay: index * 50 // небольшая задержка между слоями
+            // Плавно перемещаем в центр
+            this.tweens.add({
+                targets: cloud,
+                x: screenW / 2,
+                y: screenH / 2,
+                ease: 'Power2',
+                duration: 1000,
+                delay: index * 50 // небольшая задержка между слоями
+            });
+
+            // Обновляем позицию в cloudInitialPositions, если используешь перемещение
+            if (this.cloudInitialPositions && this.cloudInitialPositions[index]) {
+                this.cloudInitialPositions[index] = { x: screenW / 2, y: screenH / 2 };
+            }
         });
-
-        // Обновляем позицию в cloudInitialPositions, если используешь перемещение
-        if (this.cloudInitialPositions && this.cloudInitialPositions[index]) {
-            this.cloudInitialPositions[index] = { x: screenW / 2, y: screenH / 2 };
-        }
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
@@ -308,7 +308,7 @@ function create() {
     });
 }
 
-function diveThroughCloudsAnimation() {
+function diveThroughCloudsAnimation(){
     const duration = 1800;
     const currentTextScale = this.enterToStage1.scaleX;
     const currentCloudScale = this.cloudLayers[0].scaleX;
