@@ -31,9 +31,9 @@ function preload() {
     this.load.image('a3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A3_1_02.webp');
     this.load.image('a4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A4_1_02.webp');
     this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
-    //this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
-    //this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
-    //this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
+    this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
+    this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
+    this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
     this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
 }
 
@@ -61,6 +61,21 @@ function create() {
     }*/
 
     this.cloud1 = this.add.image(screenW/2, screenH/2, 'cloud1')
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setDepth(100);  // повыше облаков (у них 100)
+
+        this.cloud2 = this.add.image(screenW/2, screenH/2, 'cloud2')
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setDepth(100);  // повыше облаков (у них 100)
+
+        this.cloud3 = this.add.image(screenW/2, screenH/2, 'cloud3')
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setDepth(100);  // повыше облаков (у них 100)
+
+        this.cloud4 = this.add.image(screenW/2, screenH/2, 'cloud4')
             .setOrigin(0.5)
             .setScale(scale)
             .setDepth(100);  // повыше облаков (у них 100)
@@ -222,6 +237,15 @@ function create() {
        this.cloud1.setDisplaySize(originalWidth*scale, originalHeight*scale);
        this.cloud1.setPosition(screenW/2,screenH/2);
 
+        this.cloud2.setDisplaySize(originalWidth*scale, originalHeight*scale);
+       this.cloud2.setPosition(screenW/2,screenH/2);
+
+        this.cloud3.setDisplaySize(originalWidth*scale, originalHeight*scale);
+       this.cloud3.setPosition(screenW/2,screenH/2);
+
+        this.cloud4.setDisplaySize(originalWidth*scale, originalHeight*scale);
+       this.cloud4.setPosition(screenW/2,screenH/2);
+
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
 
@@ -349,18 +373,23 @@ function diveThroughCloudsAnimation() {
 
             this.cloud1.setAlpha(1 - cloudProgress);
 
-            // Облака
-            /*this.cloud1.setScale(Phaser.Math.Linear(cloud1CurrentScale, cloud1TargetScale, textProgress));
-            this.cloud1.setAlpha(1 - textProgress);
+             this.cloud2.setScale(
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
+            );
 
-            this.cloud2.setScale(Phaser.Math.Linear(cloud2CurrentScale, cloud2TargetScale, textProgress));
-            this.cloud2.setAlpha(1 - textProgress);
+            this.cloud2.setAlpha(1 - cloudProgress);
 
-            this.cloud3.setScale(Phaser.Math.Linear(cloud3CurrentScale, cloud3TargetScale, textProgress));
-            this.cloud3.setAlpha(1 - textProgress);
+             this.cloud3.setScale(
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
+            );
 
-            this.cloud4.setScale(Phaser.Math.Linear(cloud4CurrentScale, cloud4TargetScale, textProgress));
-            this.cloud4.setAlpha(1 - textProgress);*/
+            this.cloud3.setAlpha(1 - cloudProgress);
+
+             this.cloud4.setScale(
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
+            );
+
+            this.cloud4.setAlpha(1 - cloudProgress);
         },
         onComplete: () => {
             stage = 'stage1';
