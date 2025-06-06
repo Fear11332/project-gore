@@ -60,7 +60,7 @@ function create() {
             .setOrigin(0.5)
             .setScale(scale)
             .setAlpha(1)
-            .setDepth(100 + i);
+            .setDepth(100);
 
         this.cloudLayers.push(cloud);
         this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
@@ -73,7 +73,6 @@ function create() {
 
     // Скорости для каждого слоя (чем дальше — тем медленнее)
     this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
-
      
     // Добавляем одно изображение
     this.cross = this.add.image(screenW / 2, screenH / 2, 'cross')
@@ -201,21 +200,24 @@ function create() {
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
 
-        this.cloudLayers.forEach((layer, index) => {
-        layer.list.forEach(child => {
-            child.setDisplaySize(originalWidth * scale, originalHeight * scale);
+        // Обновляем каждое облако
+        this.cloudLayers.forEach((cloud, index) => {
+        cloud.setDisplaySize(originalWidth * scale, originalHeight * scale);
+
+        // Плавно перемещаем в центр
+        this.tweens.add({
+            targets: cloud,
+            x: screenW / 2,
+            y: screenH / 2,
+            ease: 'Power2',
+            duration: 1000,
+            delay: index * 50 // небольшая задержка между слоями
         });
 
-        // Создаем tween для плавного перемещения контейнера в центр
-        this.tweens.add({
-                targets: layer,
-                x: screenW / 2,
-                y: screenH / 2,
-                ease: 'Power2',
-                duration: 1000,
-                delay: index *50 // можно добавить небольшую задержку между слоями
-            });
-        });
+        // Обновляем позицию в cloudInitialPositions, если используешь перемещение
+        if (this.cloudInitialPositions && this.cloudInitialPositions[index]) {
+            this.cloudInitialPositions[index] = { x: screenW / 2, y: screenH / 2 };
+        }
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
