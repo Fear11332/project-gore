@@ -53,17 +53,19 @@ function create() {
     const scale = Math.max(scaleX, scaleY);
 
     this.cloudLayers = [];
+    this.cloudInitialPositions = [];
 
-    // Создаем контейнеры для облаков
     for (let i = 0; i < 4; i++) {
-        let container = this.add.container(0, 0);
-        // Добавляем облако (здесь просто placeholder)
-        container.add(this.add.image(0, 0, `cloud${i+1}`).setOrigin(0.5, 0.5).setScale(scale));
-        container.setPosition(screenW / 2, screenH / 2); // Центрируем контейнер
-        this.cloudLayers.push(container);
+        const cloud = this.add.image(screenW / 2, screenH / 2, `cloud${i + 1}`)
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setAlpha(1)
+            .setDepth(100 + i);
+
+        this.cloudLayers.push(cloud);
+        this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
     }
 
-    this.cloudLayers.forEach(layer => layer.setDepth(100));
 
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
@@ -134,8 +136,7 @@ function create() {
     this.input.on('pointermove', (pointer) => {
         if (isTransitioning) return;
         if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
-             // Добавьте объявления переменных здесь, если они отсутствуют
-            const mapCenterX = this.cameras.main.centerX; // или другое вычисление
+            const mapCenterX = this.cameras.main.centerX;
             const mapCenterY = this.cameras.main.centerY;
             const mapWidth = this.cameras.main.width;
             const mapHeight = this.cameras.main.height;
@@ -143,22 +144,24 @@ function create() {
             const dx = pointer.x - this.cloudDragStart.x;
             const dy = pointer.y - this.cloudDragStart.y;
 
-            const boundaryFactor = 0.5; // уменьшаем зону перемещения облаков в 2 раза
+            const boundaryFactor = 0.5;
 
             const leftBound = mapCenterX - (mapWidth / 2) * boundaryFactor;
             const rightBound = mapCenterX + (mapWidth / 2) * boundaryFactor;
             const topBound = mapCenterY - (mapHeight / 2) * boundaryFactor;
             const bottomBound = mapCenterY + (mapHeight / 2) * boundaryFactor;
 
-            for(let i = 0; i < this.cloudLayers.length; i++){
-                let newX = this.cloudInitialPositions[i].x + dx * this.cloudSpeeds[i];
-                let newY = this.cloudInitialPositions[i].y + dy * this.cloudSpeeds[i];
+            for (let i = 0; i < this.cloudLayers.length; i++) {
+                const baseX = this.cloudInitialPositions[i].x;
+                const baseY = this.cloudInitialPositions[i].y;
+
+                let newX = baseX + dx * this.cloudSpeeds[i];
+                let newY = baseY + dy * this.cloudSpeeds[i];
 
                 newX = Phaser.Math.Clamp(newX, leftBound, rightBound);
                 newY = Phaser.Math.Clamp(newY, topBound, bottomBound);
 
-                this.cloudLayers[i].x = newX;
-                this.cloudLayers[i].y = newY;
+                this.cloudLayers[i].setPosition(newX, newY);
             }
         }else{
             if(stage==='stage0') return;
@@ -322,14 +325,14 @@ function diveThroughCloudsAnimation() {
             scale = Phaser.Math.Interpolation.Linear([currentTextScale, currentTextScale * 2], progress);
             alpha = 1 - progress;
 
-            this.enterToStage1.setScale(scale);
+            /*this.enterToStage1.setScale(scale);
             this.enterToStage1.setAlpha(alpha);
 
             this.cloudLayers.forEach(container => {
                 const cloudImage = container.list[0]; // получаем изображение из контейнера
                 cloudImage.setScale(scale);
                 cloudImage.setAlpha(alpha);
-            });
+            });*/
         },
         onComplete: () => {
             stage = 'stage1';
