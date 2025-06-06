@@ -260,7 +260,7 @@ function create() {
 
             if (alpha > 0) {
                 if(!showStage2){
-                    //toogleZoomIn.call(this, image);
+                    toogleZoomIn.call(this, image);
                     if(key==='a2'){
                         showStage2 = true;
                         openStage2();
@@ -307,8 +307,8 @@ function create() {
 function diveThroughCloudsAnimation() {
     const duration = 1800;
 
-   // const currentScale = this.cloudLayers[0].scaleX;
     const currentTextScale = this.enterToStage1.scaleX;
+    const currentCloudScale = this.cloudLayers[0].scaleX;
 
     this.tweens.addCounter({
         from: currentTextScale,
@@ -327,9 +327,12 @@ function diveThroughCloudsAnimation() {
             this.enterToStage1.setScale(textScale);
             this.enterToStage1.setAlpha(textAlpha);
 
-            this.cloudLayers.forEach(layer => {
-                layer.setScale(textScale);
-                layer.setAlpha(textAlpha);
+            this.cloudLayers.forEach((layer, i) => {
+                const layerScale = Phaser.Math.Linear(currentCloudScale, currentCloudScale * 2, progress);
+                const layerAlpha = 1 - progress;
+
+                layer.setScale(layerScale);
+                layer.setAlpha(layerAlpha);
             });
         },
         onComplete: () => {
