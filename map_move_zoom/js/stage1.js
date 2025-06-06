@@ -261,10 +261,10 @@ function create() {
             if (alpha > 0) {
                 if(!showStage2){
                     //toogleZoomIn.call(this, image);
-                    if(key==='a1'){
+                    //if(key==='a1'){
                         //showStage2 = true;
                         //openStage2();
-                    }
+                    //}
                 }
             }
         }else{
