@@ -66,7 +66,6 @@ function create() {
         this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
     }
 
-
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
             .setScale(scale)
@@ -309,30 +308,35 @@ function create() {
 
 function diveThroughCloudsAnimation() {
     const duration = 1800;
-
     const currentTextScale = this.enterToStage1.scaleX;
     const currentCloudScale = this.cloudLayers[0].scaleX;
-    let progress,scale,alpha;
+    const targetTextScale = currentTextScale * 2;
+    const targetCloudScale = currentCloudScale * 2;
+
     this.tweens.addCounter({
-        from: currentCloudScale,
-        to: currentCloudScale * 2,
-        duration: duration,
+        from: 0,
+        to: 1,
+        duration,
         ease: 'Power1.easeInOut',
-        onUpdate: (tween) => {
-            // Немного быстрее прогресс для текста
-            progress = Math.min(1, tween.progress * 1.56);
+        onUpdate: tween => {
+            const progress = tween.getValue();
+            const textProgress = Math.min(1, progress * 1.56);
 
-            scale = Phaser.Math.Interpolation.Linear([currentTextScale, currentTextScale * 2], progress);
-            alpha = 1 - progress;
+            // Текст
+            this.enterToStage1.setScale(
+                Phaser.Math.Linear(currentTextScale, targetTextScale, textProgress)
+            );
+            this.enterToStage1.setAlpha(1 - textProgress);
 
-            /*this.enterToStage1.setScale(scale);
-            this.enterToStage1.setAlpha(alpha);
+            // Облака
+            const cloudScale = Phaser.Math.Linear(currentCloudScale, targetCloudScale, progress);
+            const cloudAlpha = 1 - progress;
 
-            this.cloudLayers.forEach(container => {
-                const cloudImage = container.list[0]; // получаем изображение из контейнера
-                cloudImage.setScale(scale);
-                cloudImage.setAlpha(alpha);
-            });*/
+            for (let i = 0; i < this.cloudLayers.length; i++) {
+                const cloud = this.cloudLayers[i];
+                cloud.setScale(cloudScale);
+                cloud.setAlpha(cloudAlpha);
+            }
         },
         onComplete: () => {
             stage = 'stage1';
@@ -340,6 +344,7 @@ function diveThroughCloudsAnimation() {
         }
     });
 }
+
 
 
 
