@@ -52,7 +52,7 @@ function create() {
     const scaleY = screenH / originalHeight;
     const scale = Math.max(scaleX, scaleY);
 
-    this.cloudLayers = [];
+    /*this.cloudLayers = [];
 
     // Создаем контейнеры для облаков
     for (let i = 0; i < 4; i++) {
@@ -63,7 +63,7 @@ function create() {
         this.cloudLayers.push(container);
     }
 
-    this.cloudLayers.forEach(layer => layer.setDepth(100));
+    this.cloudLayers.forEach(layer => layer.setDepth(100));*/
 
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
@@ -321,10 +321,10 @@ function diveThroughCloudsAnimation() {
             /*const value = Phaser.Math.Interpolation.Linear([currentScale, currentScale * 2], progress);
             const alpha = 1 - progress;
             */
-            this.cloudLayers.forEach(layer => {
+            /*this.cloudLayers.forEach(layer => {
                 layer.setScale(0);
                 layer.setAlpha(0);
-            });
+            });*/
 
 
             // Немного быстрее прогресс для текста
