@@ -20,6 +20,8 @@ let stage  = 'stage0';
 let initialScaleX = null;
 let initialScaleY = null;
 let currentImage = null;
+const imageKeys = ['a1', 'a2', 'a3', 'a4'];
+const hoveredImages = {};
 
 function preload() { 
     this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
@@ -77,8 +79,6 @@ function create() {
         .setOrigin(0.5)
         .setScale(scale)
         .setScrollFactor(0);
-    const imageKeys = ['a1', 'a2', 'a3', 'a4'];
-    const hoveredImages = {};
 
     // начинаем с индекса 1 (если это важно)
     imageKeys.forEach((key, index) => {
@@ -90,7 +90,6 @@ function create() {
 
     initialScaleX = hoveredImages[1].scaleX;
     initialScaleY = hoveredImages[1].scaleY;
-    currentImage = null;
 
    const toogleZoomIn = (image) => {
         if (!initialScaleX) initialScaleX = image.scaleX;
@@ -165,7 +164,7 @@ function create() {
             if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
                 if (!key) {
-                    toogleZoomOut();
+                    //toogleZoomOut();
                     return;
                 }
 
@@ -180,9 +179,9 @@ function create() {
                 const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
                 if(!showStage2){
                     if (alpha > 0 ) {
-                        toogleZoomIn.call(this, image);
+                        //toogleZoomIn.call(this, image);
                     } else {
-                        toogleZoomOut.call(this);
+                        //toogleZoomOut.call(this);
                     }
                 }
             }
@@ -240,7 +239,7 @@ function create() {
         if(stage==='stage1'){
             if(showStage2){
                 if (!stageThreeIsOpen && !constructorIsOpen) {
-                   // closeStage2();
+                    closeStage2();
                     showStage2 = false;
                 }
                 return;
@@ -259,15 +258,15 @@ function create() {
 
             const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
-           /* if (alpha > 0) {
+            if (alpha > 0) {
                 if(!showStage2){
-                    toogleZoomIn.call(this, image);
+                    //toogleZoomIn.call(this, image);
                     if(key==='a2'){
-                        //showStage2 = true;
-                        //openStage2();
+                        showStage2 = true;
+                        openStage2();
                     }
                 }
-            }*/
+            }
         }else{
              // Рассчитываем локальные координаты клика внутри картинки
             const localX = pointer.x - (this.enterToStage1.x - this.enterToStage1.displayWidth / 2);
