@@ -285,7 +285,7 @@ function create() {
 
             if(alpha > 0){
                 // Запускаем анимацию облаков
-                this.isTransitioning = true;
+                isTransitioning = true;
                 diveThroughCloudsAnimation.call(this);
             }else{
                 //this.cloudDragStart = { x: pointer.x, y: pointer.y };
