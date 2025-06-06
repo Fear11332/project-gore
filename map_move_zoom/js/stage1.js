@@ -318,15 +318,6 @@ function diveThroughCloudsAnimation() {
         onUpdate: (tween) => {
             const progress = tween.progress;
 
-            /*const value = Phaser.Math.Interpolation.Linear([currentScale, currentScale * 2], progress);
-            const alpha = 1 - progress;
-            */
-            /*this.cloudLayers.forEach(layer => {
-                layer.setScale(0);
-                layer.setAlpha(0);
-            });*/
-
-
             // Немного быстрее прогресс для текста
             const textProgress = Math.min(1, progress * 1.56);
 
@@ -335,6 +326,11 @@ function diveThroughCloudsAnimation() {
 
             this.enterToStage1.setScale(textScale);
             this.enterToStage1.setAlpha(textAlpha);
+
+            this.cloudLayers.forEach(layer => {
+                layer.setScale(textScale);
+                layer.setAlpha(textAlpha);
+            });
         },
         onComplete: () => {
             stage = 'stage1';
