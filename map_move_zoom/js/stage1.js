@@ -30,11 +30,11 @@ function preload() {
     this.load.image('a1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A1_1_01.webp');
     this.load.image('a3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A3_1_02.webp');
     this.load.image('a4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A4_1_02.webp');
-    this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
-    this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
-    this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
-    this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
-    this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
+    //this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
+    //this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
+    //this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
+    //this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
+    //this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
 }
 
 
@@ -58,7 +58,7 @@ function create() {
             .setScale(scale)
             .setDepth(100);
             this.cloudInitialPositions.push({ x: this[`cloud${i}`].x, y: this[`cloud${i}`].y });
-    }*/
+    }
 
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
@@ -66,7 +66,7 @@ function create() {
             .setDepth(200);  // повыше облаков (у них 100)
 
     // Скорости для каждого слоя (чем дальше — тем медленнее)
-    //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
+    //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];*/
      
     // Добавляем одно изображение
     this.cross = this.add.image(screenW / 2, screenH / 2, 'cross')
@@ -156,7 +156,7 @@ function create() {
                 this[`cloud${i}`].setPosition(newX, newY);
             }
         }else{*/
-            if(stage==='stage0') return;
+           // if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
                 if (!key) {
                     toogleZoomOut();
@@ -215,8 +215,8 @@ function create() {
             }
         }*/
 
-        this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
-        this.enterToStage1.setPosition(screenW / 2, screenH / 2);
+        //this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
+        //this.enterToStage1.setPosition(screenW / 2, screenH / 2);
 
         imageKeys.forEach((key, index) => {
             hoveredImages[index + 1].setDisplaySize(originalWidth * scale, originalHeight * scale);
@@ -236,7 +236,7 @@ function create() {
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
         if (isTransitioning) return;
-        if(stage==='stage1'){
+        //if(stage==='stage1'){
             if(showStage2){
                 if (!stageThreeIsOpen && !constructorIsOpen) {
                     closeStage2();
@@ -267,7 +267,7 @@ function create() {
                     }
                 }
             }
-        }else{
+       /* }else{
              // Рассчитываем локальные координаты клика внутри картинки
             const localX = pointer.x - (this.enterToStage1.x - this.enterToStage1.displayWidth / 2);
             const localY = pointer.y - (this.enterToStage1.y - this.enterToStage1.displayHeight / 2);
@@ -285,7 +285,7 @@ function create() {
             if(alpha > 0){
                 // Запускаем анимацию облаков
                 isTransitioning = true;
-                diveThroughCloudsAnimation.call(this);
+                //diveThroughCloudsAnimation.call(this);
             }else{
                  /*this.cloudDragStart = { x: pointer.x, y: pointer.y };
                 // Записываем начальные позиции облаков из переменных cloud1..cloud4
@@ -295,19 +295,19 @@ function create() {
                     if(cloud){
                         this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
                     }
-                }*/
+                }
             }
-        }
+        }*/
     });
 
     this.input.on('pointerup', (pointer) => {
         if (isTransitioning) return;
-        if(stage==='stage1'){
+        //if(stage==='stage1'){
             toogleZoomOut();
-        }else{
+        //}else{
             //this.cloudDragStart = null;
             //this.cloudInitialPositions = [];
-        }
+        //}
     });
 }
 
