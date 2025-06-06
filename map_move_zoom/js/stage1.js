@@ -63,22 +63,22 @@ function create() {
     this.cloud1 = this.add.image(screenW/2, screenH/2, 'cloud1')
             .setOrigin(0.5)
             .setScale(scale)
-            .setDepth(100);  // повыше облаков (у них 100)
+            .setDepth(101);  // повыше облаков (у них 100)
 
         this.cloud2 = this.add.image(screenW/2, screenH/2, 'cloud2')
             .setOrigin(0.5)
             .setScale(scale)
-            .setDepth(100);  // повыше облаков (у них 100)
+            .setDepth(102);  // повыше облаков (у них 100)
 
         this.cloud3 = this.add.image(screenW/2, screenH/2, 'cloud3')
             .setOrigin(0.5)
             .setScale(scale)
-            .setDepth(100);  // повыше облаков (у них 100)
+            .setDepth(103);  // повыше облаков (у них 100)
 
-        this.cloud4 = this.add.image(screenW/2, screenH/2, 'cloud4')
+       this.cloud4 = this.add.image(screenW/2, screenH/2, 'cloud4')
             .setOrigin(0.5)
             .setScale(scale)
-            .setDepth(100);  // повыше облаков (у них 100)
+            .setDepth(104);  // повыше облаков (у них 100)*/
 
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
