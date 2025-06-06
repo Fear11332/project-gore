@@ -324,7 +324,7 @@ function diveThroughCloudsAnimation() {
             const textScale = Phaser.Math.Interpolation.Linear([currentTextScale, currentTextScale * 2], textProgress);
             const textAlpha = 1 - textProgress;
 
-            this.enterToStage1.setScale(textScale);
+            /*this.enterToStage1.setScale(textScale);
             this.enterToStage1.setAlpha(textAlpha);
 
             this.cloudLayers.forEach((layer, i) => {
@@ -333,7 +333,7 @@ function diveThroughCloudsAnimation() {
 
                 layer.setScale(layerScale);
                 layer.setAlpha(layerAlpha);
-            });
+            });*/
         },
         onComplete: () => {
             stage = 'stage1';
