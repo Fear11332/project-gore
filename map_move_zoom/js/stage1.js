@@ -35,31 +35,6 @@ function preload() {
 }
 
 
-// Поймать любые глобальные ошибки
-window.onerror = function (message, source, lineno, colno, error) {
-  alert(`[JS Error]\n${message}\nFile: ${source}\nLine: ${lineno}:${colno}\n${error?.stack || ''}`);
-};
-
-// Поймать ошибки в промисах (async/await и т.п.)
-window.onunhandledrejection = function (event) {
-  const reason = event.reason;
-  alert(`[Unhandled Promise Rejection]\n${reason?.message || reason}\n${reason?.stack || ''}`);
-};
-
-// Переопределим console.error (на всякий)
-const origConsoleError = console.error;
-console.error = function (...args) {
-  alert(`[console.error]\n` + args.map(a => {
-    try {
-      return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
-    } catch {
-      return '[Unserializable]';
-    }
-  }).join(' '));
-  origConsoleError.apply(console, args);
-};
-
-
 
 function create() {
     this.isTransitioning = false;
@@ -188,29 +163,29 @@ function create() {
             }*/
         }else{
             if(stage==='stage0') return;
-            const key = getHoveredImageKey(pointer);
-            if (!key) {
-                toogleZoomOut();
-                return;
-            }
+                const key = getHoveredImageKey(pointer);
+                if (!key) {
+                    toogleZoomOut();
+                    return;
+                }
 
-            const image = hoveredImages[Number(key.slice(1))];
+                const image = hoveredImages[Number(key.slice(1))];
 
-            const localX = pointer.x - (image.x - image.displayWidth / 2);
-            const localY = pointer.y - (image.y - image.displayHeight / 2);
-            const frame = this.textures.get(image.texture.key).getSourceImage();
-            const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
-            const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
+                const localX = pointer.x - (image.x - image.displayWidth / 2);
+                const localY = pointer.y - (image.y - image.displayHeight / 2);
+                const frame = this.textures.get(image.texture.key).getSourceImage();
+                const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
+                const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
 
-            const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
-            if(!showStage2){
-                if (alpha > 0 ) {
-                    toogleZoomIn.call(this, image);
-                } else {
-                    toogleZoomOut.call(this);
+                const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
+                if(!showStage2){
+                    if (alpha > 0 ) {
+                        toogleZoomIn.call(this, image);
+                    } else {
+                        toogleZoomOut.call(this);
+                    }
                 }
             }
-        }
     });
            
     // 4. Центрируем при изменении размера окна
@@ -265,7 +240,7 @@ function create() {
         if(stage==='stage1'){
             if(showStage2){
                 if (!stageThreeIsOpen && !constructorIsOpen) {
-                    closeStage2();
+                   // closeStage2();
                     showStage2 = false;
                 }
                 return;
