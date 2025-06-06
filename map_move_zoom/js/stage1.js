@@ -39,8 +39,8 @@ function preload() {
 
 
 function create() {
-    //this.cloudDragStart = null;
-    //this.cloudInitialPositions = [];
+    this.cloudDragStart = null;
+    this.cloudInitialPositions = [];
     const texture = this.textures.get('cross').getSourceImage();
     const originalWidth = texture.width;
     const originalHeight = texture.height;
@@ -71,7 +71,7 @@ function create() {
             .setDepth(200);  // повыше облаков (у них 100)
 
     // Скорости для каждого слоя (чем дальше — тем медленнее)
-    //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
+    this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
 
      
     // Добавляем одно изображение
@@ -133,7 +133,7 @@ function create() {
 
     this.input.on('pointermove', (pointer) => {
         if (isTransitioning) return;
-        /*if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
+        if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
              // Добавьте объявления переменных здесь, если они отсутствуют
             const mapCenterX = this.cameras.main.centerX; // или другое вычисление
             const mapCenterY = this.cameras.main.centerY;
@@ -159,8 +159,8 @@ function create() {
 
                 this.cloudLayers[i].x = newX;
                 this.cloudLayers[i].y = newY;
-            }*/
-        //}else{
+            }
+        }else{
             if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
                 if (!key) {
@@ -184,7 +184,7 @@ function create() {
                         toogleZoomOut.call(this);
                     }
                 }
-           // }
+           }
     });
            
     // 4. Центрируем при изменении размера окна
@@ -287,8 +287,8 @@ function create() {
                 isTransitioning = true;
                 diveThroughCloudsAnimation.call(this);
             }else{
-                //this.cloudDragStart = { x: pointer.x, y: pointer.y };
-                //this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
+                this.cloudDragStart = { x: pointer.x, y: pointer.y };
+                this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
             }
         }
     });
@@ -298,8 +298,8 @@ function create() {
         if(stage==='stage1'){
             toogleZoomOut();
         }else{
-            //this.cloudDragStart = null;
-            //this.cloudInitialPositions = [];
+            this.cloudDragStart = null;
+            this.cloudInitialPositions = [];
         }
     });
 }
