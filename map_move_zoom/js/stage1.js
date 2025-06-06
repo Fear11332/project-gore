@@ -307,24 +307,24 @@ function create() {
 function diveThroughCloudsAnimation() {
     const duration = 1800;
 
-    const currentScale = this.cloudLayers[0].scaleX;
+    //const currentScale = this.cloudLayers[0].scaleX;
     const currentTextScale = this.enterToStage1.scaleX;
 
     this.tweens.addCounter({
-        from: currentScale,
-        to: currentScale * 2,
+        from: currentTextScale,
+        to: currentTextScale * 2,
         duration: duration,
         ease: 'Power1.easeInOut',
         onUpdate: (tween) => {
             const progress = tween.progress;
 
-            const value = Phaser.Math.Interpolation.Linear([currentScale, currentScale * 2], progress);
-            const alpha = 1 - progress;
+            //const value = Phaser.Math.Interpolation.Linear([currentScale, currentScale * 2], progress);
+            //const alpha = 1 - progress;
 
-            this.cloudLayers.forEach(layer => {
+            /*this.cloudLayers.forEach(layer => {
                 layer.setScale(value);
                 layer.setAlpha(alpha);
-            });
+            });*/
 
             // Немного быстрее прогресс для текста
             const textProgress = Math.min(1, progress * 1.56);
