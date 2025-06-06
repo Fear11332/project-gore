@@ -30,7 +30,7 @@ function preload() {
     this.load.image('a1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A1_1_01.webp');
     this.load.image('a3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A3_1_02.webp');
     this.load.image('a4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A4_1_02.webp');
-    //this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
+    this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
     //this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
     //this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
     //this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
@@ -59,6 +59,11 @@ function create() {
             .setDepth(100);
             this.cloudInitialPositions.push({ x: this[`cloud${i}`].x, y: this[`cloud${i}`].y });
     }*/
+
+    this.cloud1 = this.add.image(screenW/2, screenH/2, 'cloud1')
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setDepth(100);  // повыше облаков (у них 100)
 
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
@@ -214,6 +219,8 @@ function create() {
                 this.cloudInitialPositions[i - 1] = { x: screenW / 2, y: screenH / 2 };
             }
         }*/
+       this.cloud1.setDisplaySize(originalWidth*scale, originalHeight*scale);
+       this.cloud1.setPosition(screenW/2,screenH/2);
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
@@ -317,15 +324,8 @@ function diveThroughCloudsAnimation() {
     const currentTextScale = this.enterToStage1.scaleX;
     const targetTextScale = currentTextScale * 2;
 
-    /*const cloud1CurrentScale = this.cloud1.scaleX;
-    const cloud2CurrentScale = this.cloud2.scaleX;
-    const cloud3CurrentScale = this.cloud3.scaleX;
-    const cloud4CurrentScale = this.cloud4.scaleX;
-
-    const cloud1TargetScale = cloud1CurrentScale * 2;
-    const cloud2TargetScale = cloud2CurrentScale * 2;
-    const cloud3TargetScale = cloud3CurrentScale * 2;
-    const cloud4TargetScale = cloud4CurrentScale * 2;*/
+    const currentCloudScale =this.cloud1.scaleX;
+    const targetCloudScale = currentCloudScale*2;
 
     this.tweens.addCounter({
         from: 0,
@@ -335,12 +335,19 @@ function diveThroughCloudsAnimation() {
         onUpdate: tween => {
             const progress = tween.getValue();
             const textProgress = Math.min(1, progress * 1.56);
+            const cloudProgress = textProgress;
 
             // Текст
             this.enterToStage1.setScale(
                 Phaser.Math.Linear(currentTextScale, targetTextScale, textProgress)
             );
             this.enterToStage1.setAlpha(1 - textProgress);
+
+            this.cloud1.setScale(
+                Phaser.Math.Linear(currentCloudScale, targetCloudScale, cloudProgress)
+            );
+
+            this.cloud1.setAlpha(1 - cloudProgress);
 
             // Облака
             /*this.cloud1.setScale(Phaser.Math.Linear(cloud1CurrentScale, cloud1TargetScale, textProgress));
