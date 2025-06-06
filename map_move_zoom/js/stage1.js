@@ -22,6 +22,7 @@ let initialScaleY = null;
 let currentImage = null;
 const imageKeys = ['a1', 'a2', 'a3', 'a4'];
 const hoveredImages = {};
+let isTransitioning = false;
 
 function preload() { 
     this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
@@ -37,9 +38,9 @@ function preload() {
 }
 
 
-
 function create() {
-    this.isTransitioning = false;
+    this.cloudDragStart = null;
+    this.cloudInitialPositions = [];
     const texture = this.textures.get('cross').getSourceImage();
     const originalWidth = texture.width;
     const originalHeight = texture.height;
@@ -61,7 +62,6 @@ function create() {
     container.setPosition(screenW / 2, screenH / 2); // Центрируем контейнер
     this.cloudLayers.push(container);
   }
-
 
   this.cloudLayers.forEach(layer => layer.setDepth(100));
 
@@ -132,7 +132,7 @@ function create() {
     };
 
     this.input.on('pointermove', pointer => {
-        if (this.isTransitioning) return;
+        if (isTransitioning) return;
         if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
              // Добавьте объявления переменных здесь, если они отсутствуют
            /* const mapCenterX = this.cameras.main.centerX; // или другое вычисление
@@ -164,7 +164,7 @@ function create() {
             if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
                 if (!key) {
-                    //toogleZoomOut();
+                    toogleZoomOut();
                     return;
                 }
 
@@ -179,9 +179,9 @@ function create() {
                 const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
                 if(!showStage2){
                     if (alpha > 0 ) {
-                        //toogleZoomIn.call(this, image);
+                        toogleZoomIn.call(this, image);
                     } else {
-                        //toogleZoomOut.call(this);
+                        toogleZoomOut.call(this);
                     }
                 }
             }
@@ -337,7 +337,7 @@ function diveThroughCloudsAnimation() {
         },
         onComplete: () => {
             stage = 'stage1';
-            this.isTransitioning = false;
+            isTransitioning = false;
         }
     });
 }
