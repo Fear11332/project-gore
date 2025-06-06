@@ -347,7 +347,7 @@ function create() {
 }
 
 function diveThroughCloudsAnimation() {
-    const duration = 2900;
+    const duration = 1900;
     isTransitioning = true;
 
     const easing = 'Sine.easeInOut';
