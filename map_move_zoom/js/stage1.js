@@ -35,42 +35,30 @@ function preload() {
 }
 
 
-const logger = document.createElement('div');
-logger.style.position = 'fixed';
-logger.style.top = '50%';
-logger.style.left = '50%';
-logger.style.transform = 'translate(-50%, -50%)';
-logger.style.zIndex = '9999';
-logger.style.background = 'rgba(0, 0, 0, 0.8)';
-logger.style.color = 'white';
-logger.style.padding = '20px';
-logger.style.maxHeight = '300px';
-logger.style.overflowY = 'auto';
-logger.style.fontSize = '14px';
-logger.style.fontFamily = 'monospace';
-logger.style.borderRadius = '8px';
-logger.style.whiteSpace = 'pre-wrap';
-document.body.appendChild(logger);
+// Поймать любые глобальные ошибки
+window.onerror = function (message, source, lineno, colno, error) {
+  alert(`[JS Error]\n${message}\nFile: ${source}\nLine: ${lineno}:${colno}\n${error?.stack || ''}`);
+};
 
-console.log = function (...args) {
-  const message = args.map(a => {
+// Поймать ошибки в промисах (async/await и т.п.)
+window.onunhandledrejection = function (event) {
+  const reason = event.reason;
+  alert(`[Unhandled Promise Rejection]\n${reason?.message || reason}\n${reason?.stack || ''}`);
+};
+
+// Переопределим console.error (на всякий)
+const origConsoleError = console.error;
+console.error = function (...args) {
+  alert(`[console.error]\n` + args.map(a => {
     try {
       return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
-    } catch (e) {
+    } catch {
       return '[Unserializable]';
     }
-  }).join(' ');
-  logger.innerText += message + '\n';
+  }).join(' '));
+  origConsoleError.apply(console, args);
 };
 
-// Пример логгера
-window.onerror = function(message, source, lineno, colno, error) {
-  alert(`JS Error: ${message} at ${source}:${lineno}:${colno}`);
-};
-
-window.addEventListener('unhandledrejection', function(event) {
-  alert(`Promise rejection: ${event.reason}`);
-});
 
 
 function create() {

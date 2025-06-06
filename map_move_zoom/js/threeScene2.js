@@ -152,7 +152,6 @@ function initThreeScene() {
     const normalMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png');
     const roughnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png');
     const metalnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png');
-    //const color = new THREE.Color(1.5,1.5,1.5); 
 
     // Загружаем FBX модель
     const loader = new FBXLoader();
