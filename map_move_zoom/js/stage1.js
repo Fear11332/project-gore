@@ -235,7 +235,7 @@ function create() {
 
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
-        if (this.isTransitioning) return;
+        if (isTransitioning) return;
         if(stage==='stage1'){
             if(showStage2){
                 if (!stageThreeIsOpen && !constructorIsOpen) {
@@ -294,7 +294,7 @@ function create() {
     });
 
     this.input.on('pointerup', (pointer) => {
-        if (this.isTransitioning) return;
+        if (isTransitioning) return;
         if(stage==='stage1'){
             toogleZoomOut();
         }else{
