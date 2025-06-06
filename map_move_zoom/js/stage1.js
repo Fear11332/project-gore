@@ -262,7 +262,7 @@ function create() {
                     toogleZoomIn.call(this, image);
                     if(key==='a2'){
                         showStage2 = true;
-                        openStage2();
+                        //openStage2();
                     }
                 }
             }
