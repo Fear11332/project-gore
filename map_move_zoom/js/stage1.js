@@ -259,6 +259,7 @@ function create() {
             const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
             if (alpha > 0) {
+               alert('Клик по изображению: ' +key);
                 if(!showStage2){
                     //toogleZoomIn.call(this, image);
                     //if(key==='a1'){
