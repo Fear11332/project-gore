@@ -17,6 +17,9 @@ const game = new Phaser.Game(config);
 let showStage2 = false;
 const stage1 = document.getElementById('stage1');
 let stage  = 'stage0';
+let initialScaleX = null;
+let initialScaleY = null;
+let currentImage = null;
 
 function preload() { 
     this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
@@ -83,9 +86,9 @@ function create() {
             .setScrollFactor(0);
     });
 
-    let initialScaleX = hoveredImages[1].scaleX;
-    let initialScaleY = hoveredImages[1].scaleY;
-    let currentImage = null;
+    initialScaleX = hoveredImages[1].scaleX;
+    initialScaleY = hoveredImages[1].scaleY;
+    currentImage = null;
 
    const toogleZoomIn = (image) => {
         if (!initialScaleX) initialScaleX = image.scaleX;
@@ -130,7 +133,7 @@ function create() {
     this.input.on('pointermove', pointer => {
         if (this.isTransitioning) return;
         if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
-             // Добавьте объявления переменных здесь, если они отсутствуют
+            /* // Добавьте объявления переменных здесь, если они отсутствуют
             const mapCenterX = this.cameras.main.centerX; // или другое вычисление
             const mapCenterY = this.cameras.main.centerY;
             const mapWidth = this.cameras.main.width;
@@ -155,7 +158,7 @@ function create() {
 
                 this.cloudLayers[i].x = newX;
                 this.cloudLayers[i].y = newY;
-            }
+            }*/
         }else{
             if(stage!=='stage1') return;
             const key = getHoveredImageKey(pointer);
@@ -283,8 +286,8 @@ function create() {
                 this.isTransitioning = true;
                 diveThroughCloudsAnimation.call(this);
             }else{
-                this.cloudDragStart = { x: pointer.x, y: pointer.y };
-                this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
+                //this.cloudDragStart = { x: pointer.x, y: pointer.y };
+                //this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
             }
         }
     });
@@ -294,8 +297,8 @@ function create() {
         if(stage==='stage1'){
             toogleZoomOut();
         }else{
-            this.cloudDragStart = null;
-            this.cloudInitialPositions = [];
+            //this.cloudDragStart = null;
+            //this.cloudInitialPositions = [];
         }
     });
 }
