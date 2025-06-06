@@ -160,16 +160,23 @@ function create() {
             const bottomBound = mapCenterY + (mapHeight / 2) * boundaryFactor;
 
             for (let i = 1; i <= 3; i++) {
+                const cloud = this[`cloud${i}`];
                 const baseX = this.cloudInitialPositions[i - 1].x;
                 const baseY = this.cloudInitialPositions[i - 1].y;
 
-                let newX = baseX + dx * this.cloudSpeeds[i - 1];
-                let newY = baseY + dy * this.cloudSpeeds[i - 1];
+                let targetX = baseX + dx * this.cloudSpeeds[i - 1];
+                let targetY = baseY + dy * this.cloudSpeeds[i - 1];
 
-                newX = Phaser.Math.Clamp(newX, leftBound, rightBound);
-                newY = Phaser.Math.Clamp(newY, topBound, bottomBound);
+                targetX = Phaser.Math.Clamp(targetX, leftBound, rightBound);
+                targetY = Phaser.Math.Clamp(targetY, topBound, bottomBound);
 
-                this[`cloud${i}`].setPosition(newX, newY);
+                // Плавное приближение к целевой позиции
+                const lerpFactor = 0.15; // Чем меньше — тем плавнее
+
+                const newX = Phaser.Math.Linear(cloud.x, targetX, lerpFactor);
+                const newY = Phaser.Math.Linear(cloud.y, targetY, lerpFactor);
+
+                cloud.setPosition(newX, newY);
             }
         }else{
             if(stage==='stage0') return;
@@ -341,44 +348,49 @@ function create() {
 
 function diveThroughCloudsAnimation() {
     const duration = 2900;
-    const currentTextScale = this.enterToStage1.scaleX;
-    const targetTextScale = currentTextScale * 2;
+    isTransitioning = true;
 
-    const currentCloudScale =this.cloud1.scaleX;
-    const targetCloudScale = currentCloudScale*2;
+    const easing = 'Sine.easeInOut';
 
-    this.tweens.addCounter({
-        from: 0,
-        to: 1,
-        duration,
-        ease: 'Power1.easeInOut',
-        onUpdate: tween => {
-            const progress = tween.getValue();
+    // Текст
+    this.tweens.add({
+        targets: this.enterToStage1,
+        scaleX: this.enterToStage1.scaleX * 2,
+        scaleY: this.enterToStage1.scaleY * 2,
+        alpha: 0,
+        ease: easing,
+        duration: duration * 0.9, // чуть быстрее
+    });
 
-            // Текст
-            this.enterToStage1.setScale(
-                Phaser.Math.Linear(currentTextScale, targetTextScale, Math.min(1, progress * 1.16))
-            );
-            this.enterToStage1.setAlpha(1 - Math.min(1, progress * 1.16));
+    // Облака (отдельно для каждого — с небольшим отличием в тайминге)
+    this.tweens.add({
+        targets: this.cloud1,
+        scaleX: this.cloud1.scaleX * 2,
+        scaleY: this.cloud1.scaleY * 2,
+        alpha: 0,
+        ease: easing,
+        duration: duration,
+        delay: 0,
+    });
 
-            this.cloud1.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.2))
-            );
+    this.tweens.add({
+        targets: this.cloud2,
+        scaleX: this.cloud2.scaleX * 2,
+        scaleY: this.cloud2.scaleY * 2,
+        alpha: 0,
+        ease: easing,
+        duration: duration * 1.1,
+        delay: 100,
+    });
 
-            this.cloud1.setAlpha(1 - Math.min(1, progress * 1.2));
-
-             this.cloud2.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale,Math.min(1, progress * 1.5) )
-            );
-
-            this.cloud2.setAlpha(1 - Math.min(1, progress * 1.5));
-
-             this.cloud3.setScale(
-                Phaser.Math.Linear(currentCloudScale, targetCloudScale, Math.min(1, progress * 1.10))
-            );
-
-            this.cloud3.setAlpha(1 - Math.min(1, progress * 1.10));
-        },
+    this.tweens.add({
+        targets: this.cloud3,
+        scaleX: this.cloud3.scaleX * 2,
+        scaleY: this.cloud3.scaleY * 2,
+        alpha: 0,
+        ease: easing,
+        duration: duration * 0.95,
+        delay: 200,
         onComplete: () => {
             stage = 'stage1';
             isTransitioning = false;
