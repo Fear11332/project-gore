@@ -311,8 +311,8 @@ function diveThroughCloudsAnimation() {
     const currentCloudScale = this.cloudLayers[0].scaleX;
 
     this.tweens.addCounter({
-        from: currentTextScale,
-        to: currentTextScale * 2,
+        from: currentCloudScale,
+        to: currentCloudScale * 2,
         duration: duration,
         ease: 'Power1.easeInOut',
         onUpdate: (tween) => {
@@ -329,11 +329,9 @@ function diveThroughCloudsAnimation() {
 
             this.cloudLayers.forEach(container => {
                 const cloudImage = container.list[0]; // получаем изображение из контейнера
-
-                const scale = Phaser.Math.Linear(currentCloudScale, currentCloudScale * 2, progress);
+                const value = Phaser.Math.Interpolation.Linear([currentCloudScale, currentCloudScale * 2], progress);
                 const alpha = 1 - progress;
-
-                cloudImage.setScale(scale);
+                cloudImage.setScale(value);
                 cloudImage.setAlpha(alpha);
             });
         },
