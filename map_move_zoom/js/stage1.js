@@ -39,8 +39,8 @@ function preload() {
 
 
 function create() {
-    this.cloudDragStart = null;
-    this.cloudInitialPositions = [];
+    //this.cloudDragStart = null;
+    //this.cloudInitialPositions = [];
     const texture = this.textures.get('cross').getSourceImage();
     const originalWidth = texture.width;
     const originalHeight = texture.height;
@@ -52,13 +52,13 @@ function create() {
     const scaleY = screenH / originalHeight;
     const scale = Math.max(scaleX, scaleY);
 
-    for (let i = 1; i <= 4; i++) {
+    /*for (let i = 1; i <= 4; i++) {
         this[`cloud${i}`] = this.add.image(screenW/2,screenH/2, `cloud${i}`)
             .setOrigin(0.5)
             .setScale(scale)
             .setDepth(100);
             this.cloudInitialPositions.push({ x: this[`cloud${i}`].x, y: this[`cloud${i}`].y });
-    }
+    }*/
 
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
@@ -66,7 +66,7 @@ function create() {
             .setDepth(200);  // повыше облаков (у них 100)
 
     // Скорости для каждого слоя (чем дальше — тем медленнее)
-    this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
+    //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
      
     // Добавляем одно изображение
     this.cross = this.add.image(screenW / 2, screenH / 2, 'cross')
@@ -85,7 +85,7 @@ function create() {
     initialScaleX = hoveredImages[1].scaleX;
     initialScaleY = hoveredImages[1].scaleY;
 
-   const toogleZoomIn = (image) => {
+    const toogleZoomIn = (image) => {
         if (!initialScaleX) initialScaleX = image.scaleX;
         if (!initialScaleY) initialScaleY = image.scaleY;
 
@@ -127,7 +127,7 @@ function create() {
 
     this.input.on('pointermove', (pointer) => {
         if (isTransitioning) return;
-        if(stage === 'stage0'  && this.cloudDragStart && pointer.isDown){
+        /*if(stage === 'stage0'  && this.cloudDragStart && pointer.isDown){
             const mapCenterX = this.cameras.main.centerX;
             const mapCenterY = this.cameras.main.centerY;
             const mapWidth = this.cameras.main.width;
@@ -155,7 +155,7 @@ function create() {
 
                 this[`cloud${i}`].setPosition(newX, newY);
             }
-        }else{
+        }else{*/
             if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
                 if (!key) {
@@ -179,7 +179,7 @@ function create() {
                         toogleZoomOut.call(this);
                     }
                 }
-          }
+         // }
     });
            
     // 4. Центрируем при изменении размера окна
@@ -194,7 +194,7 @@ function create() {
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
 
-        for (let i = 1; i <= 4; i++) {
+        /*for (let i = 1; i <= 4; i++) {
             const cloud = this[`cloud${i}`];
             if (!cloud) continue;
 
@@ -213,7 +213,7 @@ function create() {
             if (this.cloudInitialPositions && this.cloudInitialPositions[i - 1]) {
                 this.cloudInitialPositions[i - 1] = { x: screenW / 2, y: screenH / 2 };
             }
-        }
+        }*/
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
@@ -287,7 +287,7 @@ function create() {
                 isTransitioning = true;
                 diveThroughCloudsAnimation.call(this);
             }else{
-                 this.cloudDragStart = { x: pointer.x, y: pointer.y };
+                 /*this.cloudDragStart = { x: pointer.x, y: pointer.y };
                 // Записываем начальные позиции облаков из переменных cloud1..cloud4
                 this.cloudInitialPositions = [];
                 for(let i = 1; i <= 4; i++){
@@ -295,7 +295,7 @@ function create() {
                     if(cloud){
                         this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
                     }
-                }
+                }*/
             }
         }
     });
@@ -305,8 +305,8 @@ function create() {
         if(stage==='stage1'){
             toogleZoomOut();
         }else{
-            this.cloudDragStart = null;
-            this.cloudInitialPositions = [];
+            //this.cloudDragStart = null;
+            //this.cloudInitialPositions = [];
         }
     });
 }
@@ -316,7 +316,7 @@ function diveThroughCloudsAnimation() {
     const currentTextScale = this.enterToStage1.scaleX;
     const targetTextScale = currentTextScale * 2;
 
-    const cloud1CurrentScale = this.cloud1.scaleX;
+    /*const cloud1CurrentScale = this.cloud1.scaleX;
     const cloud2CurrentScale = this.cloud2.scaleX;
     const cloud3CurrentScale = this.cloud3.scaleX;
     const cloud4CurrentScale = this.cloud4.scaleX;
@@ -324,7 +324,7 @@ function diveThroughCloudsAnimation() {
     const cloud1TargetScale = cloud1CurrentScale * 2;
     const cloud2TargetScale = cloud2CurrentScale * 2;
     const cloud3TargetScale = cloud3CurrentScale * 2;
-    const cloud4TargetScale = cloud4CurrentScale * 2;
+    const cloud4TargetScale = cloud4CurrentScale * 2;*/
 
     this.tweens.addCounter({
         from: 0,
@@ -342,7 +342,7 @@ function diveThroughCloudsAnimation() {
             this.enterToStage1.setAlpha(1 - textProgress);
 
             // Облака
-            this.cloud1.setScale(Phaser.Math.Linear(cloud1CurrentScale, cloud1TargetScale, textProgress));
+            /*this.cloud1.setScale(Phaser.Math.Linear(cloud1CurrentScale, cloud1TargetScale, textProgress));
             this.cloud1.setAlpha(1 - textProgress);
 
             this.cloud2.setScale(Phaser.Math.Linear(cloud2CurrentScale, cloud2TargetScale, textProgress));
@@ -352,7 +352,7 @@ function diveThroughCloudsAnimation() {
             this.cloud3.setAlpha(1 - textProgress);
 
             this.cloud4.setScale(Phaser.Math.Linear(cloud4CurrentScale, cloud4TargetScale, textProgress));
-            this.cloud4.setAlpha(1 - textProgress);
+            this.cloud4.setAlpha(1 - textProgress);*/
         },
         onComplete: () => {
             stage = 'stage1';
