@@ -261,7 +261,7 @@ function create() {
                 if(!showStage2){
                     toogleZoomIn.call(this, image);
                     if(key==='a2'){
-                        showStage2 = true;
+                        //showStage2 = true;
                         //openStage2();
                     }
                 }
