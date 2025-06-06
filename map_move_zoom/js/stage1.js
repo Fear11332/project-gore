@@ -163,7 +163,6 @@ function create() {
         }else{
             if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
-                alert('Клик по изображению: ' +key);
                 if (!key) {
                     //toogleZoomOut();
                     return;
@@ -297,7 +296,7 @@ function create() {
     this.input.on('pointerup', (pointer) => {
         if (isTransitioning) return;
         if(stage==='stage1'){
-            toogleZoomOut();
+            //toogleZoomOut();
         }else{
             //this.cloudDragStart = null;
             //this.cloudInitialPositions = [];
