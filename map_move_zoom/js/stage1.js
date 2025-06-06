@@ -52,26 +52,26 @@ function create() {
     const scaleY = screenH / originalHeight;
     const scale = Math.max(scaleX, scaleY);
 
-   /* this.cloudLayers = [];
+    this.cloudLayers = [];
 
-  // Создаем контейнеры для облаков
-  for (let i = 0; i < 4; i++) {
-    let container = this.add.container(0, 0);
-    // Добавляем облако (здесь просто placeholder)
-    container.add(this.add.image(0, 0, `cloud${i+1}`).setOrigin(0.5, 0.5).setScale(scale));
-    container.setPosition(screenW / 2, screenH / 2); // Центрируем контейнер
-    this.cloudLayers.push(container);
-  }*/
+    // Создаем контейнеры для облаков
+    for (let i = 0; i < 4; i++) {
+        let container = this.add.container(0, 0);
+        // Добавляем облако (здесь просто placeholder)
+        container.add(this.add.image(0, 0, `cloud${i+1}`).setOrigin(0.5, 0.5).setScale(scale));
+        container.setPosition(screenW / 2, screenH / 2); // Центрируем контейнер
+        this.cloudLayers.push(container);
+    }
 
-  //this.cloudLayers.forEach(layer => layer.setDepth(100));
+    this.cloudLayers.forEach(layer => layer.setDepth(100));
 
-  this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
-        .setOrigin(0.5)
-        .setScale(scale)
-        .setDepth(200);  // повыше облаков (у них 100)
+    this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setDepth(200);  // повыше облаков (у них 100)
 
-  // Скорости для каждого слоя (чем дальше — тем медленнее)
-  //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
+    // Скорости для каждого слоя (чем дальше — тем медленнее)
+    //this.cloudSpeeds = [0.07, 0.09, 0.1, 0.15];
 
      
     // Добавляем одно изображение
@@ -199,7 +199,7 @@ function create() {
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
 
-       /* this.cloudLayers.forEach((layer, index) => {
+        this.cloudLayers.forEach((layer, index) => {
         layer.list.forEach(child => {
             child.setDisplaySize(originalWidth * scale, originalHeight * scale);
         });
@@ -213,7 +213,7 @@ function create() {
                 duration: 1000,
                 delay: index *50 // можно добавить небольшую задержку между слоями
             });
-        });*/
+        });
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
@@ -307,24 +307,24 @@ function create() {
 function diveThroughCloudsAnimation() {
     const duration = 1800;
 
-    //const currentScale = this.cloudLayers[0].scaleX;
+    const currentScale = this.cloudLayers[0].scaleX;
     const currentTextScale = this.enterToStage1.scaleX;
 
     this.tweens.addCounter({
-        from: currentTextScale,
-        to: currentTextScale * 2,
+        from: currentScale,
+        to: currentScale * 2,
         duration: duration,
         ease: 'Power1.easeInOut',
         onUpdate: (tween) => {
             const progress = tween.progress;
 
-            //const value = Phaser.Math.Interpolation.Linear([currentScale, currentScale * 2], progress);
-            //const alpha = 1 - progress;
+            const value = Phaser.Math.Interpolation.Linear([currentScale, currentScale * 2], progress);
+            const alpha = 1 - progress;
 
-            /*this.cloudLayers.forEach(layer => {
+            this.cloudLayers.forEach(layer => {
                 layer.setScale(value);
                 layer.setAlpha(alpha);
-            });*/
+            });
 
             // Немного быстрее прогресс для текста
             const textProgress = Math.min(1, progress * 1.56);
