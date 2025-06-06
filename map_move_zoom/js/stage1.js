@@ -160,7 +160,7 @@ function create() {
                 this.cloudLayers[i].y = newY;
             }*/
         }else{
-            if(stage!=='stage1') return;
+            if(stage==='stage0') return;
             const key = getHoveredImageKey(pointer);
             if (!key) {
                 toogleZoomOut();
@@ -257,7 +257,7 @@ function create() {
 
             const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
-            if (alpha > 0) {
+           /* if (alpha > 0) {
                 if(!showStage2){
                     toogleZoomIn.call(this, image);
                     if(key==='a2'){
@@ -265,7 +265,7 @@ function create() {
                         //openStage2();
                     }
                 }
-            }
+            }*/
         }else{
              // Рассчитываем локальные координаты клика внутри картинки
             const localX = pointer.x - (this.enterToStage1.x - this.enterToStage1.displayWidth / 2);
