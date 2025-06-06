@@ -173,7 +173,7 @@ function create() {
         if (this.isTransitioning) return;
         if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
              // Добавьте объявления переменных здесь, если они отсутствуют
-            const mapCenterX = this.cameras.main.centerX; // или другое вычисление
+           /* const mapCenterX = this.cameras.main.centerX; // или другое вычисление
             const mapCenterY = this.cameras.main.centerY;
             const mapWidth = this.cameras.main.width;
             const mapHeight = this.cameras.main.height;
@@ -197,7 +197,7 @@ function create() {
 
                 this.cloudLayers[i].x = newX;
                 this.cloudLayers[i].y = newY;
-            }
+            }*/
         }else{
             if(stage==='stage0') return;
             const key = getHoveredImageKey(pointer);
@@ -325,8 +325,8 @@ function create() {
                 this.isTransitioning = true;
                 diveThroughCloudsAnimation.call(this);
             }else{
-                this.cloudDragStart = { x: pointer.x, y: pointer.y };
-                this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
+                //this.cloudDragStart = { x: pointer.x, y: pointer.y };
+                //this.cloudInitialPositions = this.cloudLayers.map(layer => ({ x: layer.x, y: layer.y }));
             }
         }
     });
@@ -336,8 +336,8 @@ function create() {
         if(stage==='stage1'){
             toogleZoomOut();
         }else{
-            this.cloudDragStart = null;
-            this.cloudInitialPositions = [];
+            //this.cloudDragStart = null;
+            //this.cloudInitialPositions = [];
         }
     });
 }
