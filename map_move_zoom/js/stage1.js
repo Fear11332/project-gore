@@ -163,8 +163,9 @@ function create() {
         }else{
             if(stage==='stage0') return;
                 const key = getHoveredImageKey(pointer);
+                alert('Клик по изображению: ' +key);
                 if (!key) {
-                    toogleZoomOut();
+                    //toogleZoomOut();
                     return;
                 }
 
@@ -259,7 +260,6 @@ function create() {
             const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
             if (alpha > 0) {
-               alert('Клик по изображению: ' +key);
                 if(!showStage2){
                     //toogleZoomIn.call(this, image);
                     //if(key==='a1'){
