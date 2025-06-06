@@ -131,7 +131,7 @@ function create() {
         return null;
     };
 
-    this.input.on('pointermove', pointer => {
+    this.input.on('pointermove', (pointer) => {
         if (isTransitioning) return;
         if(stage === 'stage0' && this.cloudDragStart && pointer.isDown){
              // Добавьте объявления переменных здесь, если они отсутствуют
