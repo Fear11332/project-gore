@@ -195,7 +195,7 @@ function create() {
                         toogleZoomOut.call(this);
                     }
                 }
-         // }
+          }
     });
            
     // 4. Центрируем при изменении размера окна
