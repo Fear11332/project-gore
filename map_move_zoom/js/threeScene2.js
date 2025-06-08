@@ -310,7 +310,7 @@ function chandeBackVisiableRing(){
         } 
         if (currentImageIndex === backgroundImages.length - 1) {
             if (seeds[current_seed]) {
-                animateSeedAppearance(seeds[current_seed],1500);
+               // animateSeedAppearance(seeds[current_seed],1500);
                 seeds[current_seed].visible = true; // Показываем кольцо
                 stageImageIsOpen = false; // Закрываем стадию изображений
                 radiusSlider.value = current_seed + 1;
