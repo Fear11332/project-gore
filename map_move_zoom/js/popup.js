@@ -1,4 +1,4 @@
-import {registerEventListers,animate,removeEventListeners,current_seed} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import {freezeScene,unfreezeScene,current_seed} from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
 import  { switchingState,stopScene,resumeScene} from "https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js";
 import { addConstructEventListeners,removeConstructEventListeners} from "https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js";
 
@@ -47,9 +47,8 @@ function OpenRingPopUp(){
     radiusSlider.min = '1';
     radiusSlider.max = '4';
     radiusSlider.value = current_seed+1;
-    animate();
+    unfreezeScene();
     setTimeout(() => {
-        registerEventListers();
         ring.style.pointerEvents = 'auto';
         overlay.style.pointerEvents = 'auto'; // Разрешаем взаимодействи
         radiusSlider.style.pointerEvents = 'auto';
@@ -81,7 +80,7 @@ function CloseRingPopUp(){
     radiusSlider.style.pointerEvents = 'none';
     ring.style.pointerEvents = 'none';
     overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
-    removeEventListeners();
+    freezeScene();
     overlay.style.transition = 'background 1.9s ease-in-out'; // Плавное затемнение
     overlay.style.background = 'rgba(0, 0, 0, 0)'; // Затемняем фон
     ring.style.transition = 'opacity 1.9s ease-in-out';

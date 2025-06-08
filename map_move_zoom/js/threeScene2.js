@@ -7,15 +7,8 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
 
-const backgroundImages = [
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/2.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/3.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/4.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/5.webp'
-];
-
-let canvas = document.getElementById('ring'), renderer, scene, camera, animationFrameId;
+let canvas = document.getElementById('ring'), renderer, camera, animationFrameId;
+let scene = new THREE.Scene();
 let overlay = document.getElementById('overlay');
 let radiusSlider = document.getElementById('radiusSlider');
 let ambientLight,directionalLight,pointLight,planeGeometry,planeMaterial,plane;
@@ -38,66 +31,82 @@ const textureLoader = new THREE.TextureLoader();
 const animationDuration = 1.2; 
 const clock = new THREE.Clock();
 let meshSize;
-let isPaused = null;
+let isPaused = false;
 const scaleFactor = 0.060;
 let distance = null;
 let composer;
 let seeds = [];
 let current_seed = 0;
 const seedsCount = 4;
+let inputLocked = false;
+
+const backgroundImages = [
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/2.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/3.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/4.webp',
+    'https://fear11332.github.io/project-gore//map_move_zoom/images/5.webp'
+];
 
 const animateReturnToInitialPosition = () => {
-    if (!seeds[current_seed]) return;
+    const seed = seeds[current_seed];
+    if (!seed) return;
 
-    clock.elapsedTime = 0;
-    clock.start();
-
-    const startQuaternion = seeds[current_seed].quaternion.clone(); // Запоминаем начальное положение
-    const endQuaternion = initialQuaternion.clone();  // Финальное положение
+    const startTime = performance.now();
+    const startQuaternion = seed.quaternion.clone();
+    const endQuaternion = initialQuaternion.clone();
 
     const animate = () => {
-        const elapsedTime = clock.getElapsedTime();
+        const elapsedTime = (performance.now() - startTime) / 1000;
         const alpha = Math.min(elapsedTime / animationDuration, 1);
 
-        // Используем slerpQuaternions вместо slerp, чтобы избежать проблем с промежуточным состоянием
-        seeds[current_seed].quaternion.slerpQuaternions(startQuaternion, endQuaternion, alpha);
+        if (!seeds[current_seed]) return; // на случай удаления
+
+        seed.quaternion.slerpQuaternions(startQuaternion, endQuaternion, alpha);
 
         if (alpha < 1) {
             requestAnimationFrame(animate);
         } else {
-            seeds[current_seed].quaternion.copy(initialQuaternion); // Убеждаемся, что выставили финальное значение
-            clock.stop();
+            seed.quaternion.copy(initialQuaternion);
         }
     };
 
     requestAnimationFrame(animate);
 };
 
+
 function updateBackground(index) {
-    if (backgroundMesh) {
-        scene.remove(backgroundMesh);
-        backgroundMesh.material.dispose();
-        backgroundMesh.geometry.dispose();
+    const texture = loadedTextures[index];
+    if (!texture) return;
+
+    const fov = camera.fov * Math.PI / 180;
+    const aspect = camera.aspect;
+
+    const height = meshSize;
+    const width = height * aspect;
+    const distance = meshSize / (2 * Math.tan(fov / 2));
+
+    if (!backgroundMesh) {
+        const geometry = new THREE.PlaneGeometry(width, height);
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            depthWrite: false, // не записывает в буфер глубины
+        });
+
+        backgroundMesh = new THREE.Mesh(geometry, material);
+        backgroundMesh.position.set(0, 0, -distance);
+        backgroundMesh.renderOrder = -1; // рисовать раньше всех
+        backgroundMesh.frustumCulled = false; // чтобы не исключался из рендера
+
+        scene.add(backgroundMesh); // добавляем в сцену, не в камеру!
+    } else {
+        backgroundMesh.material.map = texture;
+        backgroundMesh.material.needsUpdate = true;
     }
-    
-    // 2. Создаем плоскость правильного размера
-    backgroundMesh = new THREE.Mesh(new THREE.PlaneGeometry(meshSize,meshSize)
-    , new THREE.MeshBasicMaterial({
-        map: loadedTextures[index],
-        transparent: true,
-    }));
-
-    const fov = camera.fov * Math.PI / 180; // Переводим угол в радианы
-    distance = meshSize / (2 * Math.tan(fov / 2));
-
-    // Устанавливаем позицию камеры относительно расстояния
-    // 3. Устанавливаем фоновый меш за камеру
-    backgroundMesh.position.set(0, 0, -distance);
-    scene.add(backgroundMesh);
 }
 
 function initThreeScene() {
-    scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer({canvas: canvas , alpha: true, antialias:true });
 
     // Ограничиваем диапазон размеров, например, 200 - 600
@@ -107,8 +116,8 @@ function initThreeScene() {
     
     meshSize = Math.min(Math.max(Math.max(width,height)*0.35, 360),440);
     camera = new THREE.PerspectiveCamera(75,1, 1, 10000); // aspect = 1     
-    renderer.setSize(meshSize,meshSize);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(meshSize,meshSize);
 
      //FXAA: создаём composer после renderer
     composer = new EffectComposer(renderer);
@@ -137,7 +146,6 @@ function initThreeScene() {
     // Плоскость для визуализации теней
     planeGeometry = new THREE.PlaneGeometry(5, 5);
     planeMaterial = new THREE.ShadowMaterial({ color: 'white', opacity: 0.3 });
-    planeMaterial = new THREE.ShadowMaterial({ opacity: 0 }); // Прозрачная тень
     plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = -1;
@@ -146,54 +154,9 @@ function initThreeScene() {
 
     updateBackground(currentImageIndex);
 
-    const textureLoader = new THREE.TextureLoader();
-
-    const diffuseMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_04.png');
-    const normalMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png');
-    const roughnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png');
-    const metalnessMap = textureLoader.load('https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png');
-
-    // Загружаем FBX модель
-    const loader = new FBXLoader();
-   
-    for (let i = 0; i < seedsCount; i++) {
-        loader.load(
-            `https://fear11332.github.io/project-gore/map_move_zoom/fbx/seed_${i+1}.fbx`,
-            (loadedObject) => {
-                seeds[i] = loadedObject;
-
-                // Применяем масштаб и позицию
-                seeds[i].scale.set(scaleFactor, scaleFactor, scaleFactor);
-                seeds[i].position.set(0, 0, 0);
-
-                // Применяем материалы ко всем mesh'ам внутри модели
-                seeds[i].traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            map: diffuseMap,
-                            normalMap: normalMap,
-                            metalnessMap: metalnessMap,
-                            metalness: 1.0, // Уровень металличности
-                            roughnessMap: roughnessMap,
-                           // color: new THREE.Color(1.5, 1.5, 1.5)
-                        });
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
-
-                seeds[i].visible = false; // Сразу скрываем
-                scene.add(seeds[i]);
-            },
-            undefined,
-            (error) => {
-                console.error(`Ошибка при загрузке кольца ${i}:`, error);
-            }
-        );
-    }
-
     camera.position.z = 5; // Коррекция под aspect;
     currentImageIndex++;
+    freezeScene(); // Замораживаем сцену, чтобы предотвратить дальнейшие обновления
 }
 
 const checkInteraction = (clientX, clientY) => {
@@ -207,16 +170,18 @@ const checkInteraction = (clientX, clientY) => {
 
         if (intersects.length >= 0) {
             // Если кольцо уже в начальной позиции, сразу закрываем
-            overlay.style.pointerEvents = 'none'; // Разрешаем взаимодействие 
-            removeEventListeners();
+            overlay.style.pointerEvents = 'none';
+            inputLocked = true; // Блокируем ввод
             if (seeds[current_seed].quaternion.equals(initialQuaternion)) {
-                cancelAnimationFrame(animationFrameId);
+                freezeScene(); // Замораживаем сцену после анимации
+                inputLocked = false; // Разблокируем ввод
                 OpenConstructorPopUp();
             } else {
                 // Запускаем анимацию, если она еще не началась
                    animateReturnToInitialPosition();
                    setTimeout(() => {
-                        cancelAnimationFrame(animationFrameId);
+                        freezeScene(); // Замораживаем сцену после анимации
+                        inputLocked = false; // Разблокируем ввод
                         OpenConstructorPopUp();
                     }, animationDuration+1900);  // Устанавливаем время для анимации
             }
@@ -224,35 +189,92 @@ const checkInteraction = (clientX, clientY) => {
     }
 };
 
-function ini(){
-    preloadTextures(backgroundImages)
-    .then((textures) => {
-        // Сохраняем загруженные текстуры
-        loadedTextures.push(...textures);
-    })
-    .then(() => {
-        initThreeScene();
-    })
-    .catch((error) => {
-        console.error('Ошибка при загрузке ресурсов:', error);
-    });
-         
-}
-       
-// Функция предзагрузки всех текстур
-function preloadTextures(images) {
-    return Promise.all(
-        images.map((imagePath) => {
-            return new Promise((resolve, reject) => {
-                textureLoader.load(
-                    imagePath,
-                    (texture) => resolve(texture), // Успешная загрузка
-                    undefined,
-                    (error) => reject(error) // Ошибка загрузки
-                );
+function ini() {
+    preloadResources(backgroundImages, seedsCount)
+        .then(({ materialTextures, seedModels, backgroundTextures }) => {
+            // Сохраняем фоны
+            loadedTextures.push(...backgroundTextures);
+
+            // Создаем материал
+            const sharedMaterial = new THREE.MeshStandardMaterial({
+                map: materialTextures.diffuse,
+                normalMap: materialTextures.normal,
+                roughnessMap: materialTextures.roughness,
+                metalnessMap: materialTextures.metalness,
+                metalness: 1.0,
             });
+
+            // Добавляем FBX-модели в сцену
+            seedModels.forEach(({ i, object }) => {
+                seeds[i] = object;
+                seeds[i].scale.set(scaleFactor, scaleFactor, scaleFactor);
+                seeds[i].position.set(0, 0, 0);
+
+                seeds[i].traverse(child => {
+                    if (child.isMesh) {
+                        child.material = sharedMaterial;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                seeds[i].visible = false;
+                scene.add(seeds[i]);
+            });
+
+            // Инициализируем сцену
+            initThreeScene();
         })
-    );
+        .catch(error => {
+            console.error('Ошибка при загрузке ресурсов:', error);
+        });
+}
+
+function preloadResources(backgroundImages, seedsCount) {
+    const textureLoader = new THREE.TextureLoader();
+    const fbxLoader = new FBXLoader();
+
+    const texturePaths = {
+        diffuse: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_04.png',
+        normal: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png',
+        roughness: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png',
+        metalness: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png'
+    };
+
+    // Загружаем одну текстуру
+    const loadTexture = (path) =>
+        new Promise((resolve, reject) => {
+            textureLoader.load(path, resolve, undefined, reject);
+        });
+
+    // Загружаем одну модель
+    const loadSeed = (i) =>
+        new Promise((resolve, reject) => {
+            fbxLoader.load(
+                `https://fear11332.github.io/project-gore/map_move_zoom/fbx/seed_${i + 1}.fbx`,
+                object => resolve({ i, object }),
+                undefined,
+                error => reject(error)
+            );
+        });
+
+    return Promise.all([
+        // Загрузка всех текстур развертки
+        loadTexture(texturePaths.diffuse),
+        loadTexture(texturePaths.normal),
+        loadTexture(texturePaths.roughness),
+        loadTexture(texturePaths.metalness),
+        // Загрузка всех FBX сидов
+        Promise.all(Array.from({ length: seedsCount }, (_, i) => loadSeed(i))),
+        // Дополнительно — если есть фоны
+        Promise.all(backgroundImages.map(loadTexture)),
+    ]).then(([diffuse, normal, roughness, metalness, fbxResults, backgroundTextures]) => {
+        return {
+            materialTextures: { diffuse, normal, roughness, metalness },
+            seedModels: fbxResults,
+            backgroundTextures
+        };
+    });
 }
 
 function animateSeedAppearance(seed, duration) {
@@ -299,6 +321,7 @@ function chandeBackVisiableRing(){
 // Обработчики для касания
 const handleTouchStart = (event) => {
     event.preventDefault();
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     if(stageImageIsOpen){
         chandeBackVisiableRing();
     }else{
@@ -309,6 +332,7 @@ const handleTouchStart = (event) => {
 };
 
 const handleTouchMove = (event) => {
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     if(!stageImageIsOpen){
         if (!isTouching || !seeds[current_seed] ) return;
 
@@ -355,6 +379,7 @@ const handleTouchMove = (event) => {
 
 const handleTouchEnd = (event) => {
     event.preventDefault(); // Предотвращаем прокрутку
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     if(!stageImageIsOpen){
         if (isTouching) {
             if(!isMoved){
@@ -369,6 +394,7 @@ const handleTouchEnd = (event) => {
 // Обработчики для мыши
 const handleMouseDown = (event) => {
     event.preventDefault();
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     if(stageImageIsOpen){
         chandeBackVisiableRing();
     }else{
@@ -380,6 +406,7 @@ const handleMouseDown = (event) => {
 
 const handleMouseMove = (event) => {
     event.preventDefault(); // Предотвращаем прокрутку
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     if(!stageImageIsOpen){
         if (!isMouseDown || !seeds[current_seed] ) return;
 
@@ -410,6 +437,7 @@ const handleMouseMove = (event) => {
 
 const handleMouseUp = (event) => {
     event.preventDefault(); // Предотвращаем прокрутку
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     if(!stageImageIsOpen){
         if (isMouseDown) {
             if(!isMoved){
@@ -423,6 +451,7 @@ const handleMouseUp = (event) => {
 
 const handleMouseLeave = (event) => {
      event.preventDefault();
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     if (isMouseDown) {
         handleMouseUp(event); // Если мышь зажата и вышла за пределы canvas — сбросить состояние
     }
@@ -433,8 +462,8 @@ const handleRightClick = (event) => {
 };
 
 const handleCloseRing = (event)=>{
+    if(inputLocked) return; // Если ввод заблокирован, игнорируем касания
     event.preventDefault();
-    cancelAnimationFrame(animationFrameId);
     CloseRingPopUp();
 };
 
@@ -474,6 +503,24 @@ function removeEventListeners() {
     window.removeEventListener('contextmenu', handleRightClick);
 }
 
+// Заморозить сцену и остановить обновления
+function freezeScene() {
+    isPaused = true;
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    removeEventListeners(); // Убираем слушатели событий
+}
+
+// Возобновить сцену (если нужно)
+function unfreezeScene() {
+    if (!isPaused) return;
+    isPaused = false;
+    registerEventListers();
+    animate();
+}
+
 function animate() {
     if (scene && camera && renderer && !isPaused) {
         animationFrameId = requestAnimationFrame(animate);
@@ -482,4 +529,5 @@ function animate() {
     }
 }
 
-export {ini,registerEventListers, animate,removeEventListeners,current_seed};
+export {ini,freezeScene,unfreezeScene,current_seed};
+

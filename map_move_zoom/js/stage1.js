@@ -23,6 +23,9 @@ let currentImage = null;
 const imageKeys = ['a1', 'a2', 'a3', 'a4'];
 const hoveredImages = {};
 let isTransitioning = false;
+let gameScene = null;
+const frozenQueue = [];
+let isSceneFrozen = false; // Флаг для заморозки сцены
 
 function preload() { 
     this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
@@ -37,8 +40,8 @@ function preload() {
     this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
 }
 
-
 function create() {
+    gameScene = this;
     this.cloudDragStart = null;
     this.cloudInitialPositions = [];
     const texture = this.textures.get('cross').getSourceImage();
@@ -273,8 +276,10 @@ function create() {
         if(stage==='stage1'){
             if(showStage2){
                 if (!stageThreeIsOpen && !constructorIsOpen) {
+                    resumeScene();
                     closeStage2();
                     showStage2 = false;
+                    isSceneFrozen = false; // Размораживаем сцену   
                 }
                 return;
             }
@@ -296,6 +301,8 @@ function create() {
                 if(!showStage2){
                     toogleZoomIn.call(this, image);
                     if(key==='a2'){
+                        isSceneFrozen = true; // Замораживаем сцену
+                        stopScene();
                         showStage2 = true;
                         openStage2();
                     }
@@ -347,7 +354,7 @@ function create() {
 }
 
 function diveThroughCloudsAnimation() {
-    const duration = 1900;
+    const duration = 2900;
     isTransitioning = true;
 
     const easing = 'Sine.easeInOut';
@@ -396,6 +403,36 @@ function diveThroughCloudsAnimation() {
             isTransitioning = false;
         }
     });
+}
+
+function stopScene(){
+    if(gameScene) {
+        isSceneFrozen = true; // Устанавливаем флаг заморозки сцены
+            // Отключить все вводы
+        //gameScene.input.enabled = false;
+
+        // Остановить Tweens
+        gameScene.tweens.getAllTweens().forEach(tween => tween.pause());
+
+        // Остановить таймеры Phaser (если ты используешь scene.time.addEvent)
+        gameScene.time.timeScale = 0;
+        }
+}
+
+function resumeScene() {
+    if (gameScene) {
+        isSceneFrozen = false;
+        //gameScene.input.enabled = true;
+
+        gameScene.tweens.getAllTweens().forEach(tween => tween.resume());
+        gameScene.time.timeScale = 1;
+        gameScene.scene.wake();
+
+        while (frozenQueue.length > 0) {
+            const fn = frozenQueue.shift();
+            fn(); // Выполняем отложенное
+        }
+    }
 }
 
 

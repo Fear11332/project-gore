@@ -260,10 +260,8 @@ function create() {
                 if (!isPoint) {
                     moveSquareToGreenDot(this, 0);
                     isPoint = true;
-
-                    // ⬅️ тут setTimeout должен остаться снаружи
                     setTimeout(() => {
-                        callWhenSceneResumed(showPopup); // ⬅️ вызываем showPopup только если сцена не заморожена
+                        callWhenSceneResumed(showPopup); 
                     }, setTime);
 
                 } else {
@@ -404,6 +402,7 @@ function create() {
                 camera.centerOn(lastCameraCenter.x, lastCameraCenter.y);
             }
         });
+        stopScene(); // Замораживаем сцену при создании
 }
 
 function moveSquareToGreenDot(scene, flag) {
@@ -698,7 +697,7 @@ function moveMap(scene,pointer) {
 }
 
 function showPopup() {
-
+    stopScene();
     OpenRingPopUp();
 }
 
@@ -711,6 +710,7 @@ function callWhenSceneResumed(fn) {
 }
 
 function switchingState(){
+    resumeScene();
     popUpWindowOpen = false;
     layout  = 'map';
     isAnimating = false;
