@@ -2,7 +2,7 @@ body, html {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: rgb(32 37 42 / 94%);
+            background-color: black;
         }
 
         #overlay {
@@ -13,16 +13,6 @@ body, html {
             height: 100vh;
             pointer-events: none;
             z-index: 3; /* Ниже чем #ring, но выше остального контента */
-        }
-
-        #overlay2 {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 2; /* Ниже чем #ring, но выше остального контента */
         }
 
         #canvas-container {
@@ -47,19 +37,6 @@ body, html {
             opacity: 0; /* По умолчанию невидим */
         }
 
-        #stage1 {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 0;  /* ниже overlay2 */
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-            
-        }
-
         #phaser {
             position: fixed;
             top: 50%;
@@ -67,8 +44,8 @@ body, html {
             transform: translate(-50%, -50%);
             overflow: hidden;  /* важно, чтобы обрезать “вылезающие” части */
             z-index: 2;
-            opacity: 0;
-            pointer-events: none;
+            opacity: 1;
+            pointer-events: auto; /* Включаем клики */
             transition: opacity 1.9s ease-in-out;
         }
 
@@ -123,7 +100,7 @@ body, html {
         #mute-toggle {
             position: absolute;
             top: 10px;
-            left: 10px;
+            left: 50px;
             width: 40px;
             height: 40px;
             font-size: 20px;
@@ -132,6 +109,22 @@ body, html {
             color: #be0000;
             cursor: pointer;
              z-index: 5;  /* Кнопки управления — выше всего */
+            filter: brightness(1.1);
+            
+        }
+
+        #back-to-stage1 {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            border: none;
+            background: transparent;
+            color: #be0000;
+            cursor: pointer;
+            z-index: 5;  /* Кнопки управления — выше всего */
             filter: brightness(1.1);
             
         }

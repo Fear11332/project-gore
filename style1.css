@@ -1,0 +1,54 @@
+body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #stage1 {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;  /* ниже overlay2 */
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            
+        }
+
+        @media screen and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+            #controls {
+                top: 50%;
+                left: 50%;
+                transform: translate(calc(-50% + 230px), -50%); /* Смещение вправо от центра */
+                flex-direction: column; /* Ползунок вертикально */
+            }
+
+            #radiusSlider {
+                transform: rotate(270deg); /* Повернуть ползунок вертикально */
+                width: 200px;
+                height: auto;
+            }
+        }
+
+        audio {
+            display: none; /* скрываем стандартный плеер */
+        }
+
+
+        #mute-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            border: none;
+            background: transparent;
+            color: #be0000;
+            cursor: pointer;
+             z-index: 5;  /* Кнопки управления — выше всего */
+            filter: brightness(1.1);
+            
+        }

@@ -1,5 +1,3 @@
-import {openStage2,closeStage2,stageThreeIsOpen,constructorIsOpen} from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
-
 const config = {
     type: Phaser.AUTO,
     parent:"stage1",
@@ -36,9 +34,10 @@ function preload() {
     this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
     this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
     this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
-   // this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
+    this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
     this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
 }
+
 
 function create() {
     gameScene = this;
@@ -55,14 +54,6 @@ function create() {
     const scaleY = screenH / originalHeight;
     const scale = Math.max(scaleX, scaleY);
 
-    /*for (let i = 1; i <= 4; i++) {
-        this[`cloud${i}`] = this.add.image(screenW/2,screenH/2, `cloud${i}`)
-            .setOrigin(0.5)
-            .setScale(scale)
-            .setDepth(100);
-            this.cloudInitialPositions.push({ x: this[`cloud${i}`].x, y: this[`cloud${i}`].y });
-    }*/
-
     this.cloud1 = this.add.image(screenW/2, screenH/2, 'cloud1')
             .setOrigin(0.5)
             .setScale(scale)
@@ -78,6 +69,11 @@ function create() {
             .setScale(scale)
             .setDepth(103);  // повыше облаков (у них 100)
 
+    this.cloud4 = this.add.image(screenW/2, screenH/2, 'cloud4')
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setDepth(104);  // повыше облаков (у них 100)
+
 
     this.enterToStage1 = this.add.image(screenW / 2, screenH / 2, 'enter_to_stage1')
             .setOrigin(0.5)
@@ -85,7 +81,7 @@ function create() {
             .setDepth(200);  // повыше облаков (у них 100)
 
     // Скорости для каждого слоя (чем дальше — тем медленнее)
-    this.cloudSpeeds = [0.04, 0.07, 0.1];
+    this.cloudSpeeds = [0.04, 0.07, 0.1, 0.2];
      
     // Добавляем одно изображение
     this.cross = this.add.image(screenW / 2, screenH / 2, 'cross')
@@ -162,7 +158,7 @@ function create() {
             const topBound = mapCenterY - (mapHeight / 2) * boundaryFactor;
             const bottomBound = mapCenterY + (mapHeight / 2) * boundaryFactor;
 
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 4; i++) {
                 const cloud = this[`cloud${i}`];
                 const baseX = this.cloudInitialPositions[i - 1].x;
                 const baseY = this.cloudInitialPositions[i - 1].y;
@@ -220,7 +216,7 @@ function create() {
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
 
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 4; i++) {
             const cloud = this[`cloud${i}`];
             if (!cloud) continue;
 
@@ -249,8 +245,8 @@ function create() {
         this.cloud3.setDisplaySize(originalWidth*scale, originalHeight*scale);
        this.cloud3.setPosition(screenW/2,screenH/2);
 
-        //this.cloud4.setDisplaySize(originalWidth*scale, originalHeight*scale);
-      // this.cloud4.setPosition(screenW/2,screenH/2);
+        this.cloud4.setDisplaySize(originalWidth*scale, originalHeight*scale);
+         this.cloud4.setPosition(screenW/2,screenH/2);
 
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
@@ -274,16 +270,6 @@ function create() {
     this.input.on('pointerdown', (pointer) => {
         if (isTransitioning) return;
         if(stage==='stage1'){
-            if(showStage2){
-                if (!stageThreeIsOpen && !constructorIsOpen) {
-                    resumeScene();
-                    closeStage2();
-                    showStage2 = false;
-                    isSceneFrozen = false; // Размораживаем сцену   
-                }
-                return;
-            }
-
             const key = getHoveredImageKey(pointer);
             if (!key) return;
 
@@ -298,15 +284,13 @@ function create() {
             const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
 
             if (alpha > 0) {
-                if(!showStage2){
                     toogleZoomIn.call(this, image);
                     if(key==='a2'){
-                        isSceneFrozen = true; // Замораживаем сцену
-                        stopScene();
-                        showStage2 = true;
-                        openStage2();
+                        destroyScene();
+                        setTimeout(() => {
+                            location.href = 'stage2.html';
+                        }, 0);
                     }
-                }
             }
         }else{
              // Рассчитываем локальные координаты клика внутри картинки
@@ -331,7 +315,7 @@ function create() {
                 this.cloudDragStart = { x: pointer.x, y: pointer.y };
                 // Записываем начальные позиции облаков из переменных cloud1..cloud4
                 this.cloudInitialPositions = [];
-                for(let i = 1; i <= 3; i++){
+                for(let i = 1; i <= 4; i++){
                     const cloud = this[`cloud${i}`];
                     if(cloud){
                         this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
@@ -403,40 +387,80 @@ function diveThroughCloudsAnimation() {
             isTransitioning = false;
         }
     });
-}
 
-function stopScene(){
-    if(gameScene) {
-        isSceneFrozen = true; // Устанавливаем флаг заморозки сцены
-            // Отключить все вводы
-        //gameScene.input.enabled = false;
-
-        // Остановить Tweens
-        gameScene.tweens.getAllTweens().forEach(tween => tween.pause());
-
-        // Остановить таймеры Phaser (если ты используешь scene.time.addEvent)
-        gameScene.time.timeScale = 0;
+    this.tweens.add({
+        targets: this.cloud4,
+        scaleX: this.cloud4.scaleX * 2,
+        scaleY: this.cloud4.scaleY * 2,
+        alpha: 0,
+        ease: easing,
+        duration: duration * 0.95,
+        delay: 200,
+        onComplete: () => {
+            stage = 'stage1';
+            isTransitioning = false;
         }
+    });
 }
 
-function resumeScene() {
-    if (gameScene) {
-        isSceneFrozen = false;
-        //gameScene.input.enabled = true;
+function destroyScene() {
+    if (!gameScene) return;
 
-        gameScene.tweens.getAllTweens().forEach(tween => tween.resume());
-        gameScene.time.timeScale = 1;
-        gameScene.scene.wake();
+    // Удаляем изображения, если они существуют
+    const imagesToDestroy = [
+        gameScene.cross,
+        gameScene.cloud1,
+        gameScene.cloud2,
+        gameScene.cloud3,
+        gameScene.cloud4,
+        gameScene.enterToStage1,
+    ];
 
-        while (frozenQueue.length > 0) {
-            const fn = frozenQueue.shift();
-            fn(); // Выполняем отложенное
+    imagesToDestroy.forEach(img => {
+        if (img && img.destroy) {
+            img.destroy(true); // true = удаляет из дисплея и из памяти
         }
-    }
+    });
+
+    // Удаляем все hoveredImages
+    Object.values(hoveredImages).forEach(img => {
+        if (img && img.destroy) {
+            img.destroy(true);
+        }
+    });
+
+    // Если тебе нужно удалить текстуры (освободить память), можно вызвать:
+    const textureKeys = ['cross', 'a1', 'a2', 'a3', 'a4', 'cloud1', 'cloud2', 'cloud3', 'cloud4', 'enter_to_stage1'];
+    textureKeys.forEach(key => {
+        if (gameScene.textures.exists(key)) {
+            gameScene.textures.remove(key);
+        }
+    });
+
+    // Очистка переменных
+    for (let key in hoveredImages) delete hoveredImages[key];
+    gameScene.cloud1 = null;
+    gameScene.cloud2 = null;
+    gameScene.cloud3 = null;
+    gameScene.cloud4 = null;
+    gameScene.cross = null;
+    gameScene.enterToStage1 = null;
+
+    gameScene.input?.removeAllListeners?.();
+    gameScene.events?.removeAllListeners?.();
+
+    // Обнуляем переменные
+    for (let key in hoveredImages) delete hoveredImages[key];
+    gameScene = null;
+
+    // Останавливаем сцену
+    game.scene.stop();
+    game.scene.remove('default');
+
+    // Уничтожаем всю игру и канвас
+    game.destroy(true); // <- если точно переходишь на новую страницу
+
 }
-
-
-
 
 
 

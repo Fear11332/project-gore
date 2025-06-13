@@ -6,7 +6,6 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
-
 let canvas = document.getElementById('ring'), renderer, camera, animationFrameId;
 let scene = new THREE.Scene();
 let overlay = document.getElementById('overlay');
@@ -310,7 +309,7 @@ function chandeBackVisiableRing(){
         } 
         if (currentImageIndex === backgroundImages.length - 1) {
             if (seeds[current_seed]) {
-               // animateSeedAppearance(seeds[current_seed],1500);
+                animateSeedAppearance(seeds[current_seed],1500);
                 seeds[current_seed].visible = true; // Показываем кольцо
                 stageImageIsOpen = false; // Закрываем стадию изображений
                 radiusSlider.value = current_seed + 1;
@@ -529,5 +528,70 @@ function animate() {
     }
 }
 
-export {ini,freezeScene,unfreezeScene,current_seed};
+function disposeThreeScene() {
+    cancelAnimationFrame(animationFrameId);
+
+    scene.traverse((object) => {
+        if (!object.isMesh) return;
+
+        if (object.geometry) object.geometry.dispose();
+
+        if (object.material) {
+            if (Array.isArray(object.material)) {
+                object.material.forEach(disposeMaterial);
+            } else {
+                disposeMaterial(object.material);
+            }
+        }
+    });
+
+    loadedTextures.forEach(texture => texture.dispose());
+    loadedTextures.length = 0;
+
+    scene.remove(ambientLight, directionalLight, pointLight);
+
+    if (backgroundMesh) {
+        backgroundMesh.geometry.dispose();
+        if (backgroundMesh.material.map) backgroundMesh.material.map.dispose();
+        backgroundMesh.material.dispose();
+        scene.remove(backgroundMesh);
+        backgroundMesh = null;
+    }
+
+    if (composer) {
+        composer.passes.forEach(pass => pass.dispose && pass.dispose());
+        composer = null;
+    }
+
+    scene.clear();
+    scene = null;
+    camera = null;
+
+    if (renderer) {
+        renderer.dispose();
+        renderer.forceContextLoss();
+        renderer.context = null;
+        renderer.domElement = null;
+        renderer = null;
+    }
+
+    if (canvas) {
+        canvas.width = canvas.height = 1;
+        canvas.remove();
+        canvas = null;
+    }
+
+    radiusSlider = null;
+    overlay = null;
+}
+
+function disposeMaterial(material) {
+    for (const key in material) {
+        const value = material[key];
+        if (value && value.isTexture) value.dispose();
+    }
+    material.dispose();
+}
+
+export {ini,freezeScene,unfreezeScene,current_seed, disposeThreeScene};
 
