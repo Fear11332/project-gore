@@ -19,7 +19,7 @@ backToStage1.addEventListener('click', () => {
     disposeThreeScene();
     cleanUpPhaserScene();
 
-    location.href = 'stage1.html';
+    location.href = 'https://fear11332.github.io/project-gore/index.html'; // Переход на страницу stage1
 });
 
 function OpenRingPopUp(){

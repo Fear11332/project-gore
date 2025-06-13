@@ -288,7 +288,7 @@ function create() {
                     if(key==='a2'){
                         destroyScene();
                         setTimeout(() => {
-                            location.href = 'stage2.html';
+                            location.href = 'https://fear11332.github.io/project-gore/index2.html'; // Переход на страницу stage1
                         }, 0);
                     }
             }
