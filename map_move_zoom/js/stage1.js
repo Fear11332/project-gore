@@ -334,7 +334,7 @@ function create() {
                 toogleZoomIn.call(this, this[key]);
                 if (key === 'a2') {
                     destroyScene();
-                    setTimeout(() => location.href = 'stage2.html', 0);
+                    setTimeout(() => location.href = 'https://fear11332.github.io/project-gore/map_move_zoom/index2.html', 0);
                 }
             }
         } else if (stage === 'stage0') {
