@@ -198,19 +198,32 @@ function create() {
         currentImage = null;
     };
 
-    const getHoveredImageKey = (pointer) => {
-        const centerX = this.scale.width / 2;
-        const centerY = this.scale.height / 2;
+    const getHoveredImageKeyByGrid = (pointer, image, scaleFactor = 0.47) => {
+        // Размер сеточной области
+        const gridWidth = image.displayWidth * scaleFactor;
+        const gridHeight = image.displayHeight * scaleFactor;
 
-        const isLeft = pointer.x < centerX;
-        const isTop = pointer.y < centerY;
+        // Отступ сетки от краёв картинки
+        const offsetX = (image.displayWidth - gridWidth) / 2;
+        const offsetY = (image.displayHeight - gridHeight) / 2;
 
-        if (isTop && isLeft) return 'a1'; // верх-лево
-        if (isTop && !isLeft) return 'a2'; // верх-право
-        if (!isTop && isLeft) return 'a3'; // низ-лево
-        if (!isTop && !isLeft) return 'a4'; // низ-право
+        // Локальные координаты указателя относительно сетки
+        const localX = pointer.x - (image.x - image.displayWidth / 2) - offsetX;
+        const localY = pointer.y - (image.y - image.displayHeight / 2) - offsetY;
 
-        return null;
+        // Проверка попадания в сетку
+        if (localX < 0 || localX > gridWidth || localY < 0 || localY > gridHeight) return null;
+
+        const cellWidth = gridWidth / 2;
+        const cellHeight = gridHeight / 2;
+
+        const isLeft = localX < cellWidth;
+        const isTop = localY < cellHeight;
+
+        if (isTop && isLeft) return 'a1';
+        if (isTop && !isLeft) return 'a2';
+        if (!isTop && isLeft) return 'a3';
+        return 'a4';
     };
 
     this.input.on('pointermove', (pointer) => {
@@ -250,31 +263,14 @@ function create() {
 
                 cloud.setPosition(newX, newY);
             }
-        }else{
-            if(stage==='stage0') return;
-                const key = getHoveredImageKey(pointer);
-                if (!key) {
-                    toogleZoomOut();
-                    return;
-                }
-
-                const image = this[key];
-
-                const localX = pointer.x - (image.x - image.displayWidth / 2);
-                const localY = pointer.y - (image.y - image.displayHeight / 2);
-                const frame = this.textures.get(image.texture.key).getSourceImage();
-                const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
-                const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
-
-                const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
-                if(!showStage2){
-                    if (alpha > 0 ) {
-                        toogleZoomIn.call(this, image);
-                    } else {
-                        toogleZoomOut.call(this);
-                    }
-                }
-          }
+        }else if (stage === 'stage1' && !showStage2) {
+            const key = getHoveredImageKeyByGrid(pointer, this.a1); // берем базовую картинку для сетки
+            if (key) {
+                toogleZoomIn.call(this, this[key]);
+            } else {
+                toogleZoomOut.call(this);
+            }
+        }
     });
            
     // 4. Центрируем при изменении размера окна
@@ -332,48 +328,29 @@ function create() {
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
         if (isTransitioning) return;
-        if(stage==='stage1'){
-            const key = getHoveredImageKey(pointer);
-            if (!key) return;
-
-            const image = this[key];
-
-            const localX = pointer.x - (image.x - image.displayWidth / 2);
-            const localY = pointer.y - (image.y - image.displayHeight / 2);
-            const frame = this.textures.get(image.texture.key).getSourceImage();
-            const pixelX = Math.floor(localX * (frame.width / image.displayWidth));
-            const pixelY = Math.floor(localY * (frame.height / image.displayHeight));
-
-            const alpha = this.textures.getPixelAlpha(pixelX, pixelY, image.texture.key);
-
-            if (alpha > 0) {
-                    toogleZoomIn.call(this, image);
-                    if(key==='a2'){
-                        destroyScene();
-                        setTimeout(() => {
-                            location.href = 'https://fear11332.github.io/project-gore/map_move_zoom/index2.html';
-                        }, 0);
-                    }
-            }
-        }else{
-            if (this.enterZone.input && this.enterZone.getBounds().contains(pointer.x, pointer.y)) {
-                if (stage === 'stage0' && !isTransitioning) {
-                    isTransitioning = true;
-                    diveThroughCloudsAnimation.call(this);
-                    this.enterZone.disableInteractive(); // Отключаем навсегда
+        if (stage === 'stage1') {
+            const key = getHoveredImageKeyByGrid(pointer, this.a1);
+            if (key) {
+                toogleZoomIn.call(this, this[key]);
+                if (key === 'a2') {
+                    destroyScene();
+                    setTimeout(() => location.href = 'stage2.html', 0);
                 }
+            }
+        } else if (stage === 'stage0') {
+            if (this.enterZone.input && this.enterZone.getBounds().contains(pointer.x, pointer.y)) {
+                isTransitioning = true;
+                this.enterZone.disableInteractive();
+                diveThroughCloudsAnimation.call(this);
             } else {
                 this.cloudDragStart = { x: pointer.x, y: pointer.y };
                 this.cloudInitialPositions = [];
-                for(let i = 1; i <= 4; i++){
+                for (let i = 1; i <= 4; i++) {
                     const cloud = this[`cloud${i}`];
-                    if(cloud){
-                        this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
-                    }
+                    this.cloudInitialPositions.push({ x: cloud.x, y: cloud.y });
                 }
             }
-
-        }
+        }   
     });
 
     this.input.on('pointerup', (pointer) => {
