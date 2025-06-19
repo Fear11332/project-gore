@@ -6,8 +6,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     scene: {
-        preload: preload,
-        create: create
+        preload: preload
     }
 };
 
@@ -18,26 +17,80 @@ let stage  = 'stage0';
 let initialScaleX = null;
 let initialScaleY = null;
 let currentImage = null;
-const imageKeys = ['a1', 'a2', 'a3', 'a4'];
-const hoveredImages = {};
 let isTransitioning = false;
 let gameScene = null;
 const frozenQueue = [];
 let isSceneFrozen = false; // Флаг для заморозки сцены
 
-function preload() { 
-    this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
-    this.load.image('a2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A2_1_02.webp');
-    this.load.image('a1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A1_1_01.webp');
-    this.load.image('a3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A3_1_02.webp');
-    this.load.image('a4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A4_1_02.webp');
-    this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
-    this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
-    this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
-    this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
-    this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
+async function preload() {
+    // 1. Добавляем текст сразу, чтобы он был на экране как можно раньше
+    this.loadingText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Loading', {
+        fontSize: '32px',
+        fill: '#5DE100',
+        align: 'center'
+    }).setOrigin(0.5);
+
+    animateLoading.call(this);
+
+    // 2. Даем 1 кадр на отрисовку текста
+    await new Promise((resolve) => this.time.delayedCall(0, resolve));
+
+    // 3. Запускаем загрузку ассетов
+    await loadAllImages.call(this);
+
+    // 4. Ждем, пока браузер загрузит всё (включая шрифты и т.д.)
+    await waitForWindowLoad();
+
+    // 5. Прячем текст
+    this.loadingText.setVisible(false);
+
+    // 6. Запускаем остальную логику
+    create.call(this);
 }
 
+function waitForWindowLoad() {
+    return new Promise((resolve) => {
+        if (document.readyState === 'complete') {
+            resolve(); // Уже загружено
+        } else {
+            window.addEventListener('load', () => resolve(), { once: true });
+        }
+    });
+}
+
+// Функция для анимации текста "Загрузка..." с точками
+function animateLoading() {
+    let dotCount = 0; // Количество точек
+    const maxDots = 3; // Максимум точек (например, 3 точки)
+
+    // Устанавливаем интервал, чтобы добавлять точки
+    this.loadingInterval = setInterval(() => {
+        dotCount++;
+        if (dotCount > maxDots) {
+            dotCount = 1; // Сбросить точек до одной, если достигли максимума
+        }
+        this.loadingText.setText(`Loading${'.'.repeat(dotCount)}`);
+    }, 500); // Интервал в 500 мс для циклического добавления точек
+}
+
+// Функция загрузки всех изображений
+function loadAllImages() {
+    return new Promise((resolve, reject) => {
+        this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
+        this.load.image('a2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A2_1_02.webp');
+        this.load.image('a1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A1_1_01.webp');
+        this.load.image('a3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A3_1_02.webp');
+        this.load.image('a4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A4_1_02.webp');
+        this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
+        this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
+        this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
+        this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
+        this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
+        // Когда все ресурсы загружены, resolve проми
+        this.load.once('complete', resolve);
+        this.load.start();
+    });
+}
 
 function create() {
     gameScene = this;
@@ -88,17 +141,37 @@ function create() {
         .setOrigin(0.5)
         .setScale(scale)
         .setScrollFactor(0);
+    
+    this.a1 = this.add.image(screenW / 2, screenH / 2, 'a1')
+        .setOrigin(0.5)
+        .setScale(scale)
+        .setScrollFactor(0);
+    
+    this.a2 = this.add.image(screenW / 2, screenH / 2, 'a2')
+        .setOrigin(0.5)
+        .setScale(scale)
+        .setScrollFactor(0);
+    
+    this.a3 = this.add.image(screenW / 2, screenH / 2, 'a3')
+        .setOrigin(0.5)
+        .setScale(scale)
+        .setScrollFactor(0);
 
-    // начинаем с индекса 1 (если это важно)
-    imageKeys.forEach((key, index) => {
-        hoveredImages[index + 1] = this.add.image(screenW / 2, screenH / 2, key)
-            .setOrigin(0.5)
-            .setScale(scale)
-            .setScrollFactor(0);
-    });
+    this.a4 = this.add.image(screenW / 2, screenH / 2, 'a4')
+        .setOrigin(0.5)
+        .setScale(scale)
+        .setScrollFactor(0);
 
-    initialScaleX = hoveredImages[1].scaleX;
-    initialScaleY = hoveredImages[1].scaleY;
+    this.enterZone = this.add.zone(
+        this.scale.width / 2,
+        this.scale.height / 2,
+        this.enterToStage1.displayWidth*0.14,
+        this.enterToStage1.displayWidth*0.14
+    ).setOrigin(0.5).setInteractive();
+    
+
+    initialScaleX = this.a1.scaleX;
+    initialScaleY = this.a1.scaleY ;
 
     const toogleZoomIn = (image) => {
         if (!initialScaleX) initialScaleX = image.scaleX;
@@ -185,7 +258,7 @@ function create() {
                     return;
                 }
 
-                const image = hoveredImages[Number(key.slice(1))];
+                const image = this[key];
 
                 const localX = pointer.x - (image.x - image.displayWidth / 2);
                 const localY = pointer.y - (image.y - image.displayHeight / 2);
@@ -215,27 +288,7 @@ function create() {
 
         this.cross.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.cross.setPosition(screenW / 2, screenH / 2);
-
-        for (let i = 1; i <= 4; i++) {
-            const cloud = this[`cloud${i}`];
-            if (!cloud) continue;
-
-            cloud.setDisplaySize(originalWidth * scale, originalHeight * scale);
-
-            this.tweens.add({
-                targets: cloud,
-                x: screenW / 2,
-                y: screenH / 2,
-                ease: 'Power2',
-                duration: 1000,
-                delay: (i - 1) * 50
-            });
-
-            // Обновляем начальные позиции для логики перемещения
-            if (this.cloudInitialPositions && this.cloudInitialPositions[i - 1]) {
-                this.cloudInitialPositions[i - 1] = { x: screenW / 2, y: screenH / 2 };
-            }
-        }
+        
        this.cloud1.setDisplaySize(originalWidth*scale, originalHeight*scale);
        this.cloud1.setPosition(screenW/2,screenH/2);
 
@@ -251,20 +304,30 @@ function create() {
         this.enterToStage1.setDisplaySize(originalWidth * scale, originalHeight * scale);
         this.enterToStage1.setPosition(screenW / 2, screenH / 2);
 
-        imageKeys.forEach((key, index) => {
-            hoveredImages[index + 1].setDisplaySize(originalWidth * scale, originalHeight * scale);
-            hoveredImages[index + 1].setPosition(screenW / 2, screenH / 2);
+        this.a1.setDisplaySize(originalWidth * scale, originalHeight * scale);
+        this.a1.setPosition(screenW / 2, screenH / 2);
 
-        });
+        this.a2.setDisplaySize(originalWidth * scale, originalHeight * scale);
+        this.a2.setPosition(screenW / 2, screenH / 2);
+
+        this.a3.setDisplaySize(originalWidth * scale, originalHeight * scale);
+        this.a3.setPosition(screenW / 2, screenH / 2);
+
+        this.a4.setDisplaySize(originalWidth * scale, originalHeight * scale);
+        this.a4.setPosition(screenW / 2, screenH / 2);
+
+        if (this.enterZone) {
+            this.enterZone.setSize(this.enterToStage1.displayWidth*0.14, this.enterToStage1.displayHeight*0.14);
+            this.enterZone.setPosition(screenW / 2, screenH / 2);
+        }
         
-        initialScaleX = hoveredImages[1].scaleX;
-        initialScaleY = hoveredImages[1].scaleY;
+        initialScaleX = this.a1.scaleX;
+        initialScaleY = this.a1.scaleY;
          // Если маска сейчас видна, перерисовываем вырез в новых координатах
         if (currentImage) {
             currentImage.setScale(initialScaleX * 1.1, initialScaleY * 1.1);
         }
     });
-
 
     // 2. Слушаем клик
     this.input.on('pointerdown', (pointer) => {
@@ -273,7 +336,7 @@ function create() {
             const key = getHoveredImageKey(pointer);
             if (!key) return;
 
-            const image = hoveredImages[Number(key.slice(1))];
+            const image = this[key];
 
             const localX = pointer.x - (image.x - image.displayWidth / 2);
             const localY = pointer.y - (image.y - image.displayHeight / 2);
@@ -288,32 +351,19 @@ function create() {
                     if(key==='a2'){
                         destroyScene();
                         setTimeout(() => {
-                            location.href = 'https://fear11332.github.io/project-gore/index2.html'; // Переход на страницу stage1
+                            location.href = 'https://fear11332.github.io/project-gore/index2.html';
                         }, 0);
                     }
             }
         }else{
-             // Рассчитываем локальные координаты клика внутри картинки
-            const localX = pointer.x - (this.enterToStage1.x - this.enterToStage1.displayWidth / 2);
-            const localY = pointer.y - (this.enterToStage1.y - this.enterToStage1.displayHeight / 2);
-
-            // Получаем исходное изображение для получения пикселя
-            const frame = this.textures.get(this.enterToStage1.texture.key).getSourceImage();
-
-            // Преобразуем координаты в пиксели исходного изображения
-            const pixelX = Math.floor(localX * (frame.width / this.enterToStage1.displayWidth));
-            const pixelY = Math.floor(localY * (frame.height / this.enterToStage1.displayHeight));
-
-            // Проверяем альфа-канал пикселя
-            const alpha = this.textures.getPixelAlpha(pixelX, pixelY, this.enterToStage1.texture.key);
-
-            if(alpha > 0){
-                // Запускаем анимацию облаков
-                isTransitioning = true;
-                diveThroughCloudsAnimation.call(this);
-            }else{
+            if (this.enterZone.input && this.enterZone.getBounds().contains(pointer.x, pointer.y)) {
+                if (stage === 'stage0' && !isTransitioning) {
+                    isTransitioning = true;
+                    diveThroughCloudsAnimation.call(this);
+                    this.enterZone.disableInteractive(); // Отключаем навсегда
+                }
+            } else {
                 this.cloudDragStart = { x: pointer.x, y: pointer.y };
-                // Записываем начальные позиции облаков из переменных cloud1..cloud4
                 this.cloudInitialPositions = [];
                 for(let i = 1; i <= 4; i++){
                     const cloud = this[`cloud${i}`];
@@ -322,6 +372,7 @@ function create() {
                     }
                 }
             }
+
         }
     });
 
@@ -350,7 +401,8 @@ function diveThroughCloudsAnimation() {
         scaleY: this.enterToStage1.scaleY * 2,
         alpha: 0,
         ease: easing,
-        duration: duration * 0.9, // чуть быстрее
+        duration: duration*0.5,
+        delay: 0,
     });
 
     // Облака (отдельно для каждого — с небольшим отличием в тайминге)
@@ -360,8 +412,8 @@ function diveThroughCloudsAnimation() {
         scaleY: this.cloud1.scaleY * 2,
         alpha: 0,
         ease: easing,
-        duration: duration,
-        delay: 0,
+        delay: 50,
+        duration: duration*0.6,
     });
 
     this.tweens.add({
@@ -370,8 +422,8 @@ function diveThroughCloudsAnimation() {
         scaleY: this.cloud2.scaleY * 2,
         alpha: 0,
         ease: easing,
-        duration: duration * 1.1,
         delay: 100,
+        duration: duration*0.7,
     });
 
     this.tweens.add({
@@ -380,12 +432,8 @@ function diveThroughCloudsAnimation() {
         scaleY: this.cloud3.scaleY * 2,
         alpha: 0,
         ease: easing,
-        duration: duration * 0.95,
-        delay: 200,
-        onComplete: () => {
-            stage = 'stage1';
-            isTransitioning = false;
-        }
+        delay: 250,
+        duration: duration*0.8,
     });
 
     this.tweens.add({
@@ -394,8 +442,8 @@ function diveThroughCloudsAnimation() {
         scaleY: this.cloud4.scaleY * 2,
         alpha: 0,
         ease: easing,
-        duration: duration * 0.95,
-        delay: 200,
+        delay: 250,
+        duration: duration*0.7,
         onComplete: () => {
             stage = 'stage1';
             isTransitioning = false;
@@ -414,22 +462,26 @@ function destroyScene() {
         gameScene.cloud3,
         gameScene.cloud4,
         gameScene.enterToStage1,
+        gameScene.a1,
+        gameScene.a2,
+        gameScene.a3,
+        gameScene.a4
     ];
 
     imagesToDestroy.forEach(img => {
-        if (img && img.destroy) {
-            img.destroy(true); // true = удаляет из дисплея и из памяти
-        }
-    });
-
-    // Удаляем все hoveredImages
-    Object.values(hoveredImages).forEach(img => {
         if (img && img.destroy) {
             img.destroy(true);
         }
     });
 
-    // Если тебе нужно удалить текстуры (освободить память), можно вызвать:
+    // Удаляем интерактивные зоны
+    if (gameScene.enterZone) {
+        gameScene.enterZone.removeAllListeners();
+        gameScene.enterZone.destroy();
+        gameScene.enterZone = null;
+    }
+
+    // Удаляем текстуры
     const textureKeys = ['cross', 'a1', 'a2', 'a3', 'a4', 'cloud1', 'cloud2', 'cloud3', 'cloud4', 'enter_to_stage1'];
     textureKeys.forEach(key => {
         if (gameScene.textures.exists(key)) {
@@ -438,28 +490,32 @@ function destroyScene() {
     });
 
     // Очистка переменных
-    for (let key in hoveredImages) delete hoveredImages[key];
     gameScene.cloud1 = null;
     gameScene.cloud2 = null;
     gameScene.cloud3 = null;
     gameScene.cloud4 = null;
     gameScene.cross = null;
     gameScene.enterToStage1 = null;
+    gameScene.a1 = null;
+    gameScene.a2 = null;
+    gameScene.a3 = null;
+    gameScene.a4 = null;
 
+    // Очистка input и событий
     gameScene.input?.removeAllListeners?.();
     gameScene.events?.removeAllListeners?.();
 
-    // Обнуляем переменные
-    for (let key in hoveredImages) delete hoveredImages[key];
     gameScene = null;
 
     // Останавливаем сцену
     game.scene.stop();
     game.scene.remove('default');
 
-    // Уничтожаем всю игру и канвас
-    game.destroy(true); // <- если точно переходишь на новую страницу
+    isTransitioning = false;
+    stage = false;
 
+    // Уничтожаем всю игру и канвас, если переходишь на другую страницу
+    game.destroy(true);
 }
 
 

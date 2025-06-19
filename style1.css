@@ -2,6 +2,7 @@ body, html {
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background-color: black;
         }
 
         #stage1 {
@@ -15,21 +16,6 @@ body, html {
             overflow: hidden;
             z-index: 0;
             
-        }
-
-        @media screen and (orientation: landscape) and (hover: none) and (pointer: coarse) {
-            #controls {
-                top: 50%;
-                left: 50%;
-                transform: translate(calc(-50% + 230px), -50%); /* Смещение вправо от центра */
-                flex-direction: column; /* Ползунок вертикально */
-            }
-
-            #radiusSlider {
-                transform: rotate(270deg); /* Повернуть ползунок вертикально */
-                width: 200px;
-                height: auto;
-            }
         }
 
         audio {
