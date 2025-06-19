@@ -351,7 +351,7 @@ function create() {
                     if(key==='a2'){
                         destroyScene();
                         setTimeout(() => {
-                            location.href = 'https://fear11332.github.io/project-gore/index2.html';
+                            location.href = 'https://fear11332.github.io/project-gore/map_move_zoom/index2.html';
                         }, 0);
                     }
             }
