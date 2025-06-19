@@ -1,3 +1,4 @@
+
 const config = {
     type: Phaser.AUTO,
     parent:"stage1",
