@@ -1,5 +1,5 @@
-import { ini } from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/threeScene2.js";
-import { OpenRingPopUp } from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/popup.js";
+import { ini } from "https://fear11332.github.io/project-gore/map_move_zoom/js/threeScene2.js";
+import { OpenRingPopUp } from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -126,15 +126,15 @@ function animateLoading() {
 // Функция загрузки всех изображений
 function loadAllImages() {
     return new Promise((resolve, reject) => {
-        this.load.image('lvl1', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_1_09.webp');
-        this.load.image('lvl0', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
-        this.load.image('lvl2', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_6_04.webp');
-        this.load.image('lvl3', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_2_03.webp');
-        this.load.image('lvl4', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_3_06.webp');
-        this.load.image('lvl5', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_5_06.webp');
-        this.load.image('lvl6', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_4_03.webp');
-        this.load.image('lvl7', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_7_03.webp');
-        this.load.image('lvlPoint', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st2_parallax_mark_1_01.webp');
+        this.load.image('lvl1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_1_09.webp');
+        this.load.image('lvl0', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_0_10.webp');
+        this.load.image('lvl2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_6_04.webp');
+        this.load.image('lvl3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_2_03.webp');
+        this.load.image('lvl4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_3_06.webp');
+        this.load.image('lvl5', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_5_06.webp');
+        this.load.image('lvl6', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_4_03.webp');
+        this.load.image('lvl7', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_7_03.webp');
+        this.load.image('lvlPoint', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st2_parallax_mark_1_01.webp');
         // Когда все ресурсы загружены, resolve проми
         this.load.once('complete', resolve);
         this.load.start();
