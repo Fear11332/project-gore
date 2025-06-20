@@ -1,4 +1,4 @@
-import { CloseConstructorPopUp} from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
+import { CloseConstructorPopUp} from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/popup.js";
 
 const canvas = document.getElementById('construct');
 const overlay = document.getElementById('overlay');
@@ -603,20 +603,20 @@ const handleContextMenu=(e)=>{
 };
 
 function removeConstructEventListeners() {
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseup', handleMouseUp);
-      canvas.removeEventListener('mouseleave', handleMouseLeave, { passive: false }); 
-      overlay.removeEventListener('click',handleCloseConstructor,{passive:false});
-
-      canvas.removeEventListener('touchstart', handleTouchStart, { passive: false });
-      canvas.removeEventListener('touchmove', handleTouchMove, { passive: false });
-      canvas.removeEventListener('touchend', handleTouchEnd, { passive: false });
-      canvas.removeEventListener('touchcancel', handleTouchEnd, { passive: false });
-      // Ползунок для изменения радиуса
-      radiusSlider.removeEventListener('input', updateRadius);
-      canvas.removeEventListener('contextmenu',handleContextMenu,{passive:false});
+    if (!canvas || !overlay || radiusSlider) return;
+    canvas.removeEventListener('mousedown', handleMouseDown);
+    canvas.removeEventListener('mousemove', handleMouseMove);
+    canvas.removeEventListener('mouseup', handleMouseUp);
+    canvas.removeEventListener('mouseleave', handleMouseLeave, { passive: false }); 
+    overlay?.removeEventListener('click', handleCloseConstructor, { passive: false });
+    canvas.removeEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.removeEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.removeEventListener('touchend', handleTouchEnd, { passive: false });
+    canvas.removeEventListener('touchcancel', handleTouchEnd, { passive: false });
+    radiusSlider?.removeEventListener('input', updateRadius);
+    canvas.removeEventListener('contextmenu', handleContextMenu, { passive: false });
 }
+
 
 function addConstructEventListeners() {
       canvas.addEventListener('mousedown', handleMouseDown);

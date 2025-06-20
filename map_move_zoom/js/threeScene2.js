@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { CloseRingPopUp , OpenConstructorPopUp} from "https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js";
+import { CloseRingPopUp , OpenConstructorPopUp} from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/popup.js";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+
 
 let canvas = document.getElementById('ring'), renderer, camera, animationFrameId;
 let scene = new THREE.Scene();
@@ -40,11 +41,11 @@ const seedsCount = 4;
 let inputLocked = false;
 
 const backgroundImages = [
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/1.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/2.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/3.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/4.webp',
-    'https://fear11332.github.io/project-gore//map_move_zoom/images/5.webp'
+    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/1.webp',
+    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/2.webp',
+    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/3.webp',
+    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/4.webp',
+    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/5.webp'
 ];
 
 const animateReturnToInitialPosition = () => {
@@ -64,13 +65,13 @@ const animateReturnToInitialPosition = () => {
         seed.quaternion.slerpQuaternions(startQuaternion, endQuaternion, alpha);
 
         if (alpha < 1) {
-            requestAnimationFrame(animate);
+            animationFrameId = requestAnimationFrame(animate);
         } else {
             seed.quaternion.copy(initialQuaternion);
         }
     };
 
-    requestAnimationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
 };
 
 
@@ -169,7 +170,6 @@ const checkInteraction = (clientX, clientY) => {
 
         if (intersects.length >= 0) {
             // Если кольцо уже в начальной позиции, сразу закрываем
-            overlay.style.pointerEvents = 'none';
             inputLocked = true; // Блокируем ввод
             if (seeds[current_seed].quaternion.equals(initialQuaternion)) {
                 freezeScene(); // Замораживаем сцену после анимации
@@ -234,10 +234,10 @@ function preloadResources(backgroundImages, seedsCount) {
     const fbxLoader = new FBXLoader();
 
     const texturePaths = {
-        diffuse: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_04.png',
-        normal: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png',
-        roughness: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png',
-        metalness: 'https://fear11332.github.io/project-gore/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png'
+        diffuse: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_04.png',
+        normal: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png',
+        roughness: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png',
+        metalness: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png'
     };
 
     // Загружаем одну текстуру
@@ -250,7 +250,7 @@ function preloadResources(backgroundImages, seedsCount) {
     const loadSeed = (i) =>
         new Promise((resolve, reject) => {
             fbxLoader.load(
-                `https://fear11332.github.io/project-gore/map_move_zoom/fbx/seed_${i + 1}.fbx`,
+                `https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/seed_${i + 1}.fbx`,
                 object => resolve({ i, object }),
                 undefined,
                 error => reject(error)
@@ -489,6 +489,7 @@ function registerEventListers(){
 }
 
 function removeEventListeners() {
+    if (!canvas || !overlay || !radiusSlider) return;
     overlay.removeEventListener('click',handleCloseRing);
     canvas.removeEventListener('touchstart', handleTouchStart);
     canvas.removeEventListener('touchmove', handleTouchMove);
@@ -529,13 +530,18 @@ function animate() {
 }
 
 function disposeThreeScene() {
-    cancelAnimationFrame(animationFrameId);
+    removeEventListeners(); // Убираем слушатели событий
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
 
-    scene.traverse((object) => {
+    if (!scene) return;
+
+    scene.traverse?.((object) => {
         if (!object.isMesh) return;
 
         if (object.geometry) object.geometry.dispose();
-
         if (object.material) {
             if (Array.isArray(object.material)) {
                 object.material.forEach(disposeMaterial);
@@ -545,20 +551,24 @@ function disposeThreeScene() {
         }
     });
 
-    loadedTextures.forEach(texture => texture.dispose());
-    loadedTextures.length = 0;
+    if (loadedTextures?.length) {
+        loadedTextures.forEach(texture => texture.dispose());
+        loadedTextures.length = 0;
+    }
 
-    scene.remove(ambientLight, directionalLight, pointLight);
+    if (ambientLight && scene) scene.remove(ambientLight);
+    if (directionalLight && scene) scene.remove(directionalLight);
+    if (pointLight && scene) scene.remove(pointLight);
 
     if (backgroundMesh) {
-        backgroundMesh.geometry.dispose();
-        if (backgroundMesh.material.map) backgroundMesh.material.map.dispose();
-        backgroundMesh.material.dispose();
+        backgroundMesh.geometry?.dispose();
+        backgroundMesh.material?.map?.dispose();
+        backgroundMesh.material?.dispose();
         scene.remove(backgroundMesh);
         backgroundMesh = null;
     }
 
-    if (composer) {
+    if (composer?.passes) {
         composer.passes.forEach(pass => pass.dispose && pass.dispose());
         composer = null;
     }

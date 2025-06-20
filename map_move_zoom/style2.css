@@ -1,130 +1,146 @@
 body, html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: black;
-        }
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: black;
+}
 
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 3; /* Ниже чем #ring, но выше остального контента */
-        }
+/* Оверлей с плавным затемнением */
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 3; /* Ниже чем #ring, но выше остального контента */
+    background-color: rgba(0, 0, 0, 0); /* Прозрачный по умолчанию */
+    opacity: 0;
+    transition: 
+        opacity 1.9s ease-in-out,
+        background-color 1.9s ease-in-out;
+}
 
-        #canvas-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: calc(min(100vw, 100vh)); /* Пропорциональная ширина */
-            height: calc(min(100vw, 100vh)); /* Пропорциональная высота */
-            border: none;
-            pointer-events: none;
-             z-index: 4;  /* Кольцо и верхние канвасы */
-        }
+/* Активный оверлей — полупрозрачный черный */
+#overlay.active {
+    pointer-events: auto; /* Позволяет ловить клики */
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+}
 
-        #ring {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);   
-            border: none;
-            position: absolute;
-            pointer-events: none; /* Скрытие для кликов, пока не активно */
-            opacity: 0; /* По умолчанию невидим */
-        }
+#canvas-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(min(100vw, 100vh));
+    height: calc(min(100vw, 100vh));
+    border: none;
+    pointer-events: none;
+    z-index: 4;
+}
 
-        #phaser {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow: hidden;  /* важно, чтобы обрезать “вылезающие” части */
-            z-index: 2;
-            opacity: 1;
-            pointer-events: auto; /* Включаем клики */
-            transition: opacity 1.9s ease-in-out;
-        }
+#ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.9s ease-in-out;
+}
 
-        #construct {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);   
-            border: none;
-            position: absolute;
-            opacity: 0; /* По умолчанию невидим */
-            pointer-events: none;
-            background-color: black;
-        }
-    
-        #controls {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, calc(-50% + 240px));
-            position: absolute;
-            text-align: center;
-            background: rgba(0, 0, 0, 0);
-            padding: 10px;
-            border-radius: 8px;
-            pointer-events: none;
-            opacity: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+#ring.active {
+    pointer-events: auto;
+    opacity: 1;
+}
 
+#phaser {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    z-index: 2;
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 1.9s ease-in-out;
+}
 
-        @media screen and (orientation: landscape) and (hover: none) and (pointer: coarse) {
-            #controls {
-                top: 50%;
-                left: 50%;
-                transform: translate(calc(-50% + 230px), -50%); /* Смещение вправо от центра */
-                flex-direction: column; /* Ползунок вертикально */
-            }
-
-            #radiusSlider {
-                transform: rotate(270deg); /* Повернуть ползунок вертикально */
-                width: 200px;
-                height: auto;
-            }
-        }
-
-        audio {
-            display: none; /* скрываем стандартный плеер */
-        }
+#construct {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    background-color: black;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.9s ease-in-out;
+}
 
 
-        #mute-toggle {
-            position: absolute;
-            top: 10px;
-            left: 50px;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            border: none;
-            background: transparent;
-            color: #be0000;
-            cursor: pointer;
-             z-index: 5;  /* Кнопки управления — выше всего */
-            filter: brightness(1.1);
-            
-        }
+#controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% + 240px));
+    text-align: center;
+    background: rgba(0, 0, 0, 0);
+    padding: 10px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1.9s ease-in-out;
+}
 
-        #back-to-stage1 {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            border: none;
-            background: transparent;
-            color: #be0000;
-            cursor: pointer;
-            z-index: 5;  /* Кнопки управления — выше всего */
-            filter: brightness(1.1);
-            
-        }
+#controls.active {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+@media screen and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+    #controls {
+        top: 50%;
+        left: 50%;
+        transform: translate(calc(-50% + 230px), -50%);
+        flex-direction: column;
+    }
+
+    #radiusSlider {
+        transform: rotate(270deg);
+        width: 200px;
+        height: auto;
+    }
+}
+
+audio {
+    display: none;
+}
+
+#mute-toggle,
+#back-to-stage1 {
+    position: absolute;
+    top: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    border: none;
+    background: transparent;
+    color: #be0000;
+    cursor: pointer;
+    z-index: 5;
+    filter: brightness(1.1);
+}
+
+#mute-toggle {
+    left: 50px;
+}
+
+#back-to-stage1 {
+    left: 10px;
+}

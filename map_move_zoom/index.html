@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phaser + Three.js Integration</title>
-    <link rel="stylesheet" href="https://fear11332.github.io/project-gore/map_move_zoom/style1.css">
-    <link rel="prefetch" href="https://fear11332.github.io/project-gore/map_move_zoom/index2.html">
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Phaser + Three.js</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <style>
+    body, html { margin: 0; padding: 0; overflow: hidden; background: black; }
+  </style>
+  
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/style1.css" as="style" onload="this.rel='stylesheet'" crossorigin>
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/style1.css"></noscript>
 </head>
 <body>
-    <audio id="bg-music" autoplay loop>
-        <source src="https://fear11332.github.io/project-gore/map_move_zoom/music/goreme_site_5_04.mp3" type="audio/mpeg">
-    </audio>
-    <button id="mute-toggle">▶</button>
-    <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/audio.js"></script>
-    <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/stage1.js"></script>
-    <div id="stage1"></div>
+  <audio id="bg-music" autoplay loop>
+    <source src="https://raw.githubusercontent.com/Fear11332/project-gore/main/map_move_zoom/music/goreme_site_5_04.mp3" type="audio/mpeg" />
+  </audio>
+  <button id="mute-toggle">▶</button>
+
+  <div id="stage1"></div>
+
+  <!-- Phaser загружается глобально, но defer, чтобы не блокировать отрисовку -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js" defer></script>
+  <script type="module" src="https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/init.js"></script>
 </body>
 </html>

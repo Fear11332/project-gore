@@ -1,4 +1,4 @@
-
+export function initGame(Phaser) {
 const config = {
     type: Phaser.AUTO,
     parent:"stage1",
@@ -77,16 +77,16 @@ function animateLoading() {
 // Функция загрузки всех изображений
 function loadAllImages() {
     return new Promise((resolve, reject) => {
-        this.load.image('cross','https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
-        this.load.image('a2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A2_1_02.webp');
-        this.load.image('a1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A1_1_01.webp');
-        this.load.image('a3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A3_1_02.webp');
-        this.load.image('a4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_tile_A4_1_02.webp');
-        this.load.image('cloud1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
-        this.load.image('cloud2', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
-        this.load.image('cloud3', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
-        this.load.image('cloud4', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
-        this.load.image('enter_to_stage1', 'https://fear11332.github.io/project-gore/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
+        this.load.image('cross','https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_stage1_cross_1_02.webp');
+        this.load.image('a2', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_stage1_tile_A2_1_02.webp');
+        this.load.image('a1', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_stage1_tile_A1_1_01.webp');
+        this.load.image('a3', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_stage1_tile_A3_1_02.webp');
+        this.load.image('a4', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_stage1_tile_A4_1_02.webp');
+        this.load.image('cloud1', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st0_clouds_1_02.webp');
+        this.load.image('cloud2', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st0_clouds_2_02.webp');
+        this.load.image('cloud3', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st0_clouds_3_02.webp');
+        this.load.image('cloud4', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_st0_clouds_4_02.webp');
+        this.load.image('enter_to_stage1', 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/goreme_site_stage1_text_1_02.webp');
         // Когда все ресурсы загружены, resolve проми
         this.load.once('complete', resolve);
         this.load.start();
@@ -335,7 +335,7 @@ function create() {
                 toogleZoomIn.call(this, this[key]);
                 if (key === 'a2') {
                     destroyScene();
-                    setTimeout(() => location.href = 'https://fear11332.github.io/project-gore/map_move_zoom/index2.html', 0);
+                    setTimeout(() => location.href = 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/index2.html', 0);
                 }
             }
         } else if (stage === 'stage0') {
@@ -495,8 +495,7 @@ function destroyScene() {
     // Уничтожаем всю игру и канвас, если переходишь на другую страницу
     game.destroy(true);
 }
-
-
+}
 
 
 

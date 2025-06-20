@@ -1,45 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phaser + Three.js Integration</title>
-    <link rel="stylesheet" href="https://fear11332.github.io/project-gore/map_move_zoom/style2.css">
-    <link rel="prefetch" href="https://fear11332.github.io/project-gore/map_move_zoom/index.html">
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+<meta charset="UTF-8" />
+<title>Phaser + Three.js Integration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <script type="importmap">
-			{
-				"imports": {
-					"three": "https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.module.js",
-					"three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.147.0/examples/jsm/",
-      				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.147.0/examples/jsm/"
-				}
-			}
-	</script>
+<!-- Критический стиль прямо в документ -->
+<style>
+body, html { margin:0; padding:0; overflow:hidden; background:black; }
+</style>
+
+<!-- Остальные стили асинхронно -->
+<link rel="preload" href="https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/style2.css" as="style" onload="this.rel='stylesheet'" crossorigin>
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/style2.css" /></noscript>
+
+<!-- Importmap для three.js -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.module.js",
+    "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.147.0/examples/jsm/",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.147.0/examples/jsm/"
+  }
+}
+</script>
+
+<!-- Phaser (через defer!) -->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js" defer></script>
 </head>
 <body>
-    <div id="overlay"></div>
-    <audio id="bg-music" autoplay loop>
-        <source src="https://fear11332.github.io/project-gore/map_move_zoom/music/goreme_site_5_04.mp3" type="audio/mpeg">
-    </audio>
-    <button id="mute-toggle">▶</button>
-    <button id="back-to-stage1">🔙</button>
-    <div id="canvas-container">
-        <canvas id="ring"></canvas>
-        <canvas id="construct"></canvas>
-        <div id="controls">
-            
-            <input type="range" id="radiusSlider">
-        </div>
-    </div>
-    <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/phaserScene2.js"></script>
-    <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/jsconst.js"></script>
-    <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/popup.js"></script>
-    <script type="module" src="https://fear11332.github.io/project-gore/map_move_zoom/js/audio.js"></script>
-    <div id="phaser"></div>
+<div id="overlay"></div>
+<audio id="bg-music" autoplay loop>
+  <source src="https://raw.githubusercontent.com/Fear11332/project-gore/main/map_move_zoom/music/goreme_site_5_04.mp3" type="audio/mpeg" />
+</audio>
+<button id="mute-toggle">▶</button>
+<button id="back-to-stage1">🔙</button>
+
+<div id="canvas-container">
+  <canvas id="ring"></canvas>
+  <canvas id="construct"></canvas>
+  <div id="controls">
+    <input type="range" id="radiusSlider" />
+  </div>
+</div>
+
+<!-- Грузим инициализацию только когда Phaser будет готов -->
+<script type="module" src="https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/init2.js"></script>
+<div id="phaser"></div>
 </body>
 </html>
-
-
 

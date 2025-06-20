@@ -1,4 +1,4 @@
-  const audio = document.getElementById('bg-music');
+const audio = document.getElementById('bg-music');
   const toggleBtn = document.getElementById('mute-toggle');
 
   // Стартуем с muted
