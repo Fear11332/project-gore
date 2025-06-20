@@ -335,7 +335,7 @@ function create() {
                 toogleZoomIn.call(this, this[key]);
                 if (key === 'a2') {
                     destroyScene();
-                    setTimeout(() => location.href = 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/index2.html', 0);
+                    setTimeout(() => location.href = 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/index.html', 0);
                 }
             }
         } else if (stage === 'stage0') {
