@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { CloseRingPopUp , OpenConstructorPopUp} from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/popup.js";
+import { CloseRingPopUp , OpenConstructorPopUp} from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/popup.js";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
@@ -41,11 +41,11 @@ const seedsCount = 4;
 let inputLocked = false;
 
 const backgroundImages = [
-    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/1.webp',
-    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/2.webp',
-    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/3.webp',
-    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/4.webp',
-    'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/images/5.webp'
+    'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/images/1.webp',
+    'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/images/2.webp',
+    'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/images/3.webp',
+    'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/images/4.webp',
+    'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/images/5.webp'
 ];
 
 const animateReturnToInitialPosition = () => {
@@ -234,10 +234,10 @@ function preloadResources(backgroundImages, seedsCount) {
     const fbxLoader = new FBXLoader();
 
     const texturePaths = {
-        diffuse: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_04.png',
-        normal: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png',
-        roughness: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png',
-        metalness: 'https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png'
+        diffuse: 'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/fbx/goreme_rings_dehydration_A_C_1_04.png',
+        normal: 'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/fbx/goreme_rings_dehydration_A_N_1_01.png',
+        roughness: 'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/fbx/goreme_rings_dehydration_A_R_1_01.png',
+        metalness: 'https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/fbx/goreme_rings_dehydration_A_M_1_01.png'
     };
 
     // Загружаем одну текстуру
@@ -250,7 +250,7 @@ function preloadResources(backgroundImages, seedsCount) {
     const loadSeed = (i) =>
         new Promise((resolve, reject) => {
             fbxLoader.load(
-                `https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/fbx/seed_${i + 1}.fbx`,
+                `https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/fbx/seed_${i + 1}.fbx`,
                 object => resolve({ i, object }),
                 undefined,
                 error => reject(error)

@@ -1,5 +1,5 @@
-import { ini } from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/threeScene2.js";
-import { OpenRingPopUp } from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/popup.js";
+import { ini } from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/threeScene2.js";
+import { OpenRingPopUp } from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/popup.js";
 
 const config = {
     type: Phaser.AUTO,

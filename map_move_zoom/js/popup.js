@@ -3,15 +3,15 @@ import {
   unfreezeScene,
   current_seed,
   disposeThreeScene,
-} from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/threeScene2.js";
+} from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/threeScene2.js";
 import {
   switchingState,
   cleanUpPhaserScene,
-} from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/phaserScene2.js";
+} from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/phaserScene2.js";
 import {
   addConstructEventListeners,
   removeConstructEventListeners,
-} from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/jsconst.js";
+} from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/jsconst.js";
 
 const backToStage1 = document.getElementById("back-to-stage1");
 const ring = document.getElementById("ring");
@@ -31,7 +31,7 @@ backToStage1.addEventListener("click", () => {
   disposeThreeScene();
   cleanUpPhaserScene();
 
-  location.href = "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/index.html";
+  location.href = "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/index.html";
 });
 
 function OpenRingPopUp() {

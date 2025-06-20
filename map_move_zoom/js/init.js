@@ -8,8 +8,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Импортируем модули
   const [audioModule, stage1Module] = await Promise.all([
-    import('https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/audio.js'),
-    import('https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/stage1.js'),
+    import('https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/audio.js'),
+    import('https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/stage1.js'),
   ]);
 
   // Инициализация Phaser

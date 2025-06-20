@@ -1,4 +1,4 @@
-import { CloseConstructorPopUp} from "https://cdn.jsdelivr.net/gh/Fear11332/project-gore@main/map_move_zoom/js/popup.js";
+import { CloseConstructorPopUp} from "https://github.com/Fear11332/project-gore/blob/main/map_move_zoom/js/popup.js";
 
 const canvas = document.getElementById('construct');
 const overlay = document.getElementById('overlay');
