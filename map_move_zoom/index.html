@@ -7,6 +7,20 @@
   
   <style>
     body, html { margin: 0; padding: 0; overflow: hidden; background: black; }
+    #mute-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            border: none;
+            background: transparent;
+            color: #be0000;
+            cursor: pointer;
+             z-index: 5;  /* Кнопки управления — выше всего */
+            filter: brightness(1.1);
+        }
   </style>
   <link rel="prefetch" href="https://fear11332.github.io/project-gore/map_move_zoom/index2.html" />
   <link rel="preload" href="https://fear11332.github.io/project-gore/map_move_zoom/style1.css" as="style" onload="this.rel='stylesheet'" crossorigin>
