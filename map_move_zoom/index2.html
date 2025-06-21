@@ -8,6 +8,14 @@
 <!-- Критический стиль прямо в документ -->
 <style>
 body, html { margin:0; padding:0; overflow:hidden; background:black; }
+
+body, html { margin:0; padding:0; overflow:hidden; background:black; }
+
+/* Критичные части — прямо в начале! */
+#overlay, #ring, #construct, #controls {
+    opacity: 0;
+    pointer-events: none;
+}
 </style>
 <link rel="prefetch" href="https://fear11332.github.io/project-gore/map_move_zoom/index.html" />
 <!-- Остальные стили асинхронно -->
